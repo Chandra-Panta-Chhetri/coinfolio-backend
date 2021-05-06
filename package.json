@@ -1,0 +1,43 @@
+{
+  "name": "coinfolio-backend",
+  "version": "1.0.0",
+  "description": "Backend codebase for Crypto Portfolio React Native app",
+  "main": "app.js",
+  "engines": {
+    "node": "14.16.1",
+    "npm": "7.11.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./dist/app.js",
+    "dev": "nodemon -e ts --exec \"npm run build && npm start\"",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chandra-Panta-Chhetri/coinfolio-backend.git"
+  },
+  "author": "Chandra Panta Chhetri & Piyush Ukani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Chandra-Panta-Chhetri/coinfolio-backend/issues"
+  },
+  "homepage": "https://github.com/Chandra-Panta-Chhetri/coinfolio-backend#readme",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cors": "^2.8.10",
+    "@types/express": "^4.17.11",
+    "@types/pg": "^7.14.11",
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
+    "typescript": "~4.0.2"
+  },
+  "dependencies": {
+    "@angular/common": "^11.2.7",
+    "@angular/core": "^11.2.7",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "pg": "^8.6.0"
+  }
+}
