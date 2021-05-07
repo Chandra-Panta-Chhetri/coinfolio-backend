@@ -11,7 +11,7 @@ export default {
     password: process.env.DB_PASSWORD || "",
     port: parseInt(process.env.DB_PORT || "5432"),
     ssl:
-      process.env.NODE_ENV === "development"
+      (process.env.NODE_ENV || "development") === "development"
         ? undefined
         : {
             rejectUnauthorized: false
