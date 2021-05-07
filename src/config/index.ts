@@ -10,6 +10,11 @@ export default {
     database: process.env.DB_NAME || "",
     password: process.env.DB_PASSWORD || "",
     port: parseInt(process.env.DB_PORT || "5432"),
-    ssl: process.env.NODE_ENV === "development" ? false : true
+    ssl:
+      process.env.NODE_ENV === "development"
+        ? undefined
+        : {
+            rejectUnauthorized: false
+          }
   }
 };
