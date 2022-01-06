@@ -1,11 +1,12 @@
 import postgres from "./postgres";
+import Logger from "./logger";
 
 const dropDatabase = async () => {
   try {
     await postgres.pool.query("DROP SCHEMA IF EXISTS public CASCADE");
     await postgres.pool.query("CREATE SCHEMA public");
   } catch (err) {
-    console.log(err.message);
+    Logger.error(err.message);
   }
 };
 
@@ -16,16 +17,17 @@ const createTables = async () => {
 };
 
 const addDummyData = async () => {
-  await postgres.pool.query(
-    "INSERT INTO users (fullName, password, email) VALUES($1, $2, $3)",
-    ["Chandra Panta", "Password", "chandra.panta345@hotmail.com"]
-  );
+  await postgres.pool.query("INSERT INTO users (fullName, password, email) VALUES($1, $2, $3)", [
+    "Chandra Panta",
+    "Password",
+    "chandra.panta345@hotmail.com"
+  ]);
 };
 
 export default async () => {
-  console.log("Starting to seed db");
+  Logger.info("Starting to seed db");
   await dropDatabase();
   await createTables();
   await addDummyData();
-  console.log("Done seeding db");
+  Logger.info("Done seeding db");
 };

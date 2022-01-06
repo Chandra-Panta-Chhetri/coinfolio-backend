@@ -18,18 +18,15 @@ export default (app: Router) => {
    * params: None
    * description: registers a new user
    */
-  route.post(
-    "/signup",
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const userService = new UserService();
-        await userService.SignUp();
-        res.status(200).send("Sign up Successfully");
-      } catch (err) {
-        next(err);
-      }
+  route.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userService = new UserService();
+      await userService.SignUp();
+      res.status(200).send("Sign up Successfully");
+    } catch (err) {
+      next(err);
     }
-  );
+  });
 
   /**
    * path: /api/auth/signin
@@ -43,19 +40,16 @@ export default (app: Router) => {
    * params: None
    * description: signs in a user
    */
-  route.post(
-    "/signin",
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const { email, password } = req.body;
-        const userService = new UserService();
-        await userService.SignIn(email, password);
-        res.status(200).send();
-      } catch (err) {
-        return next(err);
-      }
+  route.post("/signin", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body;
+      const userService = new UserService();
+      await userService.SignIn(email, password);
+      res.status(200).send();
+    } catch (err) {
+      return next(err);
     }
-  );
+  });
 
   /**
    * path: /api/auth/currentUser
@@ -65,18 +59,12 @@ export default (app: Router) => {
    * params: None
    * description: get information for current user logged in
    */
-  route.get(
-    "/currentUser",
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const test = await postgres.pool.query(
-          "SELECT * FROM users WHERE userid = $1",
-          [1]
-        );
-        res.status(200).send(test.rows);
-      } catch (err) {
-        return next(err);
-      }
+  route.get("/currentUser", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const test = await postgres.pool.query("SELECT * FROM users WHERE userid = $1", [1]);
+      res.status(200).send(test.rows);
+    } catch (err) {
+      return next(err);
     }
-  );
+  });
 };

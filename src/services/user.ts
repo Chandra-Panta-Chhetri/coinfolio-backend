@@ -1,10 +1,22 @@
 import bcrypt from "bcryptjs";
+import { EventDispatcher } from "event-dispatch";
 import ErrorService from "./error";
+import events from "../subscribers/events";
 
 export default class UserService {
-  public async SignUp() {}
+  private _eventDispatcher: EventDispatcher;
 
-  public async SignIn(email = "", password = "") {}
+  constructor() {
+    this._eventDispatcher = new EventDispatcher();
+  }
+
+  public async SignUp() {
+    this._eventDispatcher.dispatch(events.user.signUp);
+  }
+
+  public async SignIn(email = "", password = "") {
+    this._eventDispatcher.dispatch(events.user.signIn);
+  }
 
   private async hashPassword(password = "") {
     const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/;

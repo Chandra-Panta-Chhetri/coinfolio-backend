@@ -19,5 +19,8 @@ export default {
         : {
             rejectUnauthorized: false
           }
+  },
+  logs: {
+    level: process.env.LOG_LEVEL || "silly"
   }
 };
