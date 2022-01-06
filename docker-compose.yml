@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  coinfolio-api:
+    container_name: coinfolio-api
+    restart: always
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    volumes:
+    - .:/usr/src/app
+
+  db:
+    container_name: db
+    image: postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - data:/data/db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+ 
+volumes: 
+ data: {}

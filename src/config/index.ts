@@ -1,10 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export default {
   port: parseInt(process.env.PORT || "5000"),
   api: {
     prefix: "/api"
   },
   env: process.env.NODE_ENV || "development",
-  postgresConfig: {
+  postgres: {
     host: process.env.DB_HOST || "",
     user: process.env.DB_USER || "",
     database: process.env.DB_NAME || "",

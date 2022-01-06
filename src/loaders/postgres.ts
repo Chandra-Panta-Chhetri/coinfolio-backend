@@ -1,7 +1,7 @@
 import config from "../config";
 import { Pool } from "pg";
 
-const pool = new Pool(config.postgresConfig);
+const pool = new Pool(config.postgres);
 
 const connectToDb = async () => {
   try {
