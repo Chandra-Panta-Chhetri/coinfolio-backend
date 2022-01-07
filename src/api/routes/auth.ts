@@ -1,45 +1,33 @@
 import { Router, Request, Response, NextFunction } from "express";
 import postgres from "../../loaders/postgres";
 import UserService from "../../services/user";
+import { celebrate, Joi, Segments } from "celebrate";
 
 const route = Router();
 
 export default (app: Router) => {
   app.use("/auth", route);
 
-  /**
-   * path: /api/auth/signup
-   * method: POST
-   * header: None
-   * body:
-   *  {
-   *    ...
-   *  }
-   * params: None
-   * description: registers a new user
-   */
-  route.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userService = new UserService();
-      await userService.SignUp();
-      res.status(200).send("Sign up Successfully");
-    } catch (err) {
-      next(err);
+  route.post(
+    "/signup",
+    celebrate({
+      [Segments.BODY]: Joi.object().keys({
+        password: Joi.string().required().messages({
+          "string.required": "Password is required"
+        })
+      })
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const userService = new UserService();
+        await userService.SignUp();
+        res.status(200).send("Sign up Successfully");
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
-  /**
-   * path: /api/auth/signin
-   * method: POST
-   * header: None
-   * body:
-   *  {
-   *    email: string,
-   *    password: string
-   *  }
-   * params: None
-   * description: signs in a user
-   */
   route.post("/signin", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
@@ -51,14 +39,6 @@ export default (app: Router) => {
     }
   });
 
-  /**
-   * path: /api/auth/currentUser
-   * method: GET
-   * header: None
-   * body: None
-   * params: None
-   * description: get information for current user logged in
-   */
   route.get("/currentUser", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const test = await postgres.pool.query("SELECT * FROM users WHERE userid = $1", [1]);
