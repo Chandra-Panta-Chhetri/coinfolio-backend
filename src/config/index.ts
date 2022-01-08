@@ -22,5 +22,8 @@ export default {
   },
   logs: {
     level: process.env.LOG_LEVEL || "silly"
+  },
+  news: {
+    baseURL: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
   }
 };

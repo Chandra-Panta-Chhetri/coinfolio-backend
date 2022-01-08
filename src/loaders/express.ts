@@ -23,7 +23,7 @@ export default async ({ app }: { app: express.Application }) => {
     if (!isCelebrateError(err)) {
       return next(err);
     }
-    return res.status(400).send(err.details.get("body")).end();
+    return res.status(400).send(err.details.forEach).end();
   });
 
   //Handles errors in endpoints

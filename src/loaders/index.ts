@@ -6,7 +6,7 @@ import "./events";
 import Logger from "./logger";
 
 export default async ({ expressApp }: { expressApp: ExpressApplication }) => {
-  await postgresLoader.connectToDb();
-  await dbDataLoader();
+  //await postgresLoader.connectToDb();
+  //await dbDataLoader();
   await expressLoader({ app: expressApp });
 };
