@@ -9,8 +9,8 @@ export default (app: Router) => {
   app.use("/news", route);
 
   route.get("/", celebrate(reqSchemas.GET_NEWS), async (req: Request, res: Response, next: NextFunction) => {
-    const newsService = new NewsService();
-    const news = await newsService.GetNews();
+    const ns = new NewsService();
+    const news = await ns.getNews(req.query);
     res.send(news);
   });
 };

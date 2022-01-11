@@ -23,7 +23,13 @@ export default async ({ app }: { app: express.Application }) => {
     if (!isCelebrateError(err)) {
       return next(err);
     }
-    return res.status(400).send(err.details.forEach).end();
+    const error: {
+      [k: string]: { key: string; message: string }[];
+    } = {};
+    for (let e of err.details.keys()) {
+      error[e] = err.details.get(e)!.details.map((d) => ({ key: d.context?.key!, message: d.message }));
+    }
+    return res.status(400).send(err.details.get("query")).end();
   });
 
   //Handles errors in endpoints

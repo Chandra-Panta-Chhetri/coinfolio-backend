@@ -11,17 +11,17 @@ services:
     volumes:
     - .:/usr/src/app
 
-  db:
-    container_name: db
-    image: postgres
-    ports:
-      - '5433:5432'
-    volumes:
-      - data:/data/db
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+#   db:
+#     container_name: db
+#     image: postgres
+#     ports:
+#       - '5433:5432'
+#     volumes:
+#       - data:/data/db
+#     environment:
+#       - POSTGRES_USER=${DB_USER}
+#       - POSTGRES_PASSWORD=${DB_PASSWORD}
+#       - POSTGRES_DB=${DB_NAME}
  
-volumes: 
- data: {}
+# volumes: 
+#  data: {}

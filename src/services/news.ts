@@ -1,10 +1,25 @@
-import fetch from "node-fetch";
+import axios from "axios";
 import config from "../config";
+import { INewsDTO, INewsFilterQuery, INewsResponse } from "../interfaces/INews";
 
 export default class NewsService {
   constructor() {}
 
-  async GetNews() {
-    return {};
+  public async getNews(filterQuery: INewsFilterQuery) {
+    const res = await axios.get<INewsResponse>(config.news.baseURL, { params: filterQuery });
+    const newsDTO = this.toNewsDTO(res.data);
+    return newsDTO;
+  }
+
+  private toNewsDTO(newsResponse: INewsResponse): INewsDTO {
+    return {
+      totalResults: newsResponse.count,
+      results: newsResponse.results.map((r) => ({
+        source: r.source.title,
+        title: r.title,
+        published: r.published_at,
+        url: r.url
+      }))
+    };
   }
 }
