@@ -4,6 +4,7 @@ import routes from "../api";
 import config from "../config";
 import { isCelebrateError } from "celebrate";
 import morgan from "morgan";
+import { IReqValidationErr } from "../interfaces/IReqValidationErr";
 
 export default async ({ app }: { app: express.Application }) => {
   app.enable("trust proxy");
@@ -19,20 +20,19 @@ export default async ({ app }: { app: express.Application }) => {
     err.name = "NotFoundError";
   });
 
+  //Handles celebrate errors
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (!isCelebrateError(err)) {
       return next(err);
     }
-    const error: {
-      [k: string]: { key: string; message: string }[];
-    } = {};
+    const error: IReqValidationErr = {};
     for (let e of err.details.keys()) {
       error[e] = err.details.get(e)!.details.map((d) => ({ key: d.context?.key!, message: d.message }));
     }
-    return res.status(400).send(err.details.get("query")).end();
+    return res.status(400).send(error).end();
   });
 
-  //Handles errors in endpoints
+  //Handles generic errors
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     switch (err.name) {
       case "UnauthorizedError":
