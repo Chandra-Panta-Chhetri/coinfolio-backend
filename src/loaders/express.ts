@@ -5,10 +5,12 @@ import config from "../config";
 import { isCelebrateError } from "celebrate";
 import morgan from "morgan";
 import { IReqValidationErr } from "../interfaces/IReqValidationErr";
+import compression from "compression";
 
 export default async ({ app }: { app: express.Application }) => {
   app.enable("trust proxy");
   app.use(morgan("dev"));
+  app.use(compression());
   app.use(cors());
   app.use(express.json());
   app.use(config.api.prefix, routes());
