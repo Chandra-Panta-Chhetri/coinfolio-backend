@@ -5,10 +5,14 @@ import { INewsDTO, INewsFilterQuery, INewsResponse } from "../interfaces/INews";
 export default class NewsService {
   constructor() {}
 
-  public async getNews(filterQuery: INewsFilterQuery) {
-    const res = await axios.get<INewsResponse>(config.news.baseURL, { params: filterQuery });
-    const newsDTO = this.toNewsDTO(res.data);
-    return newsDTO;
+  public async getNews(filterQuery: INewsFilterQuery): Promise<INewsDTO> {
+    try {
+      const res = await axios.get<INewsResponse>(config.news.baseURL, { params: filterQuery });
+      const newsDTO = this.toNewsDTO(res.data);
+      return newsDTO;
+    } catch (err) {
+      return { totalResults: 0, results: [] };
+    }
   }
 
   private toNewsDTO(newsResponse: INewsResponse): INewsDTO {

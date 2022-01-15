@@ -13,7 +13,7 @@ export const GET_NEWS = {
     kind: Joi.string().valid("news", "media").messages({
       "any.only": "kind must be 'news' | 'media'"
     }),
-    page: Joi.number().min(1).messages({
+    page: Joi.number().default(1).min(1).messages({
       "number.min": "page must be greater than 0",
       "number.base": "page must be a number"
     })
