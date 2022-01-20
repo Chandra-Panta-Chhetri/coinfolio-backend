@@ -22,7 +22,8 @@ export default class NewsService {
         source: r.source.title,
         title: r.title,
         published: r.published_at,
-        url: r.url
+        url: r.url,
+        id: r.id
       }))
     };
   }

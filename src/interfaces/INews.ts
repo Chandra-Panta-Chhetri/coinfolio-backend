@@ -10,6 +10,7 @@ interface INewsResDTO {
   title: string;
   published: string;
   url: string;
+  id: number;
 }
 
 export interface INewsDTO {
@@ -29,6 +30,7 @@ interface INewsResResults {
   title: string;
   published_at: string;
   url: string;
+  id: number;
 }
 
 export interface INewsResponse {
