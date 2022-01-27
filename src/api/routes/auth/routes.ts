@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
-import postgres from "../../loaders/postgres";
-import UserService from "../../services/user";
+import postgres from "../../../loaders/postgres";
+import UserService from "../../../services/user";
 import { celebrate, Joi, Segments } from "celebrate";
 
 const route = Router();
