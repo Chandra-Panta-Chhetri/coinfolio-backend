@@ -1,11 +1,11 @@
-export interface INewsFilterQuery {
+export interface IGetNewsFilterQuery {
   filter?: string;
   currencies?: string;
   kind?: string;
   page?: number;
 }
 
-interface INewsResDTO {
+interface IGetNewsResultsDTO {
   source: string;
   title: string;
   published: string;
@@ -13,29 +13,29 @@ interface INewsResDTO {
   id: number;
 }
 
-export interface INewsDTO {
+export interface IGetNewsDTO {
   totalResults: number;
-  results: INewsResDTO[];
+  results: IGetNewsResultsDTO[];
 }
 
-interface INewsResSource {
+interface IGetNewsSource {
   title: string;
   region: string;
   domain: string;
   path: string;
 }
 
-interface INewsResResults {
-  source: INewsResSource;
+interface IGetNewsResults {
+  source: IGetNewsSource;
   title: string;
   published_at: string;
   url: string;
   id: number;
 }
 
-export interface INewsResponse {
+export interface IGetNews {
   count: number;
   next: string;
   previous: string;
-  results: INewsResResults[];
+  results: IGetNewsResults[];
 }
