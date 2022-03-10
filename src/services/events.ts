@@ -1,5 +1,12 @@
 import axios from "../config/axios";
-import { IGetEventsFilterQuery, IGetEventsDTO, IGetEvents, IEventsStatus } from "../interfaces/IEvents";
+import {
+  IGetEventsFilterQuery,
+  IGetEventsDTO,
+  IGetEvents,
+  IEventsStatus,
+  IEventCoin,
+  IEventCoinDTO
+} from "../interfaces/IEvents";
 import config from "../config";
 import { AxiosError } from "axios";
 
@@ -21,15 +28,25 @@ export default class EventsService {
 
   public toGetEventsDTO(eventsRes: IGetEvents): IGetEventsDTO {
     return {
-      _metadata: eventsRes._metadata,
+      metadata: eventsRes._metadata,
       results: eventsRes.body.map((e) => ({
         id: e.id,
         title: e.title.en,
         can_occur_before: e.can_occur_before,
-        date_event: e.date_event,
-        coins: e.coins,
+        date: e.date_event,
+        coins: e.coins.map((c) => this.toEventCoinDTO(c)),
         category: e.categories[0].name || ""
       }))
+    };
+  }
+
+  public toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
+    return {
+      iconURL: `${config.icons.baseURL}/${coin.id}_small.png`,
+      fullname: coin.fullname,
+      id: coin.id,
+      name: coin.name,
+      symbol: coin.symbol
     };
   }
 }

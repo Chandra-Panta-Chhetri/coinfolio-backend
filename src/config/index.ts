@@ -33,5 +33,8 @@ export default {
       "Accept-Encoding": "deflate, gzip",
       "x-api-key": process.env.COIN_MARKET_CAL_KEY!
     }
+  },
+  icons: {
+    baseURL: "https://d235dzzkn2ryki.cloudfront.net"
   }
 };

@@ -18,19 +18,27 @@ interface IGetEventsMetaData {
   total_count: number;
 }
 
-interface IEventsCategory {
+interface IEventCategory {
   id: number;
   name: string;
 }
 
-interface IEventsCoin {
-  id: number;
+export interface IEventCoin {
+  id: string;
   name: string;
   symbol: string;
   fullname: string;
 }
 
-interface IEventsTranslation {
+export interface IEventCoinDTO {
+  id: string;
+  name: string;
+  symbol: string;
+  fullname: string;
+  iconURL: string;
+}
+
+interface IEventTranslation {
   en: string;
 }
 
@@ -40,22 +48,22 @@ interface IGetEventsBody {
   can_occur_before: boolean;
   proof: string;
   source: string;
-  categories: IEventsCategory[];
-  coins: IEventsCoin[];
-  title: IEventsTranslation;
+  categories: IEventCategory[];
+  coins: IEventCoin[];
+  title: IEventTranslation;
 }
 
 interface IGetEventsResultsDTO {
   id: number;
-  date_event: string;
+  date: string;
   can_occur_before: boolean;
   title: string;
   category: string;
-  coins: IEventsCoin[];
+  coins: IEventCoinDTO[];
 }
 
 export interface IGetEventsDTO {
-  _metadata: IGetEventsMetaData;
+  metadata: IGetEventsMetaData;
   results: IGetEventsResultsDTO[];
 }
 
