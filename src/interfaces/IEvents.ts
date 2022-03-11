@@ -60,6 +60,8 @@ interface IGetEventsResultsDTO {
   title: string;
   category: string;
   coins: IEventCoinDTO[];
+  proof: string;
+  source: string;
 }
 
 export interface IGetEventsDTO {

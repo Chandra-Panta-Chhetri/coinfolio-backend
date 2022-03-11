@@ -35,7 +35,9 @@ export default class EventsService {
         can_occur_before: e.can_occur_before,
         date: e.date_event,
         coins: e.coins.map((c) => this.toEventCoinDTO(c)),
-        category: e.categories[0].name || ""
+        category: e.categories[0].name || "",
+        proof: e.proof,
+        source: e.source
       }))
     };
   }
