@@ -29,6 +29,7 @@ export default async ({ app }: { app: express.Application }) => {
     }
     const error: IReqValidationErr = {};
     for (let e of err.details.keys()) {
+      console.log(err.details.get(e)?.details);
       error[e] = err.details.get(e)!.details.map((d) => ({ key: d.context?.key!, message: d.message }));
     }
     return res.status(400).send(error).end();
