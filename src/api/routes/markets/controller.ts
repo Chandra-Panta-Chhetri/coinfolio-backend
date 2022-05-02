@@ -7,3 +7,10 @@ export const getSummary = async (req: Request, res: Response, next: NextFunction
   const summary = ms.toSummaryDTO(summaryRes);
   res.send(summary);
 };
+
+export const getTopCoins = async (req: Request, res: Response, next: NextFunction) => {
+  const ms = new MarketsService();
+  const topCoinsRes = await ms.getTopCoins(req.query);
+  const topCoins = ms.toTopCoinsDTO(topCoinsRes);
+  res.send(topCoins);
+};

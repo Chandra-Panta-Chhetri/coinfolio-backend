@@ -26,3 +26,38 @@ export interface IMarketsSummaryDTO {
   btcDom: string;
   ethDom: string;
 }
+
+interface IMarketsAsset {
+  id: string;
+  rank: string;
+  symbol: string;
+  name: string;
+  supply: string;
+  maxSupply: string;
+  marketCapUsd: string;
+  volumeUsd24Hr: string;
+  priceUsd: string;
+  changePercent24Hr: string;
+  vwap24Hr: string;
+}
+
+interface IMarketsAssetDTO {
+  id: string;
+  rank: string;
+  symbol: string;
+  name: string;
+  priceUsd: string;
+  changePercent24Hr: string;
+}
+
+export interface IMarketsTopCoinsRes {
+  data: IMarketsAsset[];
+}
+
+export interface IMarketsTopCoinsDTO {
+  data: IMarketsAssetDTO[];
+}
+
+export interface IGetTopCoinsFilterQuery {
+  limit?: number;
+}

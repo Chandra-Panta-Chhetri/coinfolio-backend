@@ -1,18 +1,24 @@
 import axios from "../config/axios";
 import config from "../config";
-import { IMarketsSummaryDTO, IMarketsSummaryRes } from "../interfaces/IMarkets";
+import {
+  IGetTopCoinsFilterQuery,
+  IMarketsSummaryDTO,
+  IMarketsSummaryRes,
+  IMarketsTopCoinsDTO,
+  IMarketsTopCoinsRes
+} from "../interfaces/IMarkets";
 
 export default class MarketsService {
   constructor() {}
 
   public async getSummary(): Promise<IMarketsSummaryRes> {
     const res = await axios.post<IMarketsSummaryRes>(
-      config.market.graphqlURL,
+      config.markets.graphqlURL,
       {
         query:
           '{  marketTotal {    marketCapUsd    exchangeVolumeUsd24Hr    assets    exchanges    markets  }  btc: asset(id: "bitcoin") {    marketCapUsd}  eth: asset(id: "ethereum") {    marketCapUsd}}'
       },
-      { headers: config.market.headers }
+      { headers: config.markets.headers }
     );
     return res.data;
   }
@@ -25,6 +31,26 @@ export default class MarketsService {
       numAssets: summaryRes.data.marketTotal.assets,
       btcDom: `${(Number(summaryRes.data.btc.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100}`,
       ethDom: `${(Number(summaryRes.data.eth.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100}`
+    };
+  }
+
+  public async getTopCoins(filterQuery: IGetTopCoinsFilterQuery): Promise<IMarketsTopCoinsRes> {
+    const res = await axios.get(`${config.markets.restURL}/assets`, {
+      params: filterQuery
+    });
+    return res.data;
+  }
+
+  public toTopCoinsDTO(topCoinsRes: IMarketsTopCoinsRes): IMarketsTopCoinsDTO {
+    return {
+      data: topCoinsRes.data.map((c) => ({
+        changePercent24Hr: c.changePercent24Hr,
+        id: c.id,
+        name: c.name,
+        priceUsd: c.priceUsd,
+        rank: c.rank,
+        symbol: c.symbol
+      }))
     };
   }
 }
