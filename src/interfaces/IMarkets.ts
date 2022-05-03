@@ -27,7 +27,7 @@ export interface IMarketsSummaryDTO {
   ethDom: string;
 }
 
-interface IMarketsAsset {
+export interface IMarketsAsset {
   id: string;
   rank: string;
   symbol: string;
@@ -41,7 +41,7 @@ interface IMarketsAsset {
   vwap24Hr: string;
 }
 
-interface IMarketsAssetDTO {
+export interface IMarketsAssetDTO {
   id: string;
   rank: string;
   symbol: string;
@@ -60,4 +60,26 @@ export interface IMarketsTopCoinsDTO {
 
 export interface IGetTopCoinsFilterQuery {
   limit?: number;
+}
+
+export interface IGetGainersLosersFilterQuery {
+  limit?: number;
+}
+
+export interface IMarketsGainersLosersRes {
+  data: {
+    assets: {
+      edges: { node: IMarketsAsset }[];
+    };
+  };
+}
+
+export interface IMarketsGainersLosersMerged {
+  gainers: IMarketsGainersLosersRes;
+  losers: IMarketsGainersLosersRes;
+}
+
+export interface IMarketsGainersLosersDTO {
+  gainers: IMarketsAssetDTO[];
+  losers: IMarketsAssetDTO[];
 }

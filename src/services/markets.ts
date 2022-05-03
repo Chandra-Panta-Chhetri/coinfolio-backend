@@ -1,7 +1,13 @@
 import axios from "../config/axios";
 import config from "../config";
 import {
+  IGetGainersLosersFilterQuery,
   IGetTopCoinsFilterQuery,
+  IMarketsAsset,
+  IMarketsAssetDTO,
+  IMarketsGainersLosersDTO,
+  IMarketsGainersLosersMerged,
+  IMarketsGainersLosersRes,
   IMarketsSummaryDTO,
   IMarketsSummaryRes,
   IMarketsTopCoinsDTO,
@@ -35,7 +41,7 @@ export default class MarketsService {
   }
 
   public async getTopCoins(filterQuery: IGetTopCoinsFilterQuery): Promise<IMarketsTopCoinsRes> {
-    const res = await axios.get(`${config.markets.restURL}/assets`, {
+    const res = await axios.get<IMarketsTopCoinsRes>(`${config.markets.restURL}/assets`, {
       params: filterQuery
     });
     return res.data;
@@ -43,14 +49,58 @@ export default class MarketsService {
 
   public toTopCoinsDTO(topCoinsRes: IMarketsTopCoinsRes): IMarketsTopCoinsDTO {
     return {
-      data: topCoinsRes.data.map((c) => ({
-        changePercent24Hr: c.changePercent24Hr,
-        id: c.id,
-        name: c.name,
-        priceUsd: c.priceUsd,
-        rank: c.rank,
-        symbol: c.symbol
-      }))
+      data: topCoinsRes.data.map((c) => this.toMarketAssetDTO(c))
+    };
+  }
+
+  public async getGainersLosers(filterQuery: IGetGainersLosersFilterQuery): Promise<IMarketsGainersLosersMerged> {
+    const gainersRes = await axios.post<IMarketsGainersLosersRes>(
+      `${config.markets.graphqlURL}`,
+      {
+        variables: {
+          direction: "DESC",
+          first: filterQuery.limit!,
+          sort: "changePercent24Hr"
+        },
+        query:
+          "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+      },
+      { headers: config.markets.headers }
+    );
+    const losersRes = await axios.post<IMarketsGainersLosersRes>(
+      `${config.markets.graphqlURL}`,
+      {
+        variables: {
+          direction: "ASC",
+          first: filterQuery.limit!,
+          sort: "changePercent24Hr"
+        },
+        query:
+          "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+      },
+      { headers: config.markets.headers }
+    );
+    return {
+      gainers: gainersRes.data,
+      losers: losersRes.data
+    };
+  }
+
+  public toMarketAssetDTO(marketAsset: IMarketsAsset): IMarketsAssetDTO {
+    return {
+      changePercent24Hr: marketAsset.changePercent24Hr,
+      id: marketAsset.id,
+      name: marketAsset.name,
+      priceUsd: marketAsset.priceUsd,
+      rank: marketAsset.rank,
+      symbol: marketAsset.symbol
+    };
+  }
+
+  public toGainersLosersDTO(gainersLosersRes: IMarketsGainersLosersMerged): IMarketsGainersLosersDTO {
+    return {
+      gainers: gainersLosersRes.gainers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node)),
+      losers: gainersLosersRes.losers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node))
     };
   }
 }

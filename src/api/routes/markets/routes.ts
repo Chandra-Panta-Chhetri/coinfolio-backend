@@ -31,4 +31,16 @@ export default (app: Router) => {
     }),
     marketsController.getTopCoins
   );
+
+  route.get(
+    "/gainers-losers",
+    celebrate(reqSchemas.GET_GAINERS_LOSERS),
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    marketsController.getGainersLosers
+  );
 };
