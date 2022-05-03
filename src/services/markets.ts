@@ -3,6 +3,7 @@ import config from "../config";
 import {
   IGetGainersLosersFilterQuery,
   IGetTopCoinsFilterQuery,
+  IGrahpqlQueryBody,
   IMarketsAsset,
   IMarketsAssetDTO,
   IMarketsGainersLosersDTO,
@@ -17,16 +18,17 @@ import {
 export default class MarketsService {
   constructor() {}
 
-  public async getSummary(): Promise<IMarketsSummaryRes> {
-    const res = await axios.post<IMarketsSummaryRes>(
-      config.markets.graphqlURL,
-      {
-        query:
-          '{  marketTotal {    marketCapUsd    exchangeVolumeUsd24Hr    assets    exchanges    markets  }  btc: asset(id: "bitcoin") {    marketCapUsd}  eth: asset(id: "ethereum") {    marketCapUsd}}'
-      },
-      { headers: config.markets.headers }
-    );
+  private async executeGraphqlQuery<Type>(queryBody: IGrahpqlQueryBody): Promise<Type> {
+    const res = await axios.post<Type>(config.markets.graphqlURL, queryBody, { headers: config.markets.headers });
     return res.data;
+  }
+
+  public async getSummary(): Promise<IMarketsSummaryRes> {
+    const summaryRes = await this.executeGraphqlQuery<IMarketsSummaryRes>({
+      query:
+        '{ marketTotal { marketCapUsd  exchangeVolumeUsd24Hr  assets  exchanges  markets } btc: asset(id: "bitcoin") { marketCapUsd }  eth: asset(id: "ethereum") { marketCapUsd } }'
+    });
+    return summaryRes;
   }
 
   public toSummaryDTO(summaryRes: IMarketsSummaryRes): IMarketsSummaryDTO {
@@ -54,35 +56,27 @@ export default class MarketsService {
   }
 
   public async getGainersLosers(filterQuery: IGetGainersLosersFilterQuery): Promise<IMarketsGainersLosersMerged> {
-    const gainersRes = await axios.post<IMarketsGainersLosersRes>(
-      `${config.markets.graphqlURL}`,
-      {
-        variables: {
-          direction: "DESC",
-          first: filterQuery.limit!,
-          sort: "changePercent24Hr"
-        },
-        query:
-          "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+    const gainersRes = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+      variables: {
+        direction: "DESC",
+        first: filterQuery.limit!,
+        sort: "changePercent24Hr"
       },
-      { headers: config.markets.headers }
-    );
-    const losersRes = await axios.post<IMarketsGainersLosersRes>(
-      `${config.markets.graphqlURL}`,
-      {
-        variables: {
-          direction: "ASC",
-          first: filterQuery.limit!,
-          sort: "changePercent24Hr"
-        },
-        query:
-          "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+      query:
+        "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+    });
+    const losersRes = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+      variables: {
+        direction: "ASC",
+        first: filterQuery.limit!,
+        sort: "changePercent24Hr"
       },
-      { headers: config.markets.headers }
-    );
+      query:
+        "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+    });
     return {
-      gainers: gainersRes.data,
-      losers: losersRes.data
+      gainers: gainersRes,
+      losers: losersRes
     };
   }
 

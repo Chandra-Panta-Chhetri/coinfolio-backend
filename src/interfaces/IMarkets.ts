@@ -41,6 +41,11 @@ export interface IMarketsAsset {
   vwap24Hr: string;
 }
 
+export interface IGrahpqlQueryBody {
+  variables?: Object;
+  query: string;
+}
+
 export interface IMarketsAssetDTO {
   id: string;
   rank: string;
