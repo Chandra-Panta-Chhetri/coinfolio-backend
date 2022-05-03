@@ -56,7 +56,7 @@ export default class MarketsService {
   }
 
   public async getGainersLosers(filterQuery: IGetGainersLosersFilterQuery): Promise<IMarketsGainersLosersMerged> {
-    const gainersRes = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+    const gainersReq = this.executeGraphqlQuery<IMarketsGainersLosersRes>({
       variables: {
         direction: "DESC",
         first: filterQuery.limit!,
@@ -65,7 +65,7 @@ export default class MarketsService {
       query:
         "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
     });
-    const losersRes = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+    const losersReq = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
       variables: {
         direction: "ASC",
         first: filterQuery.limit!,
@@ -74,9 +74,11 @@ export default class MarketsService {
       query:
         "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
     });
+    const requests = [gainersReq, losersReq];
+    const res = await Promise.all(requests);
     return {
-      gainers: gainersRes,
-      losers: losersRes
+      gainers: res[0],
+      losers: res[1]
     };
   }
 
