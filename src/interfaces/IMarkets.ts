@@ -55,8 +55,8 @@ export interface IMarketsAssetDTO {
   id: string;
   symbol: string;
   name: string;
-  priceUsd: string;
-  changePercent24Hr: string;
+  priceUsd: number;
+  changePercent24Hr: number;
   image: string;
 }
 

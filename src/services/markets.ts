@@ -14,7 +14,7 @@ import {
   IMarketsTopCoinsDTO,
   IMarketsTopCoinsRes
 } from "../interfaces/IMarkets";
-import { formatToDollar, formatToMarketImage, formatToPercent } from "../api/utils";
+import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "../api/utils";
 
 export default class MarketsService {
   constructor() {}
@@ -36,11 +36,11 @@ export default class MarketsService {
     return {
       totalMarketCap: {
         label: "Market Cap",
-        value: formatToDollar(summaryRes.data.marketTotal.marketCapUsd)
+        value: toDollarString(summaryRes.data.marketTotal.marketCapUsd)
       },
       volume24hr: {
         label: "24hr Vol",
-        value: formatToDollar(summaryRes.data.marketTotal.exchangeVolumeUsd24Hr)
+        value: toDollarString(summaryRes.data.marketTotal.exchangeVolumeUsd24Hr)
       },
       numExchanges: {
         label: "Exchanges",
@@ -52,13 +52,13 @@ export default class MarketsService {
       },
       btcDom: {
         label: "BTC Dominance",
-        value: formatToPercent(
+        value: toPercentString(
           (Number(summaryRes.data.btc.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
         )
       },
       ethDom: {
         label: "ETH Dominance",
-        value: formatToPercent(
+        value: toPercentString(
           (Number(summaryRes.data.eth.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
         )
       }
@@ -107,12 +107,12 @@ export default class MarketsService {
 
   public toMarketAssetDTO(ma: IMarketsAsset): IMarketsAssetDTO {
     return {
-      changePercent24Hr: ma.changePercent24Hr,
+      changePercent24Hr: toNDecimals(ma.changePercent24Hr),
       id: ma.id,
       name: ma.name,
-      priceUsd: ma.priceUsd,
+      priceUsd: toNDecimals(ma.priceUsd),
       symbol: ma.symbol,
-      image: formatToMarketImage(ma.symbol)
+      image: toMarketImageURL(ma.symbol)
     };
   }
 
