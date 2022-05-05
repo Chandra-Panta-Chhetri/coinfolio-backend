@@ -14,7 +14,7 @@ import {
   IMarketsTopCoinsDTO,
   IMarketsTopCoinsRes
 } from "../interfaces/IMarkets";
-import { formatToDollar, formatToPercent } from "../api/utils";
+import { formatToDollar, formatToMarketImage, formatToPercent } from "../api/utils";
 
 export default class MarketsService {
   constructor() {}
@@ -105,14 +105,14 @@ export default class MarketsService {
     };
   }
 
-  public toMarketAssetDTO(marketAsset: IMarketsAsset): IMarketsAssetDTO {
+  public toMarketAssetDTO(ma: IMarketsAsset): IMarketsAssetDTO {
     return {
-      changePercent24Hr: marketAsset.changePercent24Hr,
-      id: marketAsset.id,
-      name: marketAsset.name,
-      priceUsd: marketAsset.priceUsd,
-      rank: marketAsset.rank,
-      symbol: marketAsset.symbol
+      changePercent24Hr: ma.changePercent24Hr,
+      id: ma.id,
+      name: ma.name,
+      priceUsd: ma.priceUsd,
+      symbol: ma.symbol,
+      image: formatToMarketImage(ma.symbol)
     };
   }
 

@@ -53,11 +53,11 @@ export interface IGrahpqlQueryBody {
 
 export interface IMarketsAssetDTO {
   id: string;
-  rank: string;
   symbol: string;
   name: string;
   priceUsd: string;
   changePercent24Hr: string;
+  image: string;
 }
 
 export interface IMarketsTopCoinsRes {
