@@ -14,6 +14,7 @@ import {
   IMarketsTopCoinsDTO,
   IMarketsTopCoinsRes
 } from "../interfaces/IMarkets";
+import { formatToDollar, formatToPercent } from "../api/utils";
 
 export default class MarketsService {
   constructor() {}
@@ -33,12 +34,34 @@ export default class MarketsService {
 
   public toSummaryDTO(summaryRes: IMarketsSummaryRes): IMarketsSummaryDTO {
     return {
-      totalMarketCap: summaryRes.data.marketTotal.marketCapUsd,
-      volume24hr: summaryRes.data.marketTotal.exchangeVolumeUsd24Hr,
-      numExchanges: summaryRes.data.marketTotal.exchanges,
-      numAssets: summaryRes.data.marketTotal.assets,
-      btcDom: `${(Number(summaryRes.data.btc.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100}`,
-      ethDom: `${(Number(summaryRes.data.eth.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100}`
+      totalMarketCap: {
+        label: "Market Cap",
+        value: formatToDollar(summaryRes.data.marketTotal.marketCapUsd)
+      },
+      volume24hr: {
+        label: "24hr Vol",
+        value: formatToDollar(summaryRes.data.marketTotal.exchangeVolumeUsd24Hr)
+      },
+      numExchanges: {
+        label: "Exchanges",
+        value: summaryRes.data.marketTotal.exchanges
+      },
+      numAssets: {
+        label: "Assets",
+        value: summaryRes.data.marketTotal.assets
+      },
+      btcDom: {
+        label: "BTC Dominance",
+        value: formatToPercent(
+          (Number(summaryRes.data.btc.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
+        )
+      },
+      ethDom: {
+        label: "ETH Dominance",
+        value: formatToPercent(
+          (Number(summaryRes.data.eth.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
+        )
+      }
     };
   }
 

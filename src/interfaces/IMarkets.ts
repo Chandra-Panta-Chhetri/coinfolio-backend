@@ -18,13 +18,18 @@ export interface IMarketsSummaryRes {
   };
 }
 
+interface ILabelValue {
+  label: string;
+  value: string;
+}
+
 export interface IMarketsSummaryDTO {
-  totalMarketCap: string;
-  volume24hr: string;
-  numExchanges: string;
-  numAssets: string;
-  btcDom: string;
-  ethDom: string;
+  totalMarketCap: ILabelValue;
+  volume24hr: ILabelValue;
+  numExchanges: ILabelValue;
+  numAssets: ILabelValue;
+  btcDom: ILabelValue;
+  ethDom: ILabelValue;
 }
 
 export interface IMarketsAsset {
