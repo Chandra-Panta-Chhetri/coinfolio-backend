@@ -9,6 +9,7 @@ import {
 } from "../interfaces/IEvents";
 import config from "../config";
 import { AxiosError } from "axios";
+import { toEventImageURL } from "../api/utils";
 
 export default class EventsService {
   constructor() {}
@@ -44,7 +45,7 @@ export default class EventsService {
 
   public toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
     return {
-      iconURL: `${config.icons.baseURL}/${coin.id}_small.png`,
+      iconURL: toEventImageURL(coin.id),
       fullname: coin.fullname,
       id: coin.id,
       name: coin.name,

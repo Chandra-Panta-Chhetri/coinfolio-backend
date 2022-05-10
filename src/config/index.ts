@@ -35,6 +35,14 @@ export default {
     }
   },
   icons: {
-    baseURL: "https://d235dzzkn2ryki.cloudfront.net"
+    events: "https://d235dzzkn2ryki.cloudfront.net",
+    markets: "https://assets.coincap.io/assets/icons"
+  },
+  markets: {
+    graphqlURL: "https://graphql.coincap.io",
+    headers: {
+      "content-type": "application/json"
+    },
+    restURL: "https://api.coincap.io/v2"
   }
 };
