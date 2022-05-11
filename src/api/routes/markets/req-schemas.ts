@@ -19,3 +19,11 @@ export const GET_GAINERS_LOSERS = {
     })
   })
 };
+
+export const GET_ASSETS_BY_KEYWORD = {
+  [Segments.QUERY]: Joi.object().keys({
+    search: Joi.string().required().messages({
+      "any.required": "search is required"
+    })
+  })
+};

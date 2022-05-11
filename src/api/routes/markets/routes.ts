@@ -10,6 +10,29 @@ export default (app: Router) => {
   app.use("/markets", route);
 
   route.get(
+    "/",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    marketsController.getMarkets
+  );
+
+  route.get(
+    "/search",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(reqSchemas.GET_ASSETS_BY_KEYWORD),
+    marketsController.getAssetsByKeyword
+  );
+
+  route.get(
     "/summary",
     rl({
       windowMs: 1000,
@@ -22,25 +45,25 @@ export default (app: Router) => {
 
   route.get(
     "/top-coins",
-    celebrate(reqSchemas.GET_TOP_COINS),
     rl({
       windowMs: 1000,
       max: 5,
       legacyHeaders: false,
       standardHeaders: true
     }),
+    celebrate(reqSchemas.GET_TOP_COINS),
     marketsController.getTopCoins
   );
 
   route.get(
     "/gainers-losers",
-    celebrate(reqSchemas.GET_GAINERS_LOSERS),
     rl({
       windowMs: 1000,
       max: 5,
       legacyHeaders: false,
       standardHeaders: true
     }),
+    celebrate(reqSchemas.GET_GAINERS_LOSERS),
     marketsController.getGainersLosers
   );
 };

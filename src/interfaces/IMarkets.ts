@@ -60,16 +60,28 @@ export interface IMarketsAssetDTO {
   image: string;
 }
 
-export interface IMarketsTopCoinsRes {
+export interface IAssetsRes {
   data: IMarketsAsset[];
 }
 
-export interface IMarketsTopCoinsDTO {
-  data: IMarketsAssetDTO[];
+export interface IAssetSearch {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
 }
 
-export interface IGetTopCoinsFilterQuery {
+export interface ISearchAssetsDTO {
+  data: IAssetSearch[];
+}
+
+export interface IAssetsFilterQuery {
+  search?: string;
   limit?: number;
+}
+
+export interface IAssetsDTO {
+  data: IMarketsAssetDTO[];
 }
 
 export interface IGetGainersLosersFilterQuery {

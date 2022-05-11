@@ -2,7 +2,6 @@ import axios from "../config/axios";
 import config from "../config";
 import {
   IGetGainersLosersFilterQuery,
-  IGetTopCoinsFilterQuery,
   IGrahpqlQueryBody,
   IMarketsAsset,
   IMarketsAssetDTO,
@@ -11,8 +10,10 @@ import {
   IMarketsGainersLosersRes,
   IMarketsSummaryDTO,
   IMarketsSummaryRes,
-  IMarketsTopCoinsDTO,
-  IMarketsTopCoinsRes
+  IAssetsDTO,
+  IAssetsRes,
+  IAssetsFilterQuery,
+  ISearchAssetsDTO
 } from "../interfaces/IMarkets";
 import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "../api/utils";
 
@@ -22,6 +23,24 @@ export default class MarketsService {
   private async executeGraphqlQuery<Type>(queryBody: IGrahpqlQueryBody): Promise<Type> {
     const res = await axios.post<Type>(config.markets.graphqlURL, queryBody, { headers: config.markets.headers });
     return res.data;
+  }
+
+  public async getAssets(filterQuery: IAssetsFilterQuery): Promise<IAssetsRes> {
+    const assetsRes = await axios.get<IAssetsRes>(`${config.markets.restURL}/assets`, {
+      params: filterQuery
+    });
+    return assetsRes.data;
+  }
+
+  public toSearchAssetsDTO(assetsRes: IAssetsRes): ISearchAssetsDTO {
+    return {
+      data: assetsRes.data.map((a) => ({
+        id: a.id,
+        image: toMarketImageURL(a.symbol),
+        name: a.name,
+        symbol: a.symbol
+      }))
+    };
   }
 
   public async getSummary(): Promise<IMarketsSummaryRes> {
@@ -65,16 +84,9 @@ export default class MarketsService {
     };
   }
 
-  public async getTopCoins(filterQuery: IGetTopCoinsFilterQuery): Promise<IMarketsTopCoinsRes> {
-    const res = await axios.get<IMarketsTopCoinsRes>(`${config.markets.restURL}/assets`, {
-      params: filterQuery
-    });
-    return res.data;
-  }
-
-  public toTopCoinsDTO(topCoinsRes: IMarketsTopCoinsRes): IMarketsTopCoinsDTO {
+  public toAssetsDTO(assetsRes: IAssetsRes): IAssetsDTO {
     return {
-      data: topCoinsRes.data.map((c) => this.toMarketAssetDTO(c))
+      data: assetsRes.data.map((a) => this.toMarketAssetDTO(a))
     };
   }
 
