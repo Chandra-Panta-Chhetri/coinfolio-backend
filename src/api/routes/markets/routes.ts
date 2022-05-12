@@ -20,17 +20,7 @@ export default (app: Router) => {
     marketsController.getMarkets
   );
 
-  route.get(
-    "/search",
-    rl({
-      windowMs: 1000,
-      max: 5,
-      legacyHeaders: false,
-      standardHeaders: true
-    }),
-    celebrate(reqSchemas.GET_ASSETS_BY_KEYWORD),
-    marketsController.getAssetsByKeyword
-  );
+  route.get("/search", celebrate(reqSchemas.GET_ASSETS_BY_KEYWORD), marketsController.getAssetsByKeyword);
 
   route.get(
     "/summary",

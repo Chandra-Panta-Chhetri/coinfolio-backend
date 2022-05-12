@@ -1,18 +1,18 @@
 import axios from "../config/axios";
 import config from "../config";
 import {
-  IGetGainersLosersFilterQuery,
-  IGrahpqlQueryBody,
-  IMarketsAsset,
-  IMarketsAssetDTO,
-  IMarketsGainersLosersDTO,
-  IMarketsGainersLosersMerged,
-  IMarketsGainersLosersRes,
-  IMarketsSummaryDTO,
-  IMarketsSummaryRes,
-  IAssetsDTO,
-  IAssetsRes,
-  IAssetsFilterQuery,
+  IGetGainersLosersQueryParams,
+  IGrahpqlReqBody,
+  IMarketAsset,
+  IMarketAssetDTO,
+  IMarketGainersLosersDTO,
+  IMarketGainersLosersMerged,
+  IMarketGainersLosersRes,
+  IMarketSummaryDTO,
+  IMarketSummaryRes,
+  IMarketAssetsDTO,
+  IGetAssetsRes,
+  IAssetsQueryParams,
   ISearchAssetsDTO
 } from "../interfaces/IMarkets";
 import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "../api/utils";
@@ -20,19 +20,19 @@ import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "
 export default class MarketsService {
   constructor() {}
 
-  private async executeGraphqlQuery<Type>(queryBody: IGrahpqlQueryBody): Promise<Type> {
-    const res = await axios.post<Type>(config.markets.graphqlURL, queryBody, { headers: config.markets.headers });
+  private async executeGraphqlQuery<Type>(reqBody: IGrahpqlReqBody): Promise<Type> {
+    const res = await axios.post<Type>(config.markets.graphqlURL, reqBody, { headers: config.markets.headers });
     return res.data;
   }
 
-  public async getAssets(filterQuery: IAssetsFilterQuery): Promise<IAssetsRes> {
-    const assetsRes = await axios.get<IAssetsRes>(`${config.markets.restURL}/assets`, {
-      params: filterQuery
+  public async getAssets(queryParams: IAssetsQueryParams): Promise<IGetAssetsRes> {
+    const assetsRes = await axios.get<IGetAssetsRes>(`${config.markets.restURL}/assets`, {
+      params: queryParams
     });
     return assetsRes.data;
   }
 
-  public toSearchAssetsDTO(assetsRes: IAssetsRes): ISearchAssetsDTO {
+  public toSearchAssetsDTO(assetsRes: IGetAssetsRes): ISearchAssetsDTO {
     return {
       data: assetsRes.data.map((a) => ({
         id: a.id,
@@ -43,15 +43,15 @@ export default class MarketsService {
     };
   }
 
-  public async getSummary(): Promise<IMarketsSummaryRes> {
-    const summaryRes = await this.executeGraphqlQuery<IMarketsSummaryRes>({
+  public async getSummary(): Promise<IMarketSummaryRes> {
+    const summaryRes = await this.executeGraphqlQuery<IMarketSummaryRes>({
       query:
         '{ marketTotal { marketCapUsd  exchangeVolumeUsd24Hr  assets  exchanges  markets } btc: asset(id: "bitcoin") { marketCapUsd }  eth: asset(id: "ethereum") { marketCapUsd } }'
     });
     return summaryRes;
   }
 
-  public toSummaryDTO(summaryRes: IMarketsSummaryRes): IMarketsSummaryDTO {
+  public toSummaryDTO(summaryRes: IMarketSummaryRes): IMarketSummaryDTO {
     return {
       totalMarketCap: {
         label: "Market Cap",
@@ -84,26 +84,26 @@ export default class MarketsService {
     };
   }
 
-  public toAssetsDTO(assetsRes: IAssetsRes): IAssetsDTO {
+  public toAssetsDTO(assetsRes: IGetAssetsRes): IMarketAssetsDTO {
     return {
       data: assetsRes.data.map((a) => this.toMarketAssetDTO(a))
     };
   }
 
-  public async getGainersLosers(filterQuery: IGetGainersLosersFilterQuery): Promise<IMarketsGainersLosersMerged> {
-    const gainersReq = this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+  public async getGainersLosers(queryParams: IGetGainersLosersQueryParams): Promise<IMarketGainersLosersMerged> {
+    const gainersReq = this.executeGraphqlQuery<IMarketGainersLosersRes>({
       variables: {
         direction: "DESC",
-        first: filterQuery.limit!,
+        first: queryParams.limit!,
         sort: "changePercent24Hr"
       },
       query:
         "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
     });
-    const losersReq = await this.executeGraphqlQuery<IMarketsGainersLosersRes>({
+    const losersReq = await this.executeGraphqlQuery<IMarketGainersLosersRes>({
       variables: {
         direction: "ASC",
-        first: filterQuery.limit!,
+        first: queryParams.limit!,
         sort: "changePercent24Hr"
       },
       query:
@@ -117,7 +117,7 @@ export default class MarketsService {
     };
   }
 
-  public toMarketAssetDTO(ma: IMarketsAsset): IMarketsAssetDTO {
+  public toMarketAssetDTO(ma: IMarketAsset): IMarketAssetDTO {
     return {
       changePercent24Hr: toNDecimals(ma.changePercent24Hr),
       id: ma.id,
@@ -128,7 +128,7 @@ export default class MarketsService {
     };
   }
 
-  public toGainersLosersDTO(gainersLosersRes: IMarketsGainersLosersMerged): IMarketsGainersLosersDTO {
+  public toGainersLosersDTO(gainersLosersRes: IMarketGainersLosersMerged): IMarketGainersLosersDTO {
     return {
       gainers: gainersLosersRes.gainers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node)),
       losers: gainersLosersRes.losers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node))

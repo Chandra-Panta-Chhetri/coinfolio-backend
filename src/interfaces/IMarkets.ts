@@ -6,33 +6,33 @@ interface IMarketTotal {
   assets: string;
 }
 
-interface AssetSummary {
+interface IAssetSummary {
   marketCapUsd: string;
 }
 
-export interface IMarketsSummaryRes {
+export interface IMarketSummaryRes {
   data: {
     marketTotal: IMarketTotal;
-    btc: AssetSummary;
-    eth: AssetSummary;
+    btc: IAssetSummary;
+    eth: IAssetSummary;
   };
 }
 
-interface ILabelValue {
+interface ISummaryLabelValue {
   label: string;
   value: string;
 }
 
-export interface IMarketsSummaryDTO {
-  totalMarketCap: ILabelValue;
-  volume24hr: ILabelValue;
-  numExchanges: ILabelValue;
-  numAssets: ILabelValue;
-  btcDom: ILabelValue;
-  ethDom: ILabelValue;
+export interface IMarketSummaryDTO {
+  totalMarketCap: ISummaryLabelValue;
+  volume24hr: ISummaryLabelValue;
+  numExchanges: ISummaryLabelValue;
+  numAssets: ISummaryLabelValue;
+  btcDom: ISummaryLabelValue;
+  ethDom: ISummaryLabelValue;
 }
 
-export interface IMarketsAsset {
+export interface IMarketAsset {
   id: string;
   rank: string;
   symbol: string;
@@ -46,12 +46,12 @@ export interface IMarketsAsset {
   vwap24Hr: string;
 }
 
-export interface IGrahpqlQueryBody {
+export interface IGrahpqlReqBody {
   variables?: Object;
   query: string;
 }
 
-export interface IMarketsAssetDTO {
+export interface IMarketAssetDTO {
   id: string;
   symbol: string;
   name: string;
@@ -60,11 +60,11 @@ export interface IMarketsAssetDTO {
   image: string;
 }
 
-export interface IAssetsRes {
-  data: IMarketsAsset[];
+export interface IGetAssetsRes {
+  data: IMarketAsset[];
 }
 
-export interface IAssetSearch {
+export interface ISearchAssetDTO {
   id: string;
   symbol: string;
   name: string;
@@ -72,36 +72,36 @@ export interface IAssetSearch {
 }
 
 export interface ISearchAssetsDTO {
-  data: IAssetSearch[];
+  data: ISearchAssetDTO[];
 }
 
-export interface IAssetsFilterQuery {
+export interface IAssetsQueryParams {
   search?: string;
   limit?: number;
 }
 
-export interface IAssetsDTO {
-  data: IMarketsAssetDTO[];
+export interface IMarketAssetsDTO {
+  data: IMarketAssetDTO[];
 }
 
-export interface IGetGainersLosersFilterQuery {
+export interface IGetGainersLosersQueryParams {
   limit?: number;
 }
 
-export interface IMarketsGainersLosersRes {
+export interface IMarketGainersLosersRes {
   data: {
     assets: {
-      edges: { node: IMarketsAsset }[];
+      edges: { node: IMarketAsset }[];
     };
   };
 }
 
-export interface IMarketsGainersLosersMerged {
-  gainers: IMarketsGainersLosersRes;
-  losers: IMarketsGainersLosersRes;
+export interface IMarketGainersLosersMerged {
+  gainers: IMarketGainersLosersRes;
+  losers: IMarketGainersLosersRes;
 }
 
-export interface IMarketsGainersLosersDTO {
-  gainers: IMarketsAssetDTO[];
-  losers: IMarketsAssetDTO[];
+export interface IMarketGainersLosersDTO {
+  gainers: IMarketAssetDTO[];
+  losers: IMarketAssetDTO[];
 }
