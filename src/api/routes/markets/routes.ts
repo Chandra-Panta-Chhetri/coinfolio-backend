@@ -17,6 +17,7 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
+    celebrate(reqSchemas.GET_MARKETS),
     marketsController.getMarkets
   );
 

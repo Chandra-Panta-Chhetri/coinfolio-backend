@@ -58,6 +58,7 @@ export interface IMarketAssetDTO {
   priceUsd: number;
   changePercent24Hr: number;
   image: string;
+  rank: string;
 }
 
 export interface IGetAssetsRes {
@@ -88,7 +89,7 @@ export interface IGetGainersLosersQueryParams {
   limit?: number;
 }
 
-export interface IMarketGainersLosersRes {
+export interface IMarketsGraphqlRes {
   data: {
     assets: {
       edges: { node: IMarketAsset }[];
@@ -97,11 +98,22 @@ export interface IMarketGainersLosersRes {
 }
 
 export interface IMarketGainersLosersMerged {
-  gainers: IMarketGainersLosersRes;
-  losers: IMarketGainersLosersRes;
+  gainers: IMarketsGraphqlRes;
+  losers: IMarketsGraphqlRes;
 }
 
 export interface IMarketGainersLosersDTO {
   gainers: IMarketAssetDTO[];
   losers: IMarketAssetDTO[];
+}
+
+export interface IMarketsDTO {
+  data: IMarketAssetDTO[];
+}
+
+export interface IGetMarketsQueryParams {
+  sortBy?: string;
+  sortOrder?: string;
+  perPage?: number;
+  page?: number;
 }

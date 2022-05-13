@@ -7,13 +7,15 @@ import {
   IMarketAssetDTO,
   IMarketGainersLosersDTO,
   IMarketGainersLosersMerged,
-  IMarketGainersLosersRes,
+  IMarketsGraphqlRes,
   IMarketSummaryDTO,
   IMarketSummaryRes,
   IMarketAssetsDTO,
   IGetAssetsRes,
   IAssetsQueryParams,
-  ISearchAssetsDTO
+  ISearchAssetsDTO,
+  IGetMarketsQueryParams,
+  IMarketsDTO
 } from "../interfaces/IMarkets";
 import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "../api/utils";
 
@@ -91,7 +93,7 @@ export default class MarketsService {
   }
 
   public async getGainersLosers(queryParams: IGetGainersLosersQueryParams): Promise<IMarketGainersLosersMerged> {
-    const gainersReq = this.executeGraphqlQuery<IMarketGainersLosersRes>({
+    const gainersReq = this.executeGraphqlQuery<IMarketsGraphqlRes>({
       variables: {
         direction: "DESC",
         first: queryParams.limit!,
@@ -100,7 +102,7 @@ export default class MarketsService {
       query:
         "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
     });
-    const losersReq = await this.executeGraphqlQuery<IMarketGainersLosersRes>({
+    const losersReq = await this.executeGraphqlQuery<IMarketsGraphqlRes>({
       variables: {
         direction: "ASC",
         first: queryParams.limit!,
@@ -124,14 +126,37 @@ export default class MarketsService {
       name: ma.name,
       priceUsd: toNDecimals(ma.priceUsd),
       symbol: ma.symbol,
-      image: toMarketImageURL(ma.symbol)
+      image: toMarketImageURL(ma.symbol),
+      rank: ma.rank
+    };
+  }
+
+  public toMarketsDTO(marketsRes: IMarketsGraphqlRes): IMarketsDTO {
+    return {
+      data: marketsRes.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node))
     };
   }
 
   public toGainersLosersDTO(gainersLosersRes: IMarketGainersLosersMerged): IMarketGainersLosersDTO {
     return {
-      gainers: gainersLosersRes.gainers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node)),
-      losers: gainersLosersRes.losers.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node))
+      gainers: this.toMarketsDTO(gainersLosersRes.gainers).data,
+      losers: this.toMarketsDTO(gainersLosersRes.losers).data
     };
+  }
+
+  public async getMarkets(queryParams: IGetMarketsQueryParams): Promise<IMarketsGraphqlRes> {
+    const marketsRes = await this.executeGraphqlQuery<IMarketsGraphqlRes>({
+      variables: {
+        direction: queryParams.sortOrder,
+        first: queryParams.perPage! * queryParams.page!,
+        sort: queryParams.sortBy
+      },
+      query:
+        "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
+    });
+    //include only new data
+    const startIndex = queryParams.perPage! * (queryParams.page! - 1);
+    marketsRes.data.assets.edges = marketsRes.data.assets.edges.slice(startIndex);
+    return marketsRes;
   }
 }

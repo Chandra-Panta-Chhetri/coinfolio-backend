@@ -27,3 +27,28 @@ export const GET_ASSETS_BY_KEYWORD = {
     })
   })
 };
+
+export const GET_MARKETS = {
+  [Segments.QUERY]: Joi.object().keys({
+    sortBy: Joi.string()
+      .required()
+      .valid("rank", "name", "priceUsd", "marketCapUsd", "volumeUsd24Hr", "changePercent24Hr")
+      .messages({
+        "any.only":
+          "sortBy must be 'rank' | 'name' | 'priceUsd' | 'marketCapUsd' | 'volumeUsd24Hr' | 'changePercent24Hr'",
+        "any.required": "sortBy is required"
+      }),
+    sortOrder: Joi.string().required().valid("ASC", "DESC").messages({
+      "any.only": "sortOrder must be 'ASC' | 'DESC'",
+      "any.required": "sortOrder is required"
+    }),
+    perPage: Joi.number().required().min(1).messages({
+      "number.min": "perPage must be greater than or equal to 1",
+      "any.required": "perPage is required"
+    }),
+    page: Joi.number().required().min(1).messages({
+      "number.min": "page must be greater than or equal to 1",
+      "any.required": "page is required"
+    })
+  })
+};
