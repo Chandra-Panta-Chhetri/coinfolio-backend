@@ -59,6 +59,7 @@ export interface IMarketAssetDTO {
   changePercent24Hr: number;
   image: string;
   rank: string;
+  marketCap: string;
 }
 
 export interface IGetAssetsRes {

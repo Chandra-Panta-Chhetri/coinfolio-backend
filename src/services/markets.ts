@@ -127,7 +127,8 @@ export default class MarketsService {
       priceUsd: toNDecimals(ma.priceUsd),
       symbol: ma.symbol,
       image: toMarketImageURL(ma.symbol),
-      rank: ma.rank
+      rank: ma.rank,
+      marketCap: toDollarString(ma.marketCapUsd)
     };
   }
 
