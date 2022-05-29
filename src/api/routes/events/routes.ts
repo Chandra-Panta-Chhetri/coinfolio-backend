@@ -11,13 +11,13 @@ export default (app: Router) => {
 
   route.get(
     "/",
-    celebrate(reqSchemas.GET_EVENTS),
     rl({
       windowMs: 1000,
       max: 5,
       legacyHeaders: false,
       standardHeaders: true
     }),
-    eventsController.index
+    celebrate(reqSchemas.GET_EVENTS),
+    eventsController.getEvents
   );
 };

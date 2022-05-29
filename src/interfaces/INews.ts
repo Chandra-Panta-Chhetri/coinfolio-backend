@@ -1,4 +1,4 @@
-export interface IGetNewsFilterQuery {
+export interface IGetNewsQueryParams {
   filter?: string;
   currencies?: string;
   kind?: string;

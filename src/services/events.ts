@@ -1,6 +1,6 @@
 import axios from "../config/axios";
 import {
-  IGetEventsFilterQuery,
+  IGetEventsQueryParams,
   IGetEventsDTO,
   IGetEvents,
   IEventsStatus,
@@ -14,10 +14,10 @@ import { toEventImageURL } from "../api/utils";
 export default class EventsService {
   constructor() {}
 
-  public async getEvents(filterQuery: IGetEventsFilterQuery): Promise<IGetEvents | IEventsStatus> {
+  public async getEvents(queryParams: IGetEventsQueryParams): Promise<IGetEvents | IEventsStatus> {
     try {
       const res = await axios.get<IGetEvents>(`${config.events.baseURL}/events`, {
-        params: filterQuery,
+        params: queryParams,
         headers: config.events.headers
       });
       return res.data;

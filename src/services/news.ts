@@ -1,13 +1,13 @@
 import axios from "../config/axios";
 import config from "../config";
-import { IGetNewsDTO, IGetNewsFilterQuery, IGetNews } from "../interfaces/INews";
+import { IGetNewsDTO, IGetNewsQueryParams, IGetNews } from "../interfaces/INews";
 
 export default class NewsService {
   constructor() {}
 
-  public async getNews(filterQuery: IGetNewsFilterQuery): Promise<IGetNews | null> {
+  public async getNews(queryParams: IGetNewsQueryParams): Promise<IGetNews | null> {
     try {
-      const res = await axios.get<IGetNews>(config.news.baseURL, { params: filterQuery });
+      const res = await axios.get<IGetNews>(config.news.baseURL, { params: queryParams });
       return res.data;
     } catch (err) {
       return null;

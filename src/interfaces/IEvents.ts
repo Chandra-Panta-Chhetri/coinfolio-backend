@@ -1,4 +1,4 @@
-export interface IGetEventsFilterQuery {
+export interface IGetEventsQueryParams {
   page?: number;
   max?: number;
   dateRangeStart?: string;
