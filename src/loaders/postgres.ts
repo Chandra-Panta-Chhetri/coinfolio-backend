@@ -1,18 +1,6 @@
 import config from "../config";
-import { Pool } from "pg";
-import Logger from "./logger";
+import postgres from "postgres";
 
-const pool = new Pool(config.postgres);
+const sql = postgres(config.postgres);
 
-const connectToDb = async () => {
-  try {
-    await pool.connect();
-  } catch (err) {
-    Logger.error(err);
-  }
-};
-
-export default {
-  connectToDb,
-  pool
-};
+export default sql;

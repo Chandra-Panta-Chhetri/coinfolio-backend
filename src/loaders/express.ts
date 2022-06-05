@@ -6,6 +6,7 @@ import { isCelebrateError } from "celebrate";
 import morgan from "morgan";
 import { IReqValidationErr } from "../interfaces/IReqValidationErr";
 import compression from "compression";
+import { ErrorType } from "../enums/error";
 
 export default async ({ app }: { app: express.Application }) => {
   app.enable("trust proxy");
@@ -38,10 +39,9 @@ export default async ({ app }: { app: express.Application }) => {
   //Handles generic errors
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     switch (err.name) {
-      case "UnauthorizedError":
-      case "AuthenticationError":
+      case ErrorType.Unauthorized:
         return res.status(401).send({ message: err.message }).end();
-      case "Validation failed":
+      case ErrorType.Validation:
         return res.status(400).send({ message: err.message }).end();
       default:
         return res.status(500).send({ message: "Internal Server Error" }).end();
