@@ -12,7 +12,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
-  const us = new UserService();
-  const user = await us.register(req.body);
-  res.send(user);
+  try {
+    const us = new UserService();
+    const user = await us.register(req.body);
+    res.send(user);
+  } catch (err) {
+    next(err);
+  }
 };

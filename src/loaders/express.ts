@@ -43,6 +43,8 @@ export default async ({ app }: { app: express.Application }) => {
         return res.status(401).send({ message: err.message }).end();
       case ErrorType.Validation:
         return res.status(400).send({ message: err.message }).end();
+      case ErrorType.BadRequest:
+        return res.status(404).send({ message: err.message }).end();
       default:
         return res.status(500).send({ message: "Internal Server Error" }).end();
     }
