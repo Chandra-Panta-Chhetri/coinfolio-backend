@@ -20,3 +20,11 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     next(err);
   }
 };
+
+export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.send(req.user);
+  } catch (err) {
+    return next(err);
+  }
+};

@@ -7,6 +7,7 @@ import morgan from "morgan";
 import { IReqValidationErr } from "../interfaces/IReqValidationErr";
 import compression from "compression";
 import { ErrorType } from "../enums/error";
+import middlewares from "../api/middlewares";
 
 export default async ({ app }: { app: express.Application }) => {
   app.enable("trust proxy");
@@ -14,6 +15,10 @@ export default async ({ app }: { app: express.Application }) => {
   app.use(compression());
   app.use(cors());
   app.use(express.json());
+
+  //Converts JWT token -> req.user
+  app.use(middlewares.getUserFromToken);
+
   app.use(config.api.prefix, routes());
 
   //Catches 404 api routes

@@ -1,5 +1,7 @@
 import isAuthenticated from "./isAuthenticated";
+import getUserFromToken from "./getUserFromToken";
 
 export default {
-  isAuthenticated
+  isAuthenticated,
+  getUserFromToken
 };
