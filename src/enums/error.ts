@@ -1,5 +1,6 @@
 export enum ErrorType {
   Unauthorized = "Unauthorized",
   Validation = "Validation",
-  BadRequest = "BadRequest"
+  BadRequest = "BadRequest",
+  NotFound = "NotFound"
 }

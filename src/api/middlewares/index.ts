@@ -1,7 +1,7 @@
 import isAuthenticated from "./isAuthenticated";
-import getUserFromToken from "./getUserFromToken";
+import extractUserFromToken from "./extractUserFromToken";
 
 export default {
   isAuthenticated,
-  getUserFromToken
+  extractUserFromToken
 };

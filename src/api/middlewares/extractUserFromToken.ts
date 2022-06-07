@@ -13,8 +13,7 @@ const convertTokenToUser = (token: string): IRequestUser | null => {
   }
 };
 
-const getUserFromToken = (req: Request, res: Response, next: NextFunction) => {
-  console.log("in custom middleware");
+const extractUserFromToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.get("Auth-Token");
   if (!token) {
     return next();
@@ -26,4 +25,4 @@ const getUserFromToken = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-export default getUserFromToken;
+export default extractUserFromToken;
