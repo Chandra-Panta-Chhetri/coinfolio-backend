@@ -17,7 +17,7 @@ const createTables = async () => {
 
 const addDummyData = async () => {
   let salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash("Password", salt);
+  const hashedPassword = await bcrypt.hash("Password12", salt);
   await postgres`INSERT INTO users (name, password, email) VALUES('Chandra Panta', ${hashedPassword}, 'chandra@hotmail.com')`;
 };
 

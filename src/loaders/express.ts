@@ -32,12 +32,11 @@ export default async ({ app }: { app: express.Application }) => {
     if (!isCelebrateError(err)) {
       return next(err);
     }
-    const error: IReqValidationErr = {};
     for (let e of err.details.keys()) {
       console.log(err.details.get(e)?.details);
-      error[e] = err.details.get(e)!.details.map((d) => ({ key: d.context?.key!, message: d.message }));
+      let errorMsg = err.details.get(e)!.details.map((d) => d.message)[0];
+      return res.status(400).send({ message: errorMsg });
     }
-    return res.status(400).send(error);
   });
 
   //Handles generic errors

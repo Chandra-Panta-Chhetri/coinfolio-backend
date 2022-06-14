@@ -22,14 +22,16 @@ export default class UserService {
   private toUserDTO(userSchema: IUserSchema, token: string): IUserDTO {
     return {
       name: userSchema.name,
-      email: userSchema.email,
+      email: userSchema.email.toLowerCase(),
       id: userSchema.id,
       token
     };
   }
 
   public async login(authCredentials: ILoginReqBody): Promise<IUserDTO> {
-    const usersWithEmail = await postgres<IUserSchema[]>`SELECT * FROM users WHERE email = ${authCredentials.email!}`;
+    const usersWithEmail = await postgres<
+      IUserSchema[]
+    >`SELECT * FROM users WHERE email = ${authCredentials.email?.toLowerCase()!}`;
     const user = usersWithEmail[0];
     if (!user) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.LOGIN);
@@ -55,7 +57,7 @@ export default class UserService {
     const hashedPassword = await this.hashPassword(newUser.password!);
     const insertedUsers = await postgres<
       IUserSchema[]
-    >`INSERT INTO users (name, password, email) VALUES(${newUser.name!}, ${hashedPassword!}, ${newUser.email!}) RETURNING id`;
+    >`INSERT INTO users (name, password, email) VALUES(${newUser.name!}, ${hashedPassword!}, ${newUser.email?.toLowerCase()!}) RETURNING id`;
     const userSchema = {
       email: newUser.email!,
       id: insertedUsers[0].id,
