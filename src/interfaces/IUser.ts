@@ -5,6 +5,12 @@ export interface IUserDTO {
   token: string;
 }
 
+export interface IUserDTONoToken {
+  name: string;
+  email: string;
+  id: number;
+}
+
 export interface IUserSchema {
   name: string;
   email: string;

@@ -23,7 +23,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.send(req.user);
+    const us = new UserService();
+    const user = await us.getUserById(req.user?.id!);
+    res.send(user);
   } catch (err) {
     return next(err);
   }

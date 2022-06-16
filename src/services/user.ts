@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { EventDispatcher } from "event-dispatch";
 import ErrorService from "./error";
 import events from "../subscribers/events";
-import { ILoginReqBody, IRegisterReqBody, IUserDTO, IUserSchema } from "../interfaces/IUser";
+import { ILoginReqBody, IRegisterReqBody, IUserDTO, IUserDTONoToken, IUserSchema } from "../interfaces/IUser";
 import postgres from "../loaders/postgres";
 import jwt from "jsonwebtoken";
 import config from "../config";
@@ -89,4 +89,13 @@ export default class UserService {
   public async resetPassword() {}
 
   public async changePassword() {}
+
+  public async getUserById(id: number): Promise<IUserDTONoToken> {
+    const usersWithId = await postgres<IUserSchema[]>`SELECT * FROM users WHERE id = ${id}`;
+    const user = usersWithId[0];
+    if (!user) {
+      throw new ErrorService(ErrorType.NotFound, `User with id ${id} was not found`);
+    }
+    return { email: user.email, id: user.id, name: user.name };
+  }
 }
