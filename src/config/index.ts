@@ -3,22 +3,23 @@ dotenv.config();
 
 export default {
   port: parseInt(process.env.PORT!),
+  jwtSecret: process.env.JWT_SECRET!,
   api: {
     prefix: "/api"
   },
   env: process.env.NODE_ENV || "development",
   postgres: {
     host: process.env.DB_HOST,
-    user: process.env.DB_USER,
+    username: process.env.DB_USER,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: parseInt(process.env.DB_PORT!),
     ssl:
-      (process.env.NODE_ENV || "development") === "development"
-        ? undefined
-        : {
+      process.env.NODE_ENV === "production"
+        ? {
             rejectUnauthorized: false
           }
+        : undefined
   },
   logs: {
     level: process.env.LOG_LEVEL
