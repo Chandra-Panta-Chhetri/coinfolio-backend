@@ -7,7 +7,7 @@ export default class NewsService {
 
   public async getNews(query: IGetNewsQueryParams): Promise<IGetNews | null> {
     try {
-      const res = await axios.get<IGetNews>(config.newsAPI.baseURL, { params: query });
+      const res = await axios.get<IGetNews>(config.newsAPI.cryptoPanic, { params: query });
       return res.data;
     } catch (err) {
       return null;

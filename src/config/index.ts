@@ -25,10 +25,10 @@ export default {
     level: process.env.LOG_LEVEL
   },
   newsAPI: {
-    baseURL: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
+    cryptoPanic: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
   },
   eventsAPI: {
-    baseURL: "https://developers.coinmarketcal.com/v1",
+    coinMarketCal: "https://developers.coinmarketcal.com/v1",
     headers: {
       Accept: "application/json",
       "Accept-Encoding": "deflate, gzip",
@@ -40,11 +40,11 @@ export default {
     markets: "https://assets.coincap.io/assets/icons"
   },
   marketsAPI: {
-    coinCapGraphqlURL: "https://graphql.coincap.io",
+    coinCapGraphql: "https://graphql.coincap.io",
     headers: {
       "content-type": "application/json"
     },
-    coinCapBaseURL: "https://api.coincap.io/v2",
-    coinPaprikaBaseURL: "https://api.coinpaprika.com/v1"
+    coinCap: "https://api.coincap.io/v2",
+    coinPaprika: "https://api.coinpaprika.com/v1"
   }
 };

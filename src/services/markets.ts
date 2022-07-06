@@ -45,14 +45,14 @@ export default class MarketsService {
   constructor() {}
 
   private async executeGraphqlQuery<Type>(reqBody: IGrahpqlReqBody): Promise<Type> {
-    const res = await axios.post<Type>(config.marketsAPI.coinCapGraphqlURL, reqBody, {
+    const res = await axios.post<Type>(config.marketsAPI.coinCapGraphql, reqBody, {
       headers: config.marketsAPI.headers
     });
     return res.data;
   }
 
   public async getAssets(query: IAssetsQuery): Promise<IGetAssetsRes> {
-    const assetsRes = await axios.get<IGetAssetsRes>(`${config.marketsAPI.coinCapBaseURL}/assets`, {
+    const assetsRes = await axios.get<IGetAssetsRes>(`${config.marketsAPI.coinCap}/assets`, {
       params: query
     });
     return assetsRes.data;
@@ -188,7 +188,7 @@ export default class MarketsService {
   public async getAssetPriceHistory(id: string, query: IGetAssetPriceHistoryQuery): Promise<IPrice[]> {
     const {
       data: { data: prices }
-    } = await axios.get<IGetAssetPriceHistoryRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${id}/history`, {
+    } = await axios.get<IGetAssetPriceHistoryRes>(`${config.marketsAPI.coinCap}/assets/${id}/history`, {
       params: query
     });
     return prices;
@@ -209,7 +209,7 @@ export default class MarketsService {
   ): Promise<IAssetExchange[]> {
     const {
       data: { data: exchanges }
-    } = await axios.get<IGetAssetMarketsRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${params.id!}/markets`, {
+    } = await axios.get<IGetAssetMarketsRes>(`${config.marketsAPI.coinCap}/assets/${params.id!}/markets`, {
       params: {
         limit: query.perPage,
         offset: query.perPage! * (query.page! - 1)
@@ -223,10 +223,10 @@ export default class MarketsService {
 
     const {
       data: { data: asset }
-    } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${params.id!}`);
+    } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCap}/assets/${params.id!}`);
 
     const statisticsReq = axios.get<ITicker>(
-      `${config.marketsAPI.coinPaprikaBaseURL}/tickers/${asset.symbol.toLowerCase()}-${asset.name
+      `${config.marketsAPI.coinPaprika}/tickers/${asset.symbol.toLowerCase()}-${asset.name
         .toLowerCase()
         .split(" ")
         .join("-")}`

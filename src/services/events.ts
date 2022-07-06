@@ -16,7 +16,7 @@ export default class EventsService {
 
   public async getEvents(query: IGetEventsQueryParams): Promise<IGetEvents | IEventsStatus> {
     try {
-      const res = await axios.get<IGetEvents>(`${config.eventsAPI.baseURL}/events`, {
+      const res = await axios.get<IGetEvents>(`${config.eventsAPI.coinMarketCal}/events`, {
         params: query,
         headers: config.eventsAPI.headers
       });
