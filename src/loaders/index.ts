@@ -5,6 +5,6 @@ import "./events";
 import Logger from "./logger";
 
 export default async ({ expressApp }: { expressApp: ExpressApplication }) => {
-  await dbDataLoader();
+  // await dbDataLoader();
   await expressLoader({ app: expressApp });
 };

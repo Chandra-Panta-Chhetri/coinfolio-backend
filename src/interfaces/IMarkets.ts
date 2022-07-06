@@ -18,18 +18,18 @@ export interface IMarketSummaryRes {
   };
 }
 
-interface ISummaryLabelValue {
+interface ILabelValue {
   label: string;
   value: string;
 }
 
 export interface IMarketSummaryDTO {
-  totalMarketCap: ISummaryLabelValue;
-  volume24hr: ISummaryLabelValue;
-  numExchanges: ISummaryLabelValue;
-  numAssets: ISummaryLabelValue;
-  btcDom: ISummaryLabelValue;
-  ethDom: ISummaryLabelValue;
+  totalMarketCap: ILabelValue;
+  volume24hr: ILabelValue;
+  numExchanges: ILabelValue;
+  numAssets: ILabelValue;
+  btcDom: ILabelValue;
+  ethDom: ILabelValue;
 }
 
 export interface IMarketAsset {
@@ -77,16 +77,12 @@ export interface ISearchAssetsDTO {
   data: ISearchAssetDTO[];
 }
 
-export interface IAssetsQueryParams {
+export interface IAssetsQuery {
   search?: string;
   limit?: number;
 }
 
-export interface IMarketAssetsDTO {
-  data: IMarketAssetDTO[];
-}
-
-export interface IGetGainersLosersQueryParams {
+export interface IGetGainersLosersQuery {
   limit?: number;
 }
 
@@ -112,9 +108,109 @@ export interface IMarketsDTO {
   data: IMarketAssetDTO[];
 }
 
-export interface IGetMarketsQueryParams {
+export interface IGetMarketsQuery {
   sortBy?: string;
   sortOrder?: string;
   perPage?: number;
   page?: number;
+}
+
+export interface IGetAssetOverviewParams {
+  id?: string;
+}
+
+export interface IPrice {
+  priceUsd: string;
+  time: number;
+}
+
+export interface IPriceHistory {
+  label: string;
+  prices: IPrice[];
+}
+
+export interface IPriceHistoryDTO {
+  label: string;
+  history: IAssetPriceHistoryDTO;
+}
+
+export interface IAssetOverview {
+  statistics: ITicker;
+  priceHistory: IPriceHistory[];
+  asset: IMarketAsset;
+}
+
+export interface IAssetOverviewDTO {
+  statistics: IStatisticsSection[];
+  priceHistory: IPriceHistoryDTO[];
+  name: string;
+  rank: string;
+  priceUsd: number;
+}
+
+interface IStatisticsSection {
+  data: ILabelValue[];
+}
+
+interface ITickerQuote {
+  [key: string]: {
+    ath_price: number;
+  };
+}
+
+export interface ITicker {
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number;
+  quotes: ITickerQuote;
+}
+
+export interface IGetAssetPriceHistoryQuery {
+  interval: "m1" | "m5" | "m15" | "m30" | "h1" | "h2" | "h6" | "h12" | "d1";
+  start?: number;
+  end?: number;
+}
+
+export interface IAssetPriceHistoryDTO {
+  prices: IPrice[];
+  percentChange: number;
+}
+
+export interface IGetAssetPriceHistoryRes {
+  data: IPrice[];
+}
+
+export interface IGetAssetRes {
+  data: IMarketAsset;
+}
+
+export interface IGetAssetExchangesParams {
+  id?: string;
+}
+
+export interface IGetAssetExchangesQuery {
+  perPage?: number;
+  page?: number;
+}
+
+export interface IAssetExchange {
+  exchangeId: string;
+  baseId: string;
+  quoteId: string;
+  baseSymbol: string;
+  quoteSymbol: string;
+  volumeUsd24Hr: string;
+  priceUsd: string;
+  volumePercent: string;
+}
+
+export interface IAssetExchangeDTO {
+  name: string;
+  priceUsd: string;
+  vol24h: string;
+  pair: string;
+}
+
+export interface IGetAssetMarketsRes {
+  data: IAssetExchange[];
 }

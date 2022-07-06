@@ -1,7 +1,7 @@
 import axios from "../config/axios";
 import config from "../config";
 import {
-  IGetGainersLosersQueryParams,
+  IGetGainersLosersQuery,
   IGrahpqlReqBody,
   IMarketAsset,
   IMarketAssetDTO,
@@ -10,31 +10,55 @@ import {
   IMarketsGraphqlRes,
   IMarketSummaryDTO,
   IMarketSummaryRes,
-  IMarketAssetsDTO,
   IGetAssetsRes,
-  IAssetsQueryParams,
+  IAssetsQuery,
   ISearchAssetsDTO,
-  IGetMarketsQueryParams,
-  IMarketsDTO
+  IGetMarketsQuery,
+  IMarketsDTO,
+  IGetAssetOverviewParams,
+  IAssetOverview,
+  IAssetOverviewDTO,
+  ITicker,
+  IPrice,
+  IGetAssetPriceHistoryQuery,
+  IAssetPriceHistoryDTO,
+  IGetAssetRes,
+  IGetAssetPriceHistoryRes,
+  IPriceHistory,
+  IPriceHistoryDTO,
+  IGetAssetExchangesParams,
+  IGetAssetExchangesQuery,
+  IAssetExchange,
+  IGetAssetMarketsRes,
+  IAssetExchangeDTO
 } from "../interfaces/IMarkets";
-import { toDollarString, toMarketImageURL, toNDecimals, toPercentString } from "../api/utils";
+import {
+  addSubtractTime,
+  calculatePercentChange,
+  toDollarString,
+  toMarketImageURL,
+  toNDecimals,
+  toPercentString
+} from "../api/utils";
 
 export default class MarketsService {
   constructor() {}
 
   private async executeGraphqlQuery<Type>(reqBody: IGrahpqlReqBody): Promise<Type> {
-    const res = await axios.post<Type>(config.markets.graphqlURL, reqBody, { headers: config.markets.headers });
+    const res = await axios.post<Type>(config.marketsAPI.coinCapGraphqlURL, reqBody, {
+      headers: config.marketsAPI.headers
+    });
     return res.data;
   }
 
-  public async getAssets(queryParams: IAssetsQueryParams): Promise<IGetAssetsRes> {
-    const assetsRes = await axios.get<IGetAssetsRes>(`${config.markets.restURL}/assets`, {
-      params: queryParams
+  public async getAssets(query: IAssetsQuery): Promise<IGetAssetsRes> {
+    const assetsRes = await axios.get<IGetAssetsRes>(`${config.marketsAPI.coinCapBaseURL}/assets`, {
+      params: query
     });
     return assetsRes.data;
   }
 
-  public toSearchAssetsDTO(assetsRes: IGetAssetsRes): ISearchAssetsDTO {
+  public mapGetAssetsToSearchAssetsDTO(assetsRes: IGetAssetsRes): ISearchAssetsDTO {
     return {
       data: assetsRes.data.map((a) => ({
         id: a.id,
@@ -86,17 +110,17 @@ export default class MarketsService {
     };
   }
 
-  public toAssetsDTO(assetsRes: IGetAssetsRes): IMarketAssetsDTO {
+  public mapGetAssetsToMarketsDTO(assetsRes: IGetAssetsRes): IMarketsDTO {
     return {
       data: assetsRes.data.map((a) => this.toMarketAssetDTO(a))
     };
   }
 
-  public async getGainersLosers(queryParams: IGetGainersLosersQueryParams): Promise<IMarketGainersLosersMerged> {
+  public async getGainersLosers(query: IGetGainersLosersQuery): Promise<IMarketGainersLosersMerged> {
     const gainersReq = this.executeGraphqlQuery<IMarketsGraphqlRes>({
       variables: {
         direction: "DESC",
-        first: queryParams.limit!,
+        first: query.limit!,
         sort: "changePercent24Hr"
       },
       query:
@@ -105,7 +129,7 @@ export default class MarketsService {
     const losersReq = await this.executeGraphqlQuery<IMarketsGraphqlRes>({
       variables: {
         direction: "ASC",
-        first: queryParams.limit!,
+        first: query.limit!,
         sort: "changePercent24Hr"
       },
       query:
@@ -132,7 +156,7 @@ export default class MarketsService {
     };
   }
 
-  public toMarketsDTO(marketsRes: IMarketsGraphqlRes): IMarketsDTO {
+  public mapMarketsGraphqlToMarketsDTO(marketsRes: IMarketsGraphqlRes): IMarketsDTO {
     return {
       data: marketsRes.data.assets.edges.map(({ node }) => this.toMarketAssetDTO(node))
     };
@@ -140,24 +164,174 @@ export default class MarketsService {
 
   public toGainersLosersDTO(gainersLosersRes: IMarketGainersLosersMerged): IMarketGainersLosersDTO {
     return {
-      gainers: this.toMarketsDTO(gainersLosersRes.gainers).data,
-      losers: this.toMarketsDTO(gainersLosersRes.losers).data
+      gainers: this.mapMarketsGraphqlToMarketsDTO(gainersLosersRes.gainers).data,
+      losers: this.mapMarketsGraphqlToMarketsDTO(gainersLosersRes.losers).data
     };
   }
 
-  public async getMarkets(queryParams: IGetMarketsQueryParams): Promise<IMarketsGraphqlRes> {
+  public async getMarkets(query: IGetMarketsQuery): Promise<IMarketsGraphqlRes> {
     const marketsRes = await this.executeGraphqlQuery<IMarketsGraphqlRes>({
       variables: {
-        direction: queryParams.sortOrder,
-        first: queryParams.perPage! * queryParams.page!,
-        sort: queryParams.sortBy
+        direction: query.sortOrder,
+        first: query.perPage! * query.page!,
+        sort: query.sortBy
       },
       query:
         "query ( $after: String $before: String $direction: SortDirection $first: Int $last: Int $sort: AssetSortInput ) { assets( after: $after before: $before direction: $direction first: $first last: $last sort: $sort ) { edges { node { changePercent24Hr name id logo marketCapUsd priceUsd rank supply symbol volumeUsd24Hr vwapUsd24Hr } } } }"
     });
     //include only new data
-    const startIndex = queryParams.perPage! * (queryParams.page! - 1);
+    const startIndex = query.perPage! * (query.page! - 1);
     marketsRes.data.assets.edges = marketsRes.data.assets.edges.slice(startIndex);
     return marketsRes;
+  }
+
+  public async getAssetPriceHistory(id: string, query: IGetAssetPriceHistoryQuery): Promise<IPrice[]> {
+    const {
+      data: { data: prices }
+    } = await axios.get<IGetAssetPriceHistoryRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${id}/history`, {
+      params: query
+    });
+    return prices;
+  }
+
+  public toAssetExchangesDTO(assetExchanges: IAssetExchange[]): IAssetExchangeDTO[] {
+    return assetExchanges.map((ae) => ({
+      name: ae.exchangeId,
+      priceUsd: ae.priceUsd,
+      vol24h: ae.volumeUsd24Hr,
+      pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
+    }));
+  }
+
+  public async getAssetExchanges(
+    params: IGetAssetExchangesParams,
+    query: IGetAssetExchangesQuery
+  ): Promise<IAssetExchange[]> {
+    const {
+      data: { data: exchanges }
+    } = await axios.get<IGetAssetMarketsRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${params.id!}/markets`, {
+      params: {
+        limit: query.perPage,
+        offset: query.perPage! * (query.page! - 1)
+      }
+    });
+    return exchanges;
+  }
+
+  public async getAssetOverview(params: IGetAssetOverviewParams): Promise<IAssetOverview> {
+    const todayDate = new Date();
+
+    const {
+      data: { data: asset }
+    } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCapBaseURL}/assets/${params.id!}`);
+
+    const statisticsReq = axios.get<ITicker>(
+      `${config.marketsAPI.coinPaprikaBaseURL}/tickers/${asset.symbol.toLowerCase()}-${asset.name
+        .toLowerCase()
+        .split(" ")
+        .join("-")}`
+    );
+
+    const date1hBefore = addSubtractTime(todayDate, { hours: -1 });
+    const date1dBefore = addSubtractTime(todayDate, { days: -1 });
+    const date1mBefore = addSubtractTime(todayDate, { months: -1 });
+    const date1yBefore = addSubtractTime(todayDate, { years: -1 });
+
+    const priceHistory1hReq = this.getAssetPriceHistory(params.id!, {
+      interval: "m5",
+      start: date1hBefore.getTime(),
+      end: todayDate.getTime()
+    });
+    const priceHistory1dReq = this.getAssetPriceHistory(params.id!, {
+      interval: "m5",
+      start: date1dBefore.getTime(),
+      end: todayDate.getTime()
+    });
+    const priceHistory1mReq = this.getAssetPriceHistory(params.id!, {
+      interval: "h2",
+      start: date1mBefore.getTime(),
+      end: todayDate.getTime()
+    });
+    const priceHistory1yReq = this.getAssetPriceHistory(params.id!, {
+      interval: "d1",
+      start: date1yBefore.getTime(),
+      end: todayDate.getTime()
+    });
+    const priceHistoryAllReq = this.getAssetPriceHistory(params.id!, { interval: "d1" });
+
+    const [{ data: statistics }, priceHistory1h, priceHistory1d, priceHistory1m, priceHistory1y, priceHistoryAll] =
+      await Promise.all([
+        statisticsReq,
+        priceHistory1hReq,
+        priceHistory1dReq,
+        priceHistory1mReq,
+        priceHistory1yReq,
+        priceHistoryAllReq
+      ]);
+
+    const priceHistory = [
+      {
+        label: "1h",
+        prices: priceHistory1h
+      },
+      {
+        label: "1d",
+        prices: priceHistory1d
+      },
+      {
+        label: "1m",
+        prices: priceHistory1m
+      },
+      {
+        label: "1y",
+        prices: priceHistory1y
+      },
+      {
+        label: "All",
+        prices: priceHistoryAll
+      }
+    ];
+
+    return {
+      asset,
+      statistics,
+      priceHistory
+    };
+  }
+
+  public toPriceHistoryDTO(priceHistory: IPriceHistory, currentPrice: string): IPriceHistoryDTO {
+    const initialPrice = priceHistory.prices[0]?.priceUsd;
+
+    return {
+      label: priceHistory.label,
+      history: {
+        prices: priceHistory.prices,
+        percentChange: initialPrice ? calculatePercentChange(Number(currentPrice), Number(initialPrice)) : 0
+      }
+    };
+  }
+
+  public toAssetOverviewDTO(ao: IAssetOverview): IAssetOverviewDTO {
+    return {
+      rank: ao.asset.rank,
+      name: ao.asset.name,
+      priceUsd: toNDecimals(ao.asset.priceUsd),
+      priceHistory: ao.priceHistory.map((ph) => this.toPriceHistoryDTO(ph, ao.asset.priceUsd)),
+      statistics: [
+        {
+          data: [
+            { label: "Market Cap", value: toDollarString(ao.asset.marketCapUsd) },
+            { label: "Volume 24h", value: toDollarString(ao.asset.volumeUsd24Hr) },
+            { label: "Max Supply", value: `${ao.statistics.max_supply}` }
+          ]
+        },
+        {
+          data: [
+            { label: "Total Supply", value: `${ao.statistics.total_supply}` },
+            { label: "All Time High", value: `$${ao.statistics.quotes.USD.ath_price}` }
+          ]
+        }
+      ]
+    };
   }
 }

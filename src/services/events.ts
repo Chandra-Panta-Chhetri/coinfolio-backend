@@ -14,11 +14,11 @@ import { toEventImageURL } from "../api/utils";
 export default class EventsService {
   constructor() {}
 
-  public async getEvents(queryParams: IGetEventsQueryParams): Promise<IGetEvents | IEventsStatus> {
+  public async getEvents(query: IGetEventsQueryParams): Promise<IGetEvents | IEventsStatus> {
     try {
-      const res = await axios.get<IGetEvents>(`${config.events.baseURL}/events`, {
-        params: queryParams,
-        headers: config.events.headers
+      const res = await axios.get<IGetEvents>(`${config.eventsAPI.baseURL}/events`, {
+        params: query,
+        headers: config.eventsAPI.headers
       });
       return res.data;
     } catch (err) {
