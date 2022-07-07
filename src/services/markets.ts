@@ -44,6 +44,7 @@ import {
   toNDecimals,
   toPercentString
 } from "../api/utils";
+import Logger from "../loaders/logger";
 
 export default class MarketsService {
   constructor() {}

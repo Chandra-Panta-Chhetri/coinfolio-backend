@@ -17,13 +17,14 @@ export const calculatePercentChange = (final: number, initial: number) => ((fina
 export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions): Date => {
   const result = new Date(initialDate);
 
-  result.setMilliseconds(initialDate.getMilliseconds() + (options.milliseconds || 0));
-  result.setSeconds(initialDate.getSeconds() + (options.seconds || 0));
-  result.setMinutes(initialDate.getMinutes() + (options.minutes || 0));
-  result.setHours(initialDate.getHours() + (options.hours || 0));
-  result.setDate(initialDate.getDate() + (options.days || 0) + (options.weeks || 0) * 7);
-  result.setMonth(initialDate.getMonth() + (options.months || 0));
-  result.setFullYear(initialDate.getFullYear() + (options.years || 0));
+  options.milliseconds && result.setMilliseconds(result.getMilliseconds() + options.milliseconds);
+  options.seconds && result.setSeconds(result.getSeconds() + options.seconds);
+  options.minutes && result.setMinutes(result.getMinutes() + options.minutes);
+  options.hours && result.setHours(result.getHours() + options.hours);
+  options.days && result.setDate(result.getDate() + options.days);
+  options.weeks && result.setDate(result.getDate() + options.weeks * 7);
+  options.months && result.setMonth(result.getMonth() + options.months);
+  options.years && result.setFullYear(result.getFullYear() + options.years);
 
   return result;
 };
