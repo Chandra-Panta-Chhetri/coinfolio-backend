@@ -214,3 +214,58 @@ export interface IAssetExchangeDTO {
 export interface IGetAssetMarketsRes {
   data: IAssetExchange[];
 }
+
+export interface IGetAssetAboutParams {
+  id?: string;
+}
+
+export interface IGetAssetAboutQuery {
+  symbol?: string;
+  name?: string;
+}
+
+interface IAssetAboutTag {
+  id: string;
+  name: string;
+  coin_counter: number;
+  ico_counter: number;
+}
+
+interface IAssetAboutWhitepaper {
+  link: string;
+  thumbnail: string;
+}
+
+interface IAssetAboutLinks {
+  [key: string]: string[];
+}
+
+interface IAssetAboutExtendedLink {
+  url: string;
+  type: string;
+  stats?: { [key: string]: number };
+}
+
+export interface IAssetAbout {
+  description: string;
+  proof_type: string;
+  hash_algorithm: string;
+  links: IAssetAboutLinks;
+  links_extended: IAssetAboutExtendedLink[];
+  whitepaper: IAssetAboutWhitepaper;
+  tags: IAssetAboutTag[];
+}
+
+interface IAssetAboutLinkDTO {
+  url: string;
+  stats?: { [key: string]: number };
+}
+
+export interface IAssetAboutLinksDTO {
+  [key: string]: IAssetAboutLinkDTO[];
+}
+
+export interface IAssetAboutDTO {
+  description: string;
+  links: IAssetAboutLinksDTO;
+}

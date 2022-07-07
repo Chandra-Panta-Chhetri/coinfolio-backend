@@ -21,7 +21,6 @@ import {
   ITicker,
   IPrice,
   IGetAssetPriceHistoryQuery,
-  IAssetPriceHistoryDTO,
   IGetAssetRes,
   IGetAssetPriceHistoryRes,
   IPriceHistory,
@@ -30,7 +29,12 @@ import {
   IGetAssetExchangesQuery,
   IAssetExchange,
   IGetAssetMarketsRes,
-  IAssetExchangeDTO
+  IAssetExchangeDTO,
+  IGetAssetAboutParams,
+  IGetAssetAboutQuery,
+  IAssetAbout,
+  IAssetAboutDTO,
+  IAssetAboutLinksDTO
 } from "../interfaces/IMarkets";
 import {
   addSubtractTime,
@@ -333,5 +337,32 @@ export default class MarketsService {
         }
       ]
     };
+  }
+
+  public toAssetAboutDTO(assetAbout: IAssetAbout): IAssetAboutDTO {
+    const links: IAssetAboutLinksDTO = {};
+
+    for (let l of assetAbout.links_extended) {
+      if (links[l.type]) {
+        links[l.type].push({ url: l.url, stats: l.stats });
+      } else {
+        links[l.type] = [{ url: l.url, stats: l.stats }];
+      }
+    }
+
+    return {
+      description: assetAbout.description,
+      links
+    };
+  }
+
+  public async getAssetAbout(params: IGetAssetAboutParams, query: IGetAssetAboutQuery): Promise<IAssetAbout> {
+    const { data } = await axios.get<IAssetAbout>(
+      `${config.marketsAPI.coinPaprika}/coins/${query.symbol!.toLowerCase()}-${query
+        .name!.toLowerCase()
+        .split(" ")
+        .join("-")}`
+    );
+    return data;
   }
 }

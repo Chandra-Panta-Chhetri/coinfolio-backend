@@ -49,3 +49,10 @@ export const getAssetExchanges = async (req: Request, res: Response) => {
   const exchanges = ms.toAssetExchangesDTO(exchangesRes);
   res.send(exchanges);
 };
+
+export const getAssetAbout = async (req: Request, res: Response) => {
+  const ms = new MarketsService();
+  const aboutRes = await ms.getAssetAbout(req.params, req.query);
+  const about = ms.toAssetAboutDTO(aboutRes);
+  res.send(about);
+};

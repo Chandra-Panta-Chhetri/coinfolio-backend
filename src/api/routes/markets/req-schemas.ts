@@ -80,3 +80,19 @@ export const GET_ASSET_EXCHANGES = {
     })
   })
 };
+
+export const GET_ASSET_ABOUT = {
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.string().required().messages({
+      "any.required": "id is required"
+    })
+  }),
+  [Segments.QUERY]: Joi.object().keys({
+    symbol: Joi.string().required().messages({
+      "any.required": "symbol is required"
+    }),
+    name: Joi.string().required().messages({
+      "any.required": "name is required"
+    })
+  })
+};
