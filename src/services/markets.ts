@@ -11,7 +11,7 @@ import {
   IMarketSummaryDTO,
   IMarketSummaryRes,
   IGetAssetsRes,
-  IAssetsQuery,
+  IGetAssetsQuery,
   ISearchAssetsDTO,
   IGetMarketsQuery,
   IMarketsDTO,
@@ -29,7 +29,7 @@ import {
   IGetAssetExchangesQuery,
   IAssetExchange,
   IGetAssetMarketsRes,
-  IAssetExchangeDTO,
+  IAssetExchangesDTO,
   IGetAssetAboutParams,
   IGetAssetAboutQuery,
   IAssetAbout,
@@ -56,16 +56,16 @@ export default class MarketsService {
     return res.data;
   }
 
-  public async getAssets(query: IAssetsQuery): Promise<IGetAssetsRes> {
+  public async getAssets(query: IGetAssetsQuery): Promise<IMarketAsset[]> {
     const assetsRes = await axios.get<IGetAssetsRes>(`${config.marketsAPI.coinCap}/assets`, {
       params: query
     });
-    return assetsRes.data;
+    return assetsRes.data.data;
   }
 
-  public mapGetAssetsToSearchAssetsDTO(assetsRes: IGetAssetsRes): ISearchAssetsDTO {
+  public mapMarketAssetsToSearchAssetsDTO(assets: IMarketAsset[]): ISearchAssetsDTO {
     return {
-      data: assetsRes.data.map((a) => ({
+      data: assets.map((a) => ({
         id: a.id,
         image: toMarketImageURL(a.symbol),
         name: a.name,
@@ -115,9 +115,9 @@ export default class MarketsService {
     };
   }
 
-  public mapGetAssetsToMarketsDTO(assetsRes: IGetAssetsRes): IMarketsDTO {
+  public mapMarketAssetsToMarketsDTO(assets: IMarketAsset[]): IMarketsDTO {
     return {
-      data: assetsRes.data.map((a) => this.toMarketAssetDTO(a))
+      data: assets.map((a) => this.toMarketAssetDTO(a))
     };
   }
 
@@ -199,13 +199,15 @@ export default class MarketsService {
     return prices;
   }
 
-  public toAssetExchangesDTO(assetExchanges: IAssetExchange[]): IAssetExchangeDTO[] {
-    return assetExchanges.map((ae) => ({
-      name: ae.exchangeId,
-      priceUsd: ae.priceUsd,
-      vol24h: ae.volumeUsd24Hr,
-      pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
-    }));
+  public toAssetExchangesDTO(assetExchanges: IAssetExchange[]): IAssetExchangesDTO {
+    return {
+      data: assetExchanges.map((ae) => ({
+        name: ae.exchangeId,
+        priceUsd: ae.priceUsd,
+        vol24h: ae.volumeUsd24Hr,
+        pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
+      }))
+    };
   }
 
   public async getAssetExchanges(

@@ -1,9 +1,10 @@
-export interface IGetEventsQueryParams {
+export interface IGetEventsQuery {
   page?: number;
   max?: number;
   dateRangeStart?: string;
   dateRangeEnd?: string;
   showOnly?: string;
+  coins?: string;
 }
 
 export interface IEventsStatus {
@@ -11,7 +12,7 @@ export interface IEventsStatus {
   error_message: string;
 }
 
-interface IGetEventsMetaData {
+interface IEventsMetaData {
   max: number;
   page: number;
   page_count: number;
@@ -53,7 +54,7 @@ interface IGetEventsBody {
   title: IEventTranslation;
 }
 
-interface IGetEventsResultsDTO {
+interface IEventResultsDTO {
   id: number;
   date: string;
   can_occur_before: boolean;
@@ -64,13 +65,13 @@ interface IGetEventsResultsDTO {
   source: string;
 }
 
-export interface IGetEventsDTO {
-  metadata: IGetEventsMetaData;
-  results: IGetEventsResultsDTO[];
+export interface IEventsDTO {
+  metadata: IEventsMetaData;
+  results: IEventResultsDTO[];
 }
 
-export interface IGetEvents {
+export interface IGetEventsRes {
   status: IEventsStatus;
-  _metadata: IGetEventsMetaData;
+  _metadata: IEventsMetaData;
   body: IGetEventsBody[];
 }

@@ -11,7 +11,7 @@ export const getMarkets = async (req: Request, res: Response) => {
 export const getAssetsByKeyword = async (req: Request, res: Response) => {
   const ms = new MarketsService();
   const assetsRes = await ms.getAssets(req.query);
-  const assets = ms.mapGetAssetsToSearchAssetsDTO(assetsRes);
+  const assets = ms.mapMarketAssetsToSearchAssetsDTO(assetsRes);
   res.send(assets);
 };
 
@@ -25,7 +25,7 @@ export const getSummary = async (req: Request, res: Response) => {
 export const getTopCoins = async (req: Request, res: Response) => {
   const ms = new MarketsService();
   const topCoinsRes = await ms.getAssets(req.query);
-  const topCoins = ms.mapGetAssetsToMarketsDTO(topCoinsRes);
+  const topCoins = ms.mapMarketAssetsToMarketsDTO(topCoinsRes);
   res.send(topCoins);
 };
 

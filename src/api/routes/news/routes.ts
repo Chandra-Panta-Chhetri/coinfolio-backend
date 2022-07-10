@@ -11,13 +11,13 @@ export default (app: Router) => {
 
   route.get(
     "/",
-    celebrate(reqSchemas.GET_NEWS),
     rl({
       windowMs: 1000,
       max: 5,
       legacyHeaders: false,
       standardHeaders: true
     }),
+    celebrate(reqSchemas.GET_NEWS),
     newsController.index
   );
 };

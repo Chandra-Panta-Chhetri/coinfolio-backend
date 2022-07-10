@@ -77,7 +77,7 @@ export interface ISearchAssetsDTO {
   data: ISearchAssetDTO[];
 }
 
-export interface IAssetsQuery {
+export interface IGetAssetsQuery {
   search?: string;
   limit?: number;
 }
@@ -131,7 +131,7 @@ export interface IPriceHistory {
 
 export interface IPriceHistoryDTO {
   label: string;
-  history: IAssetPriceHistoryDTO;
+  history: IPricePercentChangeDTO;
 }
 
 export interface IAssetOverview {
@@ -171,7 +171,7 @@ export interface IGetAssetPriceHistoryQuery {
   end?: number;
 }
 
-export interface IAssetPriceHistoryDTO {
+export interface IPricePercentChangeDTO {
   prices: IPrice[];
   percentChange: number;
 }
@@ -204,11 +204,15 @@ export interface IAssetExchange {
   volumePercent: string;
 }
 
-export interface IAssetExchangeDTO {
+interface IAssetExchangeDTO {
   name: string;
   priceUsd: string;
   vol24h: string;
   pair: string;
+}
+
+export interface IAssetExchangesDTO {
+  data: IAssetExchangeDTO[];
 }
 
 export interface IGetAssetMarketsRes {

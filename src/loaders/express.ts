@@ -4,11 +4,11 @@ import routes from "../api";
 import config from "../config";
 import { isCelebrateError } from "celebrate";
 import morgan from "morgan";
-import { IReqValidationErr } from "../interfaces/IReqValidationErr";
 import compression from "compression";
 import { ErrorType } from "../enums/error";
 import middlewares from "../api/middlewares";
 import ErrorService from "../services/error";
+import Logger from "./logger";
 
 export default async ({ app }: { app: express.Application }) => {
   app.enable("trust proxy");
@@ -23,7 +23,7 @@ export default async ({ app }: { app: express.Application }) => {
   app.use(config.api.prefix, routes());
 
   //Catches 404 api routes
-  app.use(`${config.api.prefix}/*`, (req, res, next) => {
+  app.use(`${config.api.prefix}/*`, (req) => {
     throw new ErrorService(ErrorType.NotFound, `${req.method} request to ${req.originalUrl} does not exist!`);
   });
 
@@ -33,15 +33,14 @@ export default async ({ app }: { app: express.Application }) => {
       return next(err);
     }
     for (let e of err.details.keys()) {
-      console.log(err.details.get(e)?.details);
       let errorMsg = err.details.get(e)!.details.map((d) => d.message)[0];
       return res.status(400).send({ message: errorMsg });
     }
   });
 
   //Handles generic errors
-  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.log(err.name, err.message);
+  app.use((err: Error, req: Request, res: Response) => {
+    Logger.error(err.message);
     switch (err.name) {
       case ErrorType.Unauthorized:
         return res.status(401).send({ message: err.message });

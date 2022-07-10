@@ -1,4 +1,5 @@
 import { Joi, Segments } from "celebrate";
+import REGEXES from "../../../constants/regex";
 
 export const GET_EVENTS = {
   [Segments.QUERY]: Joi.object().keys({
@@ -23,6 +24,9 @@ export const GET_EVENTS = {
       }),
     showOnly: Joi.string().valid("hot_events", "trending_events", "significant_events").messages({
       "any.only": "showOnly must be 'hot_events' | 'trending_events' | 'significant_events'"
+    }),
+    coins: Joi.string().pattern(REGEXES.COMMA_SEPARATED).messages({
+      "string.pattern.base": "currencies must be comma separated values"
     })
   })
 };
