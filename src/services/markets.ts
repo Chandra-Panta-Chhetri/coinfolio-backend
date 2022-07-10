@@ -245,7 +245,7 @@ export default class MarketsService {
     const date1yBefore = addSubtractTime(todayDate, { years: -1 });
 
     const priceHistory1hReq = this.getAssetPriceHistory(params.id!, {
-      interval: "m5",
+      interval: "m1",
       start: date1hBefore.getTime(),
       end: todayDate.getTime()
     });
