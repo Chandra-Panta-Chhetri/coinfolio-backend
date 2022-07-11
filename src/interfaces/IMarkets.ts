@@ -260,16 +260,16 @@ export interface IAssetAbout {
   tags: IAssetAboutTag[];
 }
 
-interface IAssetAboutLinkDTO {
-  url: string;
+interface IAboutLinkDTO {
+  urls: string[];
   stats?: { [key: string]: number };
 }
 
-export interface IAssetAboutLinksDTO {
-  [key: string]: IAssetAboutLinkDTO[];
+export interface IAboutLinksDTO {
+  [key: string]: IAboutLinkDTO;
 }
 
 export interface IAssetAboutDTO {
   description: string;
-  links: IAssetAboutLinksDTO;
+  links: IAboutLinksDTO;
 }

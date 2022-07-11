@@ -34,7 +34,7 @@ import {
   IGetAssetAboutQuery,
   IAssetAbout,
   IAssetAboutDTO,
-  IAssetAboutLinksDTO
+  IAboutLinksDTO
 } from "../interfaces/IMarkets";
 import {
   addSubtractTime,
@@ -343,13 +343,16 @@ export default class MarketsService {
   }
 
   public toAssetAboutDTO(assetAbout: IAssetAbout): IAssetAboutDTO {
-    const links: IAssetAboutLinksDTO = {};
+    const links: IAboutLinksDTO = {};
 
     for (let l of assetAbout.links_extended) {
-      if (links[l.type]) {
-        links[l.type].push({ url: l.url, stats: l.stats });
+      if (!links[l.type]) {
+        links[l.type] = { urls: [l.url], stats: l.stats };
       } else {
-        links[l.type] = [{ url: l.url, stats: l.stats }];
+        links[l.type].urls.push(l.url);
+        if (!links[l.type].stats) {
+          links[l.type].stats = l.stats;
+        }
       }
     }
 
