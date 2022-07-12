@@ -27,6 +27,9 @@ export const GET_EVENTS = {
     }),
     coins: Joi.string().pattern(REGEXES.COMMA_SEPARATED).messages({
       "string.pattern.base": "currencies must be comma separated values"
+    }),
+    sortBy: Joi.string().valid("hot_events", "trending_events", "significant_events").messages({
+      "any.only": "sortBy must be 'hot_events' | 'trending_events' | 'significant_events'"
     })
   })
 };

@@ -5,6 +5,7 @@ export interface IGetEventsQuery {
   dateRangeEnd?: string;
   showOnly?: string;
   coins?: string;
+  sortBy?: string;
 }
 
 export interface IEventsStatus {
