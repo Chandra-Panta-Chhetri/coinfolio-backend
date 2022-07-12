@@ -39,6 +39,7 @@ import {
 import {
   addSubtractTime,
   calculatePercentChange,
+  convertCoinCapIDToCoinPaprikaID,
   toDollarString,
   toMarketImageURL,
   toNDecimals,
@@ -233,10 +234,7 @@ export default class MarketsService {
     } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCap}/assets/${params.id!}`);
 
     const statisticsReq = axios.get<ITicker>(
-      `${config.marketsAPI.coinPaprika}/tickers/${asset.symbol.toLowerCase()}-${asset.name
-        .toLowerCase()
-        .split(" ")
-        .join("-")}`
+      `${config.marketsAPI.coinPaprika}/tickers/${convertCoinCapIDToCoinPaprikaID(asset.symbol, asset.id)}`
     );
 
     const date1hBefore = addSubtractTime(todayDate, { hours: -1 });
@@ -364,10 +362,7 @@ export default class MarketsService {
 
   public async getAssetAbout(params: IGetAssetAboutParams, query: IGetAssetAboutQuery): Promise<IAssetAbout> {
     const { data } = await axios.get<IAssetAbout>(
-      `${config.marketsAPI.coinPaprika}/coins/${query.symbol!.toLowerCase()}-${query
-        .name!.toLowerCase()
-        .split(" ")
-        .join("-")}`
+      `${config.marketsAPI.coinPaprika}/coins/${convertCoinCapIDToCoinPaprikaID(query.symbol!, params.id!)}`
     );
     return data;
   }

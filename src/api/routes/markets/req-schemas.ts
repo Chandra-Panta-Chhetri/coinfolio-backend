@@ -90,9 +90,6 @@ export const GET_ASSET_ABOUT = {
   [Segments.QUERY]: Joi.object().keys({
     symbol: Joi.string().required().messages({
       "any.required": "symbol is required"
-    }),
-    name: Joi.string().required().messages({
-      "any.required": "name is required"
     })
   })
 };

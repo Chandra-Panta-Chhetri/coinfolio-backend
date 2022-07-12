@@ -225,7 +225,6 @@ export interface IGetAssetAboutParams {
 
 export interface IGetAssetAboutQuery {
   symbol?: string;
-  name?: string;
 }
 
 interface IAssetAboutTag {
