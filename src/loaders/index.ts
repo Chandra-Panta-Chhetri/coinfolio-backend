@@ -6,7 +6,7 @@ import Logger from "./logger";
 import jobScheduler from "./job-scheduler";
 
 export default async ({ expressApp }: { expressApp: ExpressApplication }) => {
-  await initalizeDB();
+  //await initalizeDB();
   //await jobScheduler();
   await expressLoader({ app: expressApp });
 };

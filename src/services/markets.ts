@@ -1,5 +1,6 @@
 import axios from "../config/axios";
 import config from "../config";
+import postgres from "../loaders/postgres";
 import {
   IGetGainersLosersQuery,
   IGrahpqlReqBody,
@@ -31,16 +32,15 @@ import {
   IGetAssetMarketsRes,
   IAssetExchangesDTO,
   IGetAssetAboutParams,
-  IGetAssetAboutQuery,
   IAssetAbout,
   IAssetAboutDTO,
   IAboutLinksDTO,
-  ICoinPaprikaAsset
+  ICoinPaprikaAsset,
+  IMarketAssetIdMap
 } from "../interfaces/IMarkets";
 import {
   addSubtractTime,
   calculatePercentChange,
-  convertCoinCapIDToCoinPaprikaID,
   toDollarString,
   toMarketImageURL,
   toNDecimals,
@@ -232,75 +232,101 @@ export default class MarketsService {
     return exchanges;
   }
 
+  public async getCorrespondingIdsByCoincapId(coincapId: string): Promise<IMarketAssetIdMap> {
+    const idMaps = await postgres<
+      IMarketAssetIdMap[]
+    >`SELECT * FROM coincap_coinpaprika_id WHERE coincap_id = ${coincapId}`;
+    return idMaps.length !== 0 ? idMaps[0] : { coincap_id: null, coinpaprika_id: null };
+  }
+
   public async getAssetOverview(params: IGetAssetOverviewParams): Promise<IAssetOverview> {
     const todayDate = new Date();
 
     const {
       data: { data: asset }
     } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCap}/assets/${params.id!}`);
-
-    const statisticsReq = axios.get<ITicker>(
-      `${config.marketsAPI.coinPaprika}/tickers/${convertCoinCapIDToCoinPaprikaID(asset.symbol, asset.id)}`
-    );
-
     const date1hBefore = addSubtractTime(todayDate, { hours: -1 });
     const date1dBefore = addSubtractTime(todayDate, { days: -1 });
     const date1mBefore = addSubtractTime(todayDate, { months: -1 });
     const date1yBefore = addSubtractTime(todayDate, { years: -1 });
 
-    const priceHistory1hReq = this.getAssetPriceHistory(params.id!, {
+    const history1hReq = this.getAssetPriceHistory(params.id!, {
       interval: "m1",
       start: date1hBefore.getTime(),
       end: todayDate.getTime()
     });
-    const priceHistory1dReq = this.getAssetPriceHistory(params.id!, {
+    const history1dReq = this.getAssetPriceHistory(params.id!, {
       interval: "m5",
       start: date1dBefore.getTime(),
       end: todayDate.getTime()
     });
-    const priceHistory1mReq = this.getAssetPriceHistory(params.id!, {
+    const history1mReq = this.getAssetPriceHistory(params.id!, {
       interval: "h2",
       start: date1mBefore.getTime(),
       end: todayDate.getTime()
     });
-    const priceHistory1yReq = this.getAssetPriceHistory(params.id!, {
+    const history1yReq = this.getAssetPriceHistory(params.id!, {
       interval: "d1",
       start: date1yBefore.getTime(),
       end: todayDate.getTime()
     });
-    const priceHistoryAllReq = this.getAssetPriceHistory(params.id!, { interval: "d1" });
+    const historyAllReq = this.getAssetPriceHistory(params.id!, { interval: "d1" });
 
-    const [{ data: statistics }, priceHistory1h, priceHistory1d, priceHistory1m, priceHistory1y, priceHistoryAll] =
-      await Promise.all([
-        statisticsReq,
-        priceHistory1hReq,
-        priceHistory1dReq,
-        priceHistory1mReq,
-        priceHistory1yReq,
-        priceHistoryAllReq
-      ]);
+    const ids = await this.getCorrespondingIdsByCoincapId(asset.id);
+    const statisticsReq = ids?.coinpaprika_id
+      ? axios.get<ITicker>(`${config.marketsAPI.coinPaprika}/tickers/${ids?.coinpaprika_id}`)
+      : Promise.resolve({ data: {} });
+
+    const [{ data: statistics }, history1h, history1d, history1m, history1y, historyAll] = await Promise.all([
+      statisticsReq,
+      history1hReq,
+      history1dReq,
+      history1mReq,
+      history1yReq,
+      historyAllReq
+    ]);
 
     const priceHistory = [
-      {
-        label: "1h",
-        prices: priceHistory1h
-      },
-      {
-        label: "1d",
-        prices: priceHistory1d
-      },
-      {
-        label: "1m",
-        prices: priceHistory1m
-      },
-      {
-        label: "1y",
-        prices: priceHistory1y
-      },
-      {
-        label: "All",
-        prices: priceHistoryAll
-      }
+      ...(history1h.length > 0
+        ? [
+            {
+              label: "1h",
+              prices: history1h
+            }
+          ]
+        : []),
+      ...(history1d.length > 0
+        ? [
+            {
+              label: "1d",
+              prices: history1d
+            }
+          ]
+        : []),
+      ...(history1m.length > 0
+        ? [
+            {
+              label: "1m",
+              prices: history1m
+            }
+          ]
+        : []),
+      ...(history1y.length > 0
+        ? [
+            {
+              label: "1y",
+              prices: history1y
+            }
+          ]
+        : []),
+      ...(historyAll.length > 0
+        ? [
+            {
+              label: "All",
+              prices: historyAll
+            }
+          ]
+        : [])
     ];
 
     return {
@@ -333,13 +359,13 @@ export default class MarketsService {
           data: [
             { label: "Market Cap", value: toDollarString(ao.asset.marketCapUsd) },
             { label: "Volume 24h", value: toDollarString(ao.asset.volumeUsd24Hr) },
-            { label: "Max Supply", value: `${ao.statistics.max_supply}` }
+            { label: "Max Supply", value: `${ao.statistics.max_supply || "N/A"}` }
           ]
         },
         {
           data: [
-            { label: "Total Supply", value: `${ao.statistics.total_supply}` },
-            { label: "All Time High", value: `$${ao.statistics.quotes.USD.ath_price}` }
+            { label: "Total Supply", value: `${ao.statistics.total_supply || "N/A"}` },
+            { label: "All Time High", value: `$${ao.statistics.quotes?.USD.ath_price || "N/A"}` }
           ]
         }
       ]
@@ -349,7 +375,7 @@ export default class MarketsService {
   public toAssetAboutDTO(assetAbout: IAssetAbout): IAssetAboutDTO {
     const links: IAboutLinksDTO = {};
 
-    for (let l of assetAbout.links_extended) {
+    for (let l of assetAbout.links_extended || []) {
       if (!links[l.type]) {
         links[l.type] = { urls: [l.url], stats: l.stats };
       } else {
@@ -361,15 +387,17 @@ export default class MarketsService {
     }
 
     return {
-      description: assetAbout.description,
+      description: assetAbout.description || "",
       links
     };
   }
 
-  public async getAssetAbout(params: IGetAssetAboutParams, query: IGetAssetAboutQuery): Promise<IAssetAbout> {
-    const { data } = await axios.get<IAssetAbout>(
-      `${config.marketsAPI.coinPaprika}/coins/${convertCoinCapIDToCoinPaprikaID(query.symbol!, params.id!)}`
-    );
-    return data;
+  public async getAssetAbout(params: IGetAssetAboutParams): Promise<IAssetAbout> {
+    const ids = await this.getCorrespondingIdsByCoincapId(params.id!);
+    if (ids?.coinpaprika_id) {
+      const { data } = await axios.get<IAssetAbout>(`${config.marketsAPI.coinPaprika}/coins/${ids.coinpaprika_id}`);
+      return data;
+    }
+    return {};
   }
 }

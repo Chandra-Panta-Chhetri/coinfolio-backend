@@ -160,10 +160,10 @@ interface ITickerQuote {
 }
 
 export interface ITicker {
-  circulating_supply: number;
-  total_supply: number;
-  max_supply: number;
-  quotes: ITickerQuote;
+  circulating_supply?: number;
+  total_supply?: number;
+  max_supply?: number;
+  quotes?: ITickerQuote;
 }
 
 export interface IGetAssetPriceHistoryQuery {
@@ -224,10 +224,6 @@ export interface IGetAssetAboutParams {
   id?: string;
 }
 
-export interface IGetAssetAboutQuery {
-  symbol?: string;
-}
-
 interface IAssetAboutTag {
   id: string;
   name: string;
@@ -251,13 +247,13 @@ interface IAssetAboutExtendedLink {
 }
 
 export interface IAssetAbout {
-  description: string;
-  proof_type: string;
-  hash_algorithm: string;
-  links: IAssetAboutLinks;
-  links_extended: IAssetAboutExtendedLink[];
-  whitepaper: IAssetAboutWhitepaper;
-  tags: IAssetAboutTag[];
+  description?: string;
+  proof_type?: string;
+  hash_algorithm?: string;
+  links?: IAssetAboutLinks;
+  links_extended?: IAssetAboutExtendedLink[];
+  whitepaper?: IAssetAboutWhitepaper;
+  tags?: IAssetAboutTag[];
 }
 
 interface IAboutLinkDTO {
@@ -287,6 +283,6 @@ export interface ICoinPaprikaAsset {
 }
 
 export interface IMarketAssetIdMap {
-  coincap_id: string;
+  coincap_id: string | null;
   coinpaprika_id: string | null;
 }

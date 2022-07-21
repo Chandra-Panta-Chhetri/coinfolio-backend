@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   coinfolio-api:
-    container_name: coinfolio-api
+    container_name: api
     restart: always
     build: .
     ports:

@@ -37,10 +37,15 @@ export const getGainersLosers = async (req: Request, res: Response) => {
 };
 
 export const getAssetOverview = async (req: Request, res: Response) => {
-  const ms = new MarketsService();
-  const overviewRes = await ms.getAssetOverview(req.params);
-  const overview = ms.toAssetOverviewDTO(overviewRes);
-  res.send(overview);
+  try {
+    const ms = new MarketsService();
+    const overviewRes = await ms.getAssetOverview(req.params);
+    const overview = ms.toAssetOverviewDTO(overviewRes);
+    res.send(overview);
+  } catch (err) {
+    console.log(err);
+    res.send({});
+  }
 };
 
 export const getAssetExchanges = async (req: Request, res: Response) => {
@@ -52,7 +57,7 @@ export const getAssetExchanges = async (req: Request, res: Response) => {
 
 export const getAssetAbout = async (req: Request, res: Response) => {
   const ms = new MarketsService();
-  const aboutRes = await ms.getAssetAbout(req.params, req.query);
+  const aboutRes = await ms.getAssetAbout(req.params);
   const about = ms.toAssetAboutDTO(aboutRes);
   res.send(about);
 };

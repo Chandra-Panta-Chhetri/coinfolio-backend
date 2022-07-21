@@ -49,11 +49,15 @@ export const mapCoincapToCoinPaprika = async () => {
   //create dictionaries for both coins
   const coincapNameToIds: INamesToIds = {};
   for (let c of coincapCoins) {
-    coincapNameToIds[c.name] = c.id;
+    if (c.name.length !== 0) {
+      coincapNameToIds[c.name] = c.id;
+    }
   }
   const coinPaprikaNameToIds: INamesToIds = {};
   for (let c of coinPaprikaCoins) {
-    coinPaprikaNameToIds[c.name] = c.id;
+    if (c.is_active) {
+      coinPaprikaNameToIds[c.name] = c.id;
+    }
   }
 
   //merge dictionaries using symbols

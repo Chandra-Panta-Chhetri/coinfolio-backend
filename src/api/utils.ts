@@ -28,6 +28,3 @@ export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions)
 
   return result;
 };
-
-export const convertCoinCapIDToCoinPaprikaID = (symbol: string, coinCapId: string) =>
-  `${symbol.toLowerCase()}-${coinCapId.toLowerCase().split(" ").join("-")}`;
