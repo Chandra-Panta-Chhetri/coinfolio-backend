@@ -13,4 +13,13 @@ export default (app: Router) => {
   route.post("/register", celebrate(reqSchemas.REGISTER), authController.register);
 
   route.get("/user", authController.getCurrentUser);
+
+  route.get("/test", async (req, res) => {
+    await new Promise((res, rej) => {
+      setTimeout(() => {
+        res({});
+      }, 60000);
+    });
+    res.send("hi");
+  });
 };

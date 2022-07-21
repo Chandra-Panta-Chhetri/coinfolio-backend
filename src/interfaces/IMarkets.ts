@@ -80,6 +80,7 @@ export interface ISearchAssetsDTO {
 export interface IGetAssetsQuery {
   search?: string;
   limit?: number;
+  offset?: number;
 }
 
 export interface IGetGainersLosersQuery {
@@ -271,4 +272,21 @@ export interface IAboutLinksDTO {
 export interface IAssetAboutDTO {
   description: string;
   links: IAboutLinksDTO;
+}
+
+export interface INamesToIds {
+  [symbol: string]: string;
+}
+
+export interface ICoinPaprikaAsset {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: string;
+  is_active: boolean;
+}
+
+export interface IMarketAssetIdMap {
+  coincap_id: string;
+  coinpaprika_id: string | null;
 }

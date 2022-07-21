@@ -34,7 +34,8 @@ import {
   IGetAssetAboutQuery,
   IAssetAbout,
   IAssetAboutDTO,
-  IAboutLinksDTO
+  IAboutLinksDTO,
+  ICoinPaprikaAsset
 } from "../interfaces/IMarkets";
 import {
   addSubtractTime,
@@ -62,6 +63,11 @@ export default class MarketsService {
       params: query
     });
     return assetsRes.data.data;
+  }
+
+  public async getCoinPaprikaAssets(): Promise<ICoinPaprikaAsset[]> {
+    const assetsRes = await axios.get<ICoinPaprikaAsset[]>(`${config.marketsAPI.coinPaprika}/coins`);
+    return assetsRes.data;
   }
 
   public mapMarketAssetsToSearchAssetsDTO(assets: IMarketAsset[]): ISearchAssetsDTO {
