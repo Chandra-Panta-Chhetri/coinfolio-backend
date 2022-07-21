@@ -66,9 +66,7 @@ export const mapCoincapToCoinPaprika = async () => {
   }
 
   //add to DB
-  await postgres`INSERT INTO coincap_coinpaprika_id ${postgres(
-    idMaps
-  )} ON CONFLICT(coincap_id) DO UPDATE SET coinpaprika_id = EXCLUDED.coinpaprika_id`;
+  await postgres`INSERT INTO coincap_coinpaprika_id ${postgres(idMaps)} ON CONFLICT(coincap_id) DO NOTHING`;
   Logger.info("Created coincap to coinpaprika mappings");
 };
 
