@@ -8,7 +8,7 @@ export default {
     prefix: "/api"
   },
   env: process.env.NODE_ENV || "development",
-  postgres: {
+  db: {
     host: process.env.DB_HOST,
     username: process.env.DB_USER,
     database: process.env.DB_NAME,
@@ -24,11 +24,11 @@ export default {
   logs: {
     level: process.env.LOG_LEVEL
   },
-  news: {
-    baseURL: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
+  newsAPI: {
+    cryptoPanic: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
   },
-  events: {
-    baseURL: "https://developers.coinmarketcal.com/v1",
+  eventsAPI: {
+    coinMarketCal: "https://developers.coinmarketcal.com/v1",
     headers: {
       Accept: "application/json",
       "Accept-Encoding": "deflate, gzip",
@@ -39,11 +39,12 @@ export default {
     events: "https://d235dzzkn2ryki.cloudfront.net",
     markets: "https://assets.coincap.io/assets/icons"
   },
-  markets: {
-    graphqlURL: "https://graphql.coincap.io",
+  marketsAPI: {
+    coinCapGraphql: "https://graphql.coincap.io",
     headers: {
       "content-type": "application/json"
     },
-    restURL: "https://api.coincap.io/v2"
+    coinCap: "https://api.coincap.io/v2",
+    coinPaprika: "https://api.coinpaprika.com/v1"
   }
 };

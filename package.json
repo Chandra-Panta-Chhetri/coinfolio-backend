@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/Chandra-Panta-Chhetri/coinfolio-backend.git"
   },
-  "author": "Chandra Panta Chhetri & Piyush Ukani",
+  "author": "Chandra Panta Chhetri",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Chandra-Panta-Chhetri/coinfolio-backend/issues"
@@ -38,6 +38,7 @@
   "dependencies": {
     "axios": "^0.24.0",
     "bcryptjs": "^2.4.3",
+    "bree": "^9.1.1",
     "celebrate": "^15.0.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",

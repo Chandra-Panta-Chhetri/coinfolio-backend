@@ -5,9 +5,9 @@ import { IGetNewsDTO, IGetNewsQueryParams, IGetNews } from "../interfaces/INews"
 export default class NewsService {
   constructor() {}
 
-  public async getNews(queryParams: IGetNewsQueryParams): Promise<IGetNews | null> {
+  public async getNews(query: IGetNewsQueryParams): Promise<IGetNews | null> {
     try {
-      const res = await axios.get<IGetNews>(config.news.baseURL, { params: queryParams });
+      const res = await axios.get<IGetNews>(config.newsAPI.cryptoPanic, { params: query });
       return res.data;
     } catch (err) {
       return null;

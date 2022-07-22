@@ -21,6 +21,42 @@ export default (app: Router) => {
     marketsController.getMarkets
   );
 
+  route.get(
+    "/:id/overview",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(reqSchemas.GET_ASSET_OVERVIEW),
+    marketsController.getAssetOverview
+  );
+
+  route.get(
+    "/:id/exchanges",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(reqSchemas.GET_ASSET_EXCHANGES),
+    marketsController.getAssetExchanges
+  );
+
+  route.get(
+    "/:id/about",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(reqSchemas.GET_ASSET_ABOUT),
+    marketsController.getAssetAbout
+  );
+
   route.get("/search", celebrate(reqSchemas.GET_ASSETS_BY_KEYWORD), marketsController.getAssetsByKeyword);
 
   route.get(

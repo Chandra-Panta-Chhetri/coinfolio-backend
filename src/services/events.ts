@@ -1,8 +1,8 @@
 import axios from "../config/axios";
 import {
-  IGetEventsQueryParams,
-  IGetEventsDTO,
-  IGetEvents,
+  IGetEventsQuery,
+  IEventsDTO,
+  IGetEventsRes,
   IEventsStatus,
   IEventCoin,
   IEventCoinDTO
@@ -14,11 +14,11 @@ import { toEventImageURL } from "../api/utils";
 export default class EventsService {
   constructor() {}
 
-  public async getEvents(queryParams: IGetEventsQueryParams): Promise<IGetEvents | IEventsStatus> {
+  public async getEvents(query: IGetEventsQuery): Promise<IGetEventsRes | IEventsStatus> {
     try {
-      const res = await axios.get<IGetEvents>(`${config.events.baseURL}/events`, {
-        params: queryParams,
-        headers: config.events.headers
+      const res = await axios.get<IGetEventsRes>(`${config.eventsAPI.coinMarketCal}/events`, {
+        params: query,
+        headers: config.eventsAPI.headers
       });
       return res.data;
     } catch (err) {
@@ -27,7 +27,7 @@ export default class EventsService {
     }
   }
 
-  public toGetEventsDTO(eventsRes: IGetEvents): IGetEventsDTO {
+  public toGetEventsDTO(eventsRes: IGetEventsRes): IEventsDTO {
     return {
       metadata: eventsRes._metadata,
       results: eventsRes.body.map((e) => ({
