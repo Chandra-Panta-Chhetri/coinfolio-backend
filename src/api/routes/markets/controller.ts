@@ -43,7 +43,6 @@ export const getAssetOverview = async (req: Request, res: Response) => {
     const overview = ms.toAssetOverviewDTO(overviewRes);
     res.send(overview);
   } catch (err) {
-    console.log(err);
     res.send({});
   }
 };
