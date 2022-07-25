@@ -6,7 +6,18 @@ export const roundToNDecimals = (num: number | string, numDecimals: number = 2):
 
 export const formatNum = (num: string | number): string => {
   if (num === "") return num;
-  if (Math.abs(+num) < 1) return `${(+num).toPrecision(3)}`;
+  if (Math.abs(+num) < 1) {
+    let numOfOs = 0;
+    let fractionalNum = String(num).split(".")[1] || "";
+    for (let char of fractionalNum) {
+      if (char === "0") {
+        numOfOs++;
+      } else {
+        break;
+      }
+    }
+    return `${(+num).toFixed(numOfOs + 3)}`;
+  }
 
   const numAsStr = `${roundToNDecimals(num)}`;
 
