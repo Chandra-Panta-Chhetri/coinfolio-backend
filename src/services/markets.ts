@@ -41,12 +41,11 @@ import {
 import {
   addSubtractTime,
   calculatePercentChange,
-  toDollarString,
   toMarketImageURL,
-  toNDecimals,
-  toPercentString
+  roundToNDecimals,
+  abbreviateNum,
+  formatNum
 } from "../api/utils";
-import Logger from "../loaders/logger";
 
 export default class MarketsService {
   constructor() {}
@@ -93,11 +92,11 @@ export default class MarketsService {
     return {
       totalMarketCap: {
         label: "Market Cap",
-        value: toDollarString(summaryRes.data.marketTotal.marketCapUsd)
+        value: `$${abbreviateNum(summaryRes.data.marketTotal.marketCapUsd)}`
       },
       volume24hr: {
         label: "24hr Vol",
-        value: toDollarString(summaryRes.data.marketTotal.exchangeVolumeUsd24Hr)
+        value: `$${abbreviateNum(summaryRes.data.marketTotal.exchangeVolumeUsd24Hr)}`
       },
       numExchanges: {
         label: "Exchanges",
@@ -109,15 +108,11 @@ export default class MarketsService {
       },
       btcDom: {
         label: "BTC Dominance",
-        value: toPercentString(
-          (Number(summaryRes.data.btc.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
-        )
+        value: `${formatNum((+summaryRes.data.btc.marketCapUsd / +summaryRes.data.marketTotal.marketCapUsd) * 100)}%`
       },
       ethDom: {
         label: "ETH Dominance",
-        value: toPercentString(
-          (Number(summaryRes.data.eth.marketCapUsd) / Number(summaryRes.data.marketTotal.marketCapUsd)) * 100
-        )
+        value: `${formatNum((+summaryRes.data.eth.marketCapUsd / +summaryRes.data.marketTotal.marketCapUsd) * 100)}%`
       }
     };
   }
@@ -157,14 +152,14 @@ export default class MarketsService {
 
   public toMarketAssetDTO(ma: IMarketAsset): IMarketAssetDTO {
     return {
-      changePercent24Hr: toNDecimals(ma.changePercent24Hr),
+      changePercent24Hr: ma.changePercent24Hr || "0.00",
       id: ma.id,
       name: ma.name,
-      priceUsd: toNDecimals(ma.priceUsd),
+      priceUsd: `$${formatNum(ma.priceUsd)}`,
       symbol: ma.symbol,
       image: toMarketImageURL(ma.symbol),
       rank: ma.rank,
-      marketCap: toDollarString(ma.marketCapUsd)
+      marketCap: ma.marketCapUsd ? `$${abbreviateNum(ma.marketCapUsd)}` : "$0.00"
     };
   }
 
@@ -208,12 +203,14 @@ export default class MarketsService {
 
   public toAssetExchangesDTO(assetExchanges: IAssetExchange[]): IAssetExchangesDTO {
     return {
-      data: assetExchanges.map((ae) => ({
-        name: ae.exchangeId,
-        priceUsd: ae.priceUsd,
-        vol24h: ae.volumeUsd24Hr,
-        pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
-      }))
+      data: assetExchanges
+        .filter((ae) => ae.volumeUsd24Hr !== null)
+        .map((ae) => ({
+          name: ae.exchangeId,
+          priceUsd: `$${formatNum(ae.priceUsd)}`,
+          vol24h: `$${abbreviateNum(ae.volumeUsd24Hr)}`,
+          pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
+        }))
     };
   }
 
@@ -343,29 +340,42 @@ export default class MarketsService {
       label: priceHistory.label,
       history: {
         prices: priceHistory.prices,
-        percentChange: initialPrice ? calculatePercentChange(Number(currentPrice), Number(initialPrice)) : 0
+        percentChange: initialPrice ? calculatePercentChange(+currentPrice, +initialPrice) : 0
       }
     };
   }
 
   public toAssetOverviewDTO(ao: IAssetOverview): IAssetOverviewDTO {
+    console.log(ao.asset.marketCapUsd, ao.statistics.total_supply);
     return {
       rank: ao.asset.rank,
       name: ao.asset.name,
-      priceUsd: toNDecimals(ao.asset.priceUsd),
+      priceUsd: `$${formatNum(ao.asset.priceUsd)}`,
       priceHistory: ao.priceHistory.map((ph) => this.toPriceHistoryDTO(ph, ao.asset.priceUsd)),
       statistics: [
         {
           data: [
-            { label: "Market Cap", value: toDollarString(ao.asset.marketCapUsd) },
-            { label: "Volume 24h", value: toDollarString(ao.asset.volumeUsd24Hr) },
-            { label: "Max Supply", value: `${ao.statistics.max_supply || "N/A"}` }
+            { label: "Market Cap", value: `$${abbreviateNum(ao.asset.marketCapUsd)}` },
+            { label: "Volume 24h", value: `$${abbreviateNum(ao.asset.volumeUsd24Hr)}` },
+            {
+              label: "Max Supply",
+              value: ao.statistics.max_supply !== undefined ? abbreviateNum(ao.statistics.max_supply) : "N/A"
+            }
           ]
         },
         {
           data: [
-            { label: "Total Supply", value: `${ao.statistics.total_supply || "N/A"}` },
-            { label: "All Time High", value: `$${ao.statistics.quotes?.USD.ath_price || "N/A"}` }
+            {
+              label: "Total Supply",
+              value: ao.statistics.total_supply !== undefined ? abbreviateNum(ao.statistics.total_supply) : "N/A"
+            },
+            {
+              label: "All Time High",
+              value:
+                ao.statistics.quotes?.USD.ath_price !== undefined
+                  ? `$${formatNum(ao.statistics.quotes.USD.ath_price)}`
+                  : "N/A"
+            }
           ]
         }
       ]

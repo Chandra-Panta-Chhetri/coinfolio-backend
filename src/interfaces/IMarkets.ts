@@ -55,11 +55,11 @@ export interface IMarketAssetDTO {
   id: string;
   symbol: string;
   name: string;
-  priceUsd: number;
-  changePercent24Hr: number;
+  priceUsd: string;
+  changePercent24Hr: string | null;
   image: string;
   rank: string;
-  marketCap: string;
+  marketCap: string | null;
 }
 
 export interface IGetAssetsRes {
@@ -146,7 +146,7 @@ export interface IAssetOverviewDTO {
   priceHistory: IPriceHistoryDTO[];
   name: string;
   rank: string;
-  priceUsd: number;
+  priceUsd: string;
 }
 
 interface IStatisticsSection {
@@ -208,7 +208,7 @@ export interface IAssetExchange {
 interface IAssetExchangeDTO {
   name: string;
   priceUsd: string;
-  vol24h: string;
+  vol24h: string | null;
   pair: string;
 }
 
