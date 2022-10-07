@@ -25,7 +25,11 @@ export default {
     level: process.env.LOG_LEVEL
   },
   newsAPI: {
-    cryptoPanic: `https://cryptopanic.com/api/v1/posts/?auth_token=${process.env.CRYPTO_PANIC_KEY}&public=true`
+    cryptoPanic: `https://cryptopanic.com/api/v1/posts/`,
+    params: {
+      public: true,
+      auth_token: process.env.CRYPTO_PANIC_KEY
+    }
   },
   eventsAPI: {
     coinMarketCal: "https://developers.coinmarketcal.com/v1",

@@ -23,7 +23,7 @@ export default class EventsService {
       return res.data;
     } catch (err) {
       const axiosError = err as AxiosError;
-      return axiosError.response!.data.status as IEventsStatus;
+      return (axiosError.response!.data as IGetEventsRes).status as IEventsStatus;
     }
   }
 

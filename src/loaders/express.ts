@@ -23,8 +23,8 @@ export default async ({ app }: { app: express.Application }) => {
   app.use(config.api.prefix, routes());
 
   //Catches 404 api routes
-  app.use(`${config.api.prefix}/*`, (req) => {
-    throw new ErrorService(ErrorType.NotFound, `${req.method} request to ${req.originalUrl} does not exist!`);
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    next(new ErrorService(ErrorType.NotFound, `${req.method} request to ${req.originalUrl} does not exist!`));
   });
 
   //Handles celebrate errors
@@ -39,8 +39,7 @@ export default async ({ app }: { app: express.Application }) => {
   });
 
   //Handles generic errors
-  app.use((err: Error, req: Request, res: Response) => {
-    Logger.error(err.message);
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     switch (err.name) {
       case ErrorType.Unauthorized:
         return res.status(401).send({ message: err.message });
