@@ -9,9 +9,12 @@
   },
   "scripts": {
     "start": "node ./dist/app.js",
-    "dev": "nodemon -L -e ts --exec \"npm run build && npm start\"",
+    "start:debug": "node --inspect=0.0.0.0:9229 ./dist/app.js",
+    "dev": "nodemon -L -e ts --exec \"npm run build && npm run start:debug\"",
     "build": "tsc",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "start:docker": "docker-compose up",
+    "build:docker": "docker-compose build"
   },
   "repository": {
     "type": "git",

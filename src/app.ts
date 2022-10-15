@@ -12,7 +12,7 @@ async function startServer() {
       Logger.info(`Server running on port ${config.port}`);
     })
     .on("error", (err) => {
-      Logger.error(`Server failed to start on port ${config.port}`);
+      Logger.error(`Server failed to start ${config.port}`);
       process.exit(1);
     });
 }

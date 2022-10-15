@@ -6,10 +6,16 @@ services:
     build: .
     ports:
       - ${PORT}:${PORT}
+      - 9229:9229
     depends_on:
       - db
     volumes:
-    - .:/usr/src/app
+    - ./src:/usr/src/app/src
+    - ./.env:/usr/src/app/.env
+    - ./package.json:/usr/src/app/package.json
+    - ./tsconfig.json:/usr/src/app/tsconfig.json
+    - ./node_modules:/usr/src/app/node_modules
+    - ./package-lock.json:/usr/src/app/package-lock.json
 
   db:
     container_name: db
