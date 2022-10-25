@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { NextFunction, Request, Response, Application as ExpressApplication } from "express";
 import cors from "cors";
 import routes from "../api";
 import config from "../config";
@@ -10,7 +10,7 @@ import middlewares from "../api/middlewares";
 import ErrorService from "../services/error";
 import Logger from "./logger";
 
-export default async ({ app }: { app: express.Application }) => {
+export default async (app: ExpressApplication) => {
   app.enable("trust proxy");
   app.use(morgan("dev"));
   app.use(compression());
@@ -22,12 +22,12 @@ export default async ({ app }: { app: express.Application }) => {
 
   app.use(config.api.prefix, routes());
 
-  //Catches 404 api routes
+  //Catches 404 routes
   app.use((req: Request, res: Response, next: NextFunction) => {
     next(new ErrorService(ErrorType.NotFound, `${req.method} request to ${req.originalUrl} does not exist!`));
   });
 
-  //Handles celebrate errors
+  //Handles Celebrate errors
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (!isCelebrateError(err)) {
       return next(err);

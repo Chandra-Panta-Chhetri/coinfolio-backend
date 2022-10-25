@@ -346,7 +346,6 @@ export default class MarketsService {
   }
 
   public toAssetOverviewDTO(ao: IAssetOverview): IAssetOverviewDTO {
-    console.log(ao.asset.marketCapUsd, ao.statistics.total_supply);
     return {
       rank: ao.asset.rank,
       name: ao.asset.name,

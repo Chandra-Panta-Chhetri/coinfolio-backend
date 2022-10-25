@@ -50,5 +50,8 @@ export default {
     },
     coinCap: "https://api.coincap.io/v2",
     coinPaprika: "https://api.coinpaprika.com/v1"
+  },
+  sockets: {
+    coinCap: "wss://ws.coincap.io"
   }
 };
