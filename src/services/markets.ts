@@ -358,7 +358,7 @@ export default class MarketsService {
             { label: "Volume 24h", value: `$${abbreviateNum(ao.asset.volumeUsd24Hr)}` },
             {
               label: "Max Supply",
-              value: ao.statistics.max_supply !== undefined ? abbreviateNum(ao.statistics.max_supply) : "N/A"
+              value: ao.statistics.max_supply !== undefined ? abbreviateNum(ao.statistics.max_supply) : "--"
             }
           ]
         },
@@ -366,14 +366,14 @@ export default class MarketsService {
           data: [
             {
               label: "Total Supply",
-              value: ao.statistics.total_supply !== undefined ? abbreviateNum(ao.statistics.total_supply) : "N/A"
+              value: ao.statistics.total_supply !== undefined ? abbreviateNum(ao.statistics.total_supply) : "--"
             },
             {
               label: "All Time High",
               value:
                 ao.statistics.quotes?.USD.ath_price !== undefined
                   ? `$${formatNum(ao.statistics.quotes.USD.ath_price)}`
-                  : "N/A"
+                  : "--"
             }
           ]
         }

@@ -8,3 +8,7 @@ export interface IAddSubtractOptions {
   milliseconds?: number;
   weeks?: number;
 }
+
+export interface IObject {
+  [property: string]: any;
+}
