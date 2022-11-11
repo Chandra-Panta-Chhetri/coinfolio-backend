@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import { Namespace, Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import SocketClient from "ws";
 import config from "../../config";
@@ -23,7 +23,8 @@ const includeKeysOnly = (obj: IObject, commaSepKeys: string = ""): IObject => {
 };
 
 export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) => {
-  const pricesNamespace = io.of("/prices");
+  const pricesNamespace: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, { isPaused: boolean }> =
+    io.of("/prices");
 
   const pricesSocket = new SocketClient(`${config.sockets.coinCap}/prices?assets=ALL`);
 
@@ -36,17 +37,28 @@ export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
   });
 
   pricesNamespace.on("connection", (client) => {
-    Logger.info(`New Client Connected: ${client.id} ${client.handshake.query.assets}`);
+    Logger.info(`New Client: ${client.id} ${client.handshake.query.assets}`);
+    client.data.isPaused = false;
 
     const onNewPrices = (data: SocketClient.RawData, isBinary: boolean) => {
       const message = isBinary ? {} : JSON.parse(data.toString());
       const prices = includeKeysOnly(message, client.handshake.query.assets as string);
-      if (Object.keys(prices).length !== 0) {
+      const hasNewPrices = Object.keys(prices).length >= 1;
+      console.log("here in new prices", client.data.isPaused);
+      if (hasNewPrices && !client.data.isPaused) {
         client.emit("new prices", prices);
       }
     };
 
     pricesSocket.on("message", onNewPrices);
+
+    client.on("pause prices", () => {
+      client.data.isPaused = true;
+    });
+
+    client.on("resume prices", () => {
+      client.data.isPaused = false;
+    });
 
     client.on("disconnect", (reason) => {
       Logger.info(`Client ${client.id} Disconnected`);
