@@ -2,6 +2,7 @@ import { Namespace, Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import SocketClient from "ws";
 import config from "../../config";
+import { IPricesSocketData } from "../../interfaces/ISocket";
 import { IObject } from "../../interfaces/IUtils";
 import Logger from "../../loaders/logger";
 
@@ -23,7 +24,7 @@ const includeKeysOnly = (obj: IObject, commaSepKeys: string = ""): IObject => {
 };
 
 export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) => {
-  const pricesNamespace: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, { isPaused: boolean }> =
+  const pricesNamespace: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, IPricesSocketData> =
     io.of("/prices");
 
   const pricesSocket = new SocketClient(`${config.sockets.coinCap}/prices?assets=ALL`);
@@ -38,14 +39,13 @@ export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
 
   pricesNamespace.on("connection", (client) => {
     Logger.info(`New Client: ${client.id} ${client.handshake.query.assets}`);
-    client.data.isPaused = false;
+    client.data.isPricesPaused = false;
 
     const onNewPrices = (data: SocketClient.RawData, isBinary: boolean) => {
       const message = isBinary ? {} : JSON.parse(data.toString());
       const prices = includeKeysOnly(message, client.handshake.query.assets as string);
       const hasNewPrices = Object.keys(prices).length >= 1;
-      console.log("here in new prices", client.data.isPaused);
-      if (hasNewPrices && !client.data.isPaused) {
+      if (hasNewPrices && !client.data.isPricesPaused) {
         client.emit("new prices", prices);
       }
     };
@@ -53,11 +53,13 @@ export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
     pricesSocket.on("message", onNewPrices);
 
     client.on("pause prices", () => {
-      client.data.isPaused = true;
+      client.data.isPricesPaused = true;
+      Logger.info(`Client ${client.id} Paused`);
     });
 
     client.on("resume prices", () => {
-      client.data.isPaused = false;
+      client.data.isPricesPaused = false;
+      Logger.info(`Client ${client.id} Resumed`);
     });
 
     client.on("disconnect", (reason) => {
