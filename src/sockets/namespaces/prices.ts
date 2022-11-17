@@ -38,12 +38,13 @@ export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
   });
 
   pricesNamespace.on("connection", (client) => {
-    Logger.info(`New Client: ${client.id} ${client.handshake.query.assets}`);
+    Logger.info(`New Client: ${client.id} ${client.handshake.query.coins}`);
     client.data.isPricesPaused = false;
+    client.data.commaSepCoins = typeof client.handshake.query.coins !== "string" ? "" : client.handshake.query.coins;
 
     const onNewPrices = (data: SocketClient.RawData, isBinary: boolean) => {
       const message = isBinary ? {} : JSON.parse(data.toString());
-      const prices = includeKeysOnly(message, client.handshake.query.assets as string);
+      const prices = includeKeysOnly(message, client.data.commaSepCoins);
       const hasNewPrices = Object.keys(prices).length >= 1;
       if (hasNewPrices && !client.data.isPricesPaused) {
         client.emit("new prices", prices);
@@ -51,6 +52,11 @@ export default (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap,
     };
 
     pricesSocket.on("message", onNewPrices);
+
+    client.on("update coins", (newCoins: string = "") => {
+      client.data.commaSepCoins = newCoins;
+      Logger.info(`Client ${client.id} updated ${client.data.commaSepCoins}`);
+    });
 
     client.on("pause prices", () => {
       client.data.isPricesPaused = true;
