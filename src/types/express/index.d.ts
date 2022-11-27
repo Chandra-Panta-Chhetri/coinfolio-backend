@@ -8,8 +8,4 @@ declare global {
       user?: IRequestUser;
     }
   }
-
-  interface Error {
-    status: number;
-  }
 }

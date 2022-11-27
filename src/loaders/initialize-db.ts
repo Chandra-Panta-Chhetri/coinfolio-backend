@@ -79,6 +79,6 @@ export default async () => {
   await dropDatabase();
   await createTables();
   await createUsers();
-  await mapCoincapToCoinPaprika();
+  //await mapCoincapToCoinPaprika();
   Logger.info("Done seeding db");
 };

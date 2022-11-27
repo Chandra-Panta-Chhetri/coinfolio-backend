@@ -1,12 +1,15 @@
 import { Application as ExpressApplication } from "express";
 import expressLoader from "./express";
-import initalizeDB from "./initialize-db";
+import dbLoader from "./initialize-db";
 import "./events";
 import Logger from "./logger";
-import jobScheduler from "./job-scheduler";
+import jobsLoader from "./job-scheduler";
+import socketLoader from "./socket";
+import { Server as HTTPServer } from "http";
 
-export default async ({ expressApp }: { expressApp: ExpressApplication }) => {
-  //await initalizeDB();
-  //await jobScheduler();
-  await expressLoader({ app: expressApp });
+export default async (app: ExpressApplication, server: HTTPServer) => {
+  //await dbLoader();
+  await expressLoader(app);
+  socketLoader(server);
+  //await jobsLoader();
 };
