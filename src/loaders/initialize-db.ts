@@ -4,19 +4,29 @@ import bcrypt from "bcryptjs";
 import MarketsService from "../services/markets";
 import { IMarketAssetIdMap, INamesToIds } from "../interfaces/IMarkets";
 
-const dropDatabase = async () => {
-  try {
-    await postgres`DROP SCHEMA IF EXISTS public CASCADE`;
-    await postgres`CREATE SCHEMA public`;
-    Logger.info("All Tables dropped");
-  } catch (err) {
-    Logger.error("Error dropping database");
-  }
+const deleteAllTables = async () => {
+  await postgres`DROP TABLE IF EXISTS portfolio_transaction`;
+  await postgres`DROP TABLE IF EXISTS portfolio_asset`;
+  await postgres`DROP TABLE IF EXISTS portfolio`;
+  await postgres`DROP TABLE IF EXISTS users`;
+  await postgres`DROP TABLE IF EXISTS coincap_coinpaprika_map`;
+  await postgres`DROP TABLE IF EXISTS currency`;
+  await postgres`DROP TYPE IF EXISTS transaction_type`;
+  Logger.info("All tables deleted");
 };
 
 const createTables = async () => {
-  await postgres`CREATE TABLE users (id serial PRIMARY KEY, name VARCHAR (80) NOT NULL, password VARCHAR (80) NOT NULL, email VARCHAR (255) UNIQUE NOT NULL)`;
-  await postgres`CREATE TABLE coincap_coinpaprika_id (coincap_id VARCHAR (80) PRIMARY KEY, coinpaprika_id VARCHAR (80))`;
+  await postgres`CREATE TYPE transaction_type AS ENUM ( 'buy', 'sell', 'transfer_in', 'transfer_out' )`;
+  await postgres`CREATE TABLE currency ( "code" varchar(30) PRIMARY KEY )`;
+  await postgres`CREATE TABLE coincap_coinpaprika_map ( "coincap_id" varchar(50) PRIMARY KEY, "coinpaprika_id" varchar(50) )`;
+  await postgres`CREATE TABLE users ( "id" BIGSERIAL PRIMARY KEY, "name" varchar(80) NOT NULL, "password" varchar(80) NOT NULL, "email" varchar(255) NOT NULL UNIQUE )`;
+  await postgres`CREATE TABLE portfolio ( "nickname" varchar(80) NOT NULL, "user" int NOT NULL, "id" int PRIMARY KEY, "is_deleted" boolean DEFAULT false )`;
+  await postgres`CREATE TABLE portfolio_asset ( "portfolio" int NOT NULL, "id" int PRIMARY KEY, "coincap_id" varchar(80) NOT NULL, "total_invested" decimal DEFAULT 0, "total_holdings" decimal DEFAULT 0 )`;
+  await postgres`CREATE TABLE portfolio_transaction ( "id" int PRIMARY KEY, "type" transaction_type NOT NULL, "quantity" decimal NOT NULL, "date" timestamp NOT NULL DEFAULT (now()), "price_per_usd" decimal NOT NULL, "notes" varchar(255), "asset" int NOT NULL )`;
+  await postgres`ALTER TABLE portfolio ADD FOREIGN KEY ("user") REFERENCES "users" ("id")`;
+  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY ("portfolio") REFERENCES "portfolio" ("id")`;
+  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY ("coincap_id") REFERENCES "coincap_coinpaprika_map" ("coincap_id")`;
+  await postgres`ALTER TABLE portfolio_transaction ADD FOREIGN KEY ("asset") REFERENCES "portfolio_asset" ("id")`;
   Logger.info("Tables created");
 };
 
@@ -70,15 +80,19 @@ export const mapCoincapToCoinPaprika = async () => {
   }
 
   //add to DB
-  await postgres`INSERT INTO coincap_coinpaprika_id ${postgres(idMaps)} ON CONFLICT(coincap_id) DO NOTHING`;
+  await postgres`INSERT INTO coincap_coinpaprika_map ${postgres(idMaps)} ON CONFLICT(coincap_id) DO NOTHING`;
   Logger.info("Created coincap to coinpaprika mappings");
 };
 
 export default async () => {
-  Logger.info("Starting to seed db");
-  await dropDatabase();
-  await createTables();
-  await createUsers();
-  //await mapCoincapToCoinPaprika();
-  Logger.info("Done seeding db");
+  try {
+    Logger.info("Initilizing DB " + new Date().toLocaleTimeString());
+    await deleteAllTables();
+    await createTables();
+    await createUsers();
+    await mapCoincapToCoinPaprika();
+    Logger.info("Done initilizing DB " + new Date().toLocaleTimeString());
+  } catch (err) {
+    Logger.warn("Failed to initilize DB \n" + err);
+  }
 };

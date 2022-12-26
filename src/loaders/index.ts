@@ -9,7 +9,7 @@ import { Server as HTTPServer } from "http";
 
 export default async (app: ExpressApplication, server: HTTPServer) => {
   //await dbLoader();
+  //socketLoader(server);
   await expressLoader(app);
-  socketLoader(server);
   //await jobsLoader();
 };
