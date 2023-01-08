@@ -28,7 +28,7 @@ export default class UserService {
     };
   }
 
-  public async login(authCredentials: ILoginReqBody): Promise<IUserDTO> {
+  async login(authCredentials: ILoginReqBody): Promise<IUserDTO> {
     const usersWithEmail = await postgres<
       IUserSchema[]
     >`SELECT * FROM users WHERE email = ${authCredentials.email?.toLowerCase()!}`;
@@ -47,7 +47,7 @@ export default class UserService {
     return this.toUserDTO(user, token);
   }
 
-  public async register(newUser: IRegisterReqBody): Promise<IUserDTO> {
+  async register(newUser: IRegisterReqBody): Promise<IUserDTO> {
     const usersWithEmail = await postgres<IUserSchema[]>`SELECT * FROM users WHERE email = ${newUser.email!}`;
     const user = usersWithEmail[0];
     if (user) {
@@ -86,11 +86,11 @@ export default class UserService {
     return await bcrypt.hash(password, salt);
   }
 
-  public async resetPassword() {}
+  async resetPassword() {}
 
-  public async changePassword() {}
+  async changePassword() {}
 
-  public async getUserById(id: number): Promise<IUserDTONoToken> {
+  async getUserById(id: number): Promise<IUserDTONoToken> {
     const usersWithId = await postgres<IUserSchema[]>`SELECT * FROM users WHERE id = ${id}`;
     const user = usersWithId[0];
     if (!user) {

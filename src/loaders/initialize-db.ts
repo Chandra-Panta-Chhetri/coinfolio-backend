@@ -17,16 +17,16 @@ const deleteAllTables = async () => {
 
 const createTables = async () => {
   await postgres`CREATE TYPE transaction_type AS ENUM ( 'buy', 'sell', 'transfer_in', 'transfer_out' )`;
-  await postgres`CREATE TABLE currency ( "code" varchar(30) PRIMARY KEY )`;
-  await postgres`CREATE TABLE coincap_coinpaprika_map ( "coincap_id" varchar(50) PRIMARY KEY, "coinpaprika_id" varchar(50) )`;
-  await postgres`CREATE TABLE users ( "id" BIGSERIAL PRIMARY KEY, "name" varchar(80) NOT NULL, "password" varchar(80) NOT NULL, "email" varchar(255) NOT NULL UNIQUE )`;
-  await postgres`CREATE TABLE portfolio ( "nickname" varchar(80) NOT NULL, "user" int NOT NULL, "id" int PRIMARY KEY, "is_deleted" boolean DEFAULT false )`;
-  await postgres`CREATE TABLE portfolio_asset ( "portfolio" int NOT NULL, "id" int PRIMARY KEY, "coincap_id" varchar(80) NOT NULL, "total_invested" decimal DEFAULT 0, "total_holdings" decimal DEFAULT 0 )`;
-  await postgres`CREATE TABLE portfolio_transaction ( "id" int PRIMARY KEY, "type" transaction_type NOT NULL, "quantity" decimal NOT NULL, "date" timestamp NOT NULL DEFAULT (now()), "price_per_usd" decimal NOT NULL, "notes" varchar(255), "asset" int NOT NULL )`;
-  await postgres`ALTER TABLE portfolio ADD FOREIGN KEY ("user") REFERENCES "users" ("id")`;
-  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY ("portfolio") REFERENCES "portfolio" ("id")`;
-  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY ("coincap_id") REFERENCES "coincap_coinpaprika_map" ("coincap_id")`;
-  await postgres`ALTER TABLE portfolio_transaction ADD FOREIGN KEY ("asset") REFERENCES "portfolio_asset" ("id")`;
+  await postgres`CREATE TABLE currency ( code varchar(30) PRIMARY KEY )`;
+  await postgres`CREATE TABLE coincap_coinpaprika_map ( coincap_id varchar(50) PRIMARY KEY, coinpaprika_id varchar(50) )`;
+  await postgres`CREATE TABLE users ( id BIGSERIAL PRIMARY KEY, name varchar(80) NOT NULL, password varchar(80) NOT NULL, email varchar(255) NOT NULL UNIQUE )`;
+  await postgres`CREATE TABLE portfolio ( nickname varchar(80) NOT NULL, user_id int NOT NULL, id BIGSERIAL PRIMARY KEY, is_deleted boolean DEFAULT false )`;
+  await postgres`CREATE TABLE portfolio_asset ( portfolio_id int NOT NULL, id BIGSERIAL PRIMARY KEY, coincap_id varchar(80) NOT NULL, total_invested decimal DEFAULT 0, total_holdings decimal DEFAULT 0 )`;
+  await postgres`CREATE TABLE portfolio_transaction ( id BIGSERIAL PRIMARY KEY, type transaction_type NOT NULL, quantity decimal NOT NULL, date timestamp NOT NULL DEFAULT (now()), price_per_usd decimal NOT NULL, notes varchar(255), asset_id int NOT NULL )`;
+  await postgres`ALTER TABLE portfolio ADD FOREIGN KEY (user_id) REFERENCES users (id)`;
+  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY (portfolio_id) REFERENCES portfolio (id)`;
+  await postgres`ALTER TABLE portfolio_asset ADD FOREIGN KEY (coincap_id) REFERENCES coincap_coinpaprika_map (coincap_id)`;
+  await postgres`ALTER TABLE portfolio_transaction ADD FOREIGN KEY (asset_id) REFERENCES portfolio_asset (id)`;
   Logger.info("Tables created");
 };
 

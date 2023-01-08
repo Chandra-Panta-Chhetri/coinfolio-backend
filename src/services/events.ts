@@ -14,7 +14,7 @@ import { toEventImageURL } from "../api/utils";
 export default class EventsService {
   constructor() {}
 
-  public async getEvents(query: IGetEventsQuery): Promise<IGetEventsRes | IEventsStatus> {
+  async getEvents(query: IGetEventsQuery): Promise<IGetEventsRes | IEventsStatus> {
     try {
       const res = await axios.get<IGetEventsRes>(`${config.eventsAPI.coinMarketCal}/events`, {
         params: query,
@@ -27,7 +27,7 @@ export default class EventsService {
     }
   }
 
-  public toGetEventsDTO(eventsRes: IGetEventsRes): IEventsDTO {
+  toGetEventsDTO(eventsRes: IGetEventsRes): IEventsDTO {
     return {
       metadata: eventsRes._metadata,
       results: eventsRes.body.map((e) => ({
@@ -43,7 +43,7 @@ export default class EventsService {
     };
   }
 
-  public toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
+  toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
     return {
       iconURL: toEventImageURL(coin.id),
       fullname: coin.fullname,

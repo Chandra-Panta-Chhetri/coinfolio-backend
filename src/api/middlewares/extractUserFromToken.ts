@@ -14,7 +14,7 @@ const convertTokenToUser = (token: string): IRequestUser | null => {
 };
 
 const extractUserFromToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.get("Auth-Token");
+  const token = req.get("X-Auth-Token");
   if (!token) {
     return next();
   }

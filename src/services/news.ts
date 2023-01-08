@@ -5,7 +5,7 @@ import { IGetNewsDTO, IGetNewsQueryParams, IGetNews } from "../interfaces/INews"
 export default class NewsService {
   constructor() {}
 
-  public async getNews(query: IGetNewsQueryParams): Promise<IGetNews> {
+  async getNews(query: IGetNewsQueryParams): Promise<IGetNews> {
     try {
       const res = await axios.get<IGetNews>(config.newsAPI.cryptoPanic, {
         params: { ...query, ...config.newsAPI.params }
@@ -21,7 +21,7 @@ export default class NewsService {
     }
   }
 
-  public toGetNewsDTO(newsRes: IGetNews): IGetNewsDTO {
+  toGetNewsDTO(newsRes: IGetNews): IGetNewsDTO {
     return {
       totalResults: newsRes.count,
       results: newsRes.results.map((r) => ({
