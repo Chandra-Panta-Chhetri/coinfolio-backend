@@ -1,6 +1,6 @@
 import axios from "../config/axios";
 import config from "../config";
-import postgres from "../loaders/postgres";
+import db from "../loaders/db";
 import {
   IGetGainersLosersQuery,
   IGrahpqlReqBody,
@@ -227,9 +227,9 @@ export default class MarketsService {
   }
 
   async getCorrespondingIdsByCoincapId(coincapId: string): Promise<IMarketAssetIdMap> {
-    const idMaps = await postgres<
-      IMarketAssetIdMap[]
-    >`SELECT * FROM coincap_coinpaprika_id WHERE coincap_id = ${coincapId}`;
+    const idMaps = await db.select<IMarketAssetIdMap[]>("*").from("coincap_coinpaprika_id").where({
+      coincap_id: coincapId
+    });
     return idMaps.length !== 0 ? idMaps[0] : { coincap_id: null, coinpaprika_id: null };
   }
 

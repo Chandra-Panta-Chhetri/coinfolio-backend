@@ -23,8 +23,7 @@ export const UPDATE_PORTFOLIO_BY_ID = {
     })
   }),
   [Segments.BODY]: Joi.object().keys({
-    nickname: Joi.string(),
-    is_deleted: Joi.boolean()
+    nickname: Joi.string()
   })
 };
 

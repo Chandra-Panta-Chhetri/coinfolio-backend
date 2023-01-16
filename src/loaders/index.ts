@@ -1,6 +1,6 @@
 import { Application as ExpressApplication } from "express";
 import expressLoader from "./express";
-import dbLoader from "./initialize-db";
+import dbLoader from "./seed-db";
 import "./events";
 import Logger from "./logger";
 import jobsLoader from "./job-scheduler";

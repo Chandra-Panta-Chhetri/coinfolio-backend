@@ -3,7 +3,7 @@ import { EventDispatcher } from "event-dispatch";
 import ErrorService from "./error";
 import events from "../subscribers/events";
 import { ILoginReqBody, IRegisterReqBody, IUserDTO, IUserDTONoToken, IUserSchema } from "../interfaces/IUser";
-import postgres from "../loaders/postgres";
+import db from "../loaders/db";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import { ErrorType } from "../enums/error";
@@ -29,9 +29,9 @@ export default class UserService {
   }
 
   async login(authCredentials: ILoginReqBody): Promise<IUserDTO> {
-    const usersWithEmail = await postgres<
-      IUserSchema[]
-    >`SELECT * FROM users WHERE email = ${authCredentials.email?.toLowerCase()!}`;
+    const usersWithEmail = await db.select<IUserSchema[]>("*").from("users").where({
+      email: authCredentials.email?.toLowerCase()
+    });
     const user = usersWithEmail[0];
     if (!user) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.LOGIN);
@@ -48,16 +48,23 @@ export default class UserService {
   }
 
   async register(newUser: IRegisterReqBody): Promise<IUserDTO> {
-    const usersWithEmail = await postgres<IUserSchema[]>`SELECT * FROM users WHERE email = ${newUser.email!}`;
+    const usersWithEmail = await db.select<IUserSchema[]>("*").from("users").where({
+      email: newUser.email
+    });
     const user = usersWithEmail[0];
     if (user) {
       throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.DUPLICATE_EMAIL);
     }
 
     const hashedPassword = await this.hashPassword(newUser.password!);
-    const insertedUsers = await postgres<
-      IUserSchema[]
-    >`INSERT INTO users (name, password, email) VALUES(${newUser.name!}, ${hashedPassword!}, ${newUser.email?.toLowerCase()!}) RETURNING id`;
+    const insertedUsers = await db("users")
+      .insert({
+        name: newUser.name,
+        password: hashedPassword,
+        email: newUser.email?.toLowerCase()
+      })
+      .returning<IUserSchema[]>("id");
+
     const userSchema = {
       email: newUser.email!,
       id: insertedUsers[0].id,
@@ -91,7 +98,9 @@ export default class UserService {
   async changePassword() {}
 
   async getUserById(id: number): Promise<IUserDTONoToken> {
-    const usersWithId = await postgres<IUserSchema[]>`SELECT * FROM users WHERE id = ${id}`;
+    const usersWithId = await db.select<IUserSchema[]>("*").from("users").where({
+      id
+    });
     const user = usersWithId[0];
     if (!user) {
       throw new ErrorService(ErrorType.NotFound, `User with id ${id} was not found`);

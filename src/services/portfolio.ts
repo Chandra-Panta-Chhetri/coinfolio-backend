@@ -8,7 +8,7 @@ import {
   IUpdatePortfolio
 } from "../interfaces/IPortfolio";
 import { IRequestUser } from "../interfaces/IUser";
-import postgres from "../loaders/postgres";
+import db from "../loaders/db";
 import ErrorService from "./error";
 
 export default class PortfolioService {
@@ -16,12 +16,15 @@ export default class PortfolioService {
 
   async create(user: IRequestUser, newPortfolio: ICreatePortfolio): Promise<IPortfolio> {
     try {
-      const portfolios = await postgres<IPortfolio[]>`
-      INSERT INTO portfolio (is_deleted, nickname, user_id)
-      VALUES (false, ${newPortfolio.nickname}, ${user.id})
-      RETURNING *`;
-      if (portfolios.length > 0) {
-        return portfolios[0];
+      const createdPortfolios = await db("portfolio")
+        .insert({
+          is_deleted: false,
+          nickname: newPortfolio.nickname,
+          user_id: user.id
+        })
+        .returning<IPortfolio[]>("*");
+      if (createdPortfolios.length > 0) {
+        return createdPortfolios[0];
       } else {
         throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_CREATE);
       }
@@ -32,10 +35,10 @@ export default class PortfolioService {
 
   async getAll(user: IRequestUser): Promise<IPortfolio[]> {
     try {
-      const portfolios = await postgres<IPortfolio[]>`
-      SELECT * FROM portfolio
-      WHERE user_id=${user.id} AND is_deleted=false
-      `;
+      const portfolios = await db.select<IPortfolio[]>("*").from("portfolio").where({
+        user_id: user.id,
+        is_deleted: false
+      });
       return portfolios;
     } catch (err) {
       return [];
@@ -59,19 +62,16 @@ export default class PortfolioService {
 
   async updateByID(user: IRequestUser, id: string, requestedUpdates: IUpdatePortfolio): Promise<IPortfolio> {
     try {
-      const { nickname, is_deleted } = requestedUpdates;
-      if (nickname === undefined && is_deleted === undefined) {
-        throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_UPDATE);
-      }
-
-      const updatedPortfolios = await postgres`
-        UPDATE portfolio
-        SET ${postgres(requestedUpdates, "is_deleted", "nickname")}
-        WHERE user_id=${user.id} AND id=${id}
-        RETURNING *`;
+      const updatedPortfolios = await db("portfolio")
+        .where({
+          user_id: user.id,
+          id
+        })
+        .update(requestedUpdates)
+        .returning<IPortfolio[]>("*");
 
       if (updatedPortfolios.length > 0) {
-        return updatedPortfolios[0] as IPortfolio;
+        return updatedPortfolios[0];
       } else {
         throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_UPDATE);
       }

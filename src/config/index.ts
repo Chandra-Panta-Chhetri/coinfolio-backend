@@ -10,7 +10,7 @@ export default {
   env: process.env.NODE_ENV || "development",
   db: {
     host: process.env.DB_HOST,
-    username: process.env.DB_USER,
+    user: process.env.DB_USER,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: parseInt(process.env.DB_PORT!),
