@@ -1,5 +1,27 @@
 import { Joi, Segments } from "celebrate";
 
+export interface IGetMarketsQuery {
+  sortBy?: string;
+  sortOrder?: string;
+  perPage?: number;
+  page?: number;
+}
+
+export interface IGetAssetsQuery {
+  search?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface IGetGainersLosersQuery {
+  limit?: number;
+}
+
+export interface IGetAssetExchangesQuery {
+  perPage?: number;
+  page?: number;
+}
+
 export const GET_TOP_COINS = {
   [Segments.QUERY]: Joi.object().keys({
     limit: Joi.number().required().min(1).max(2000).messages({
@@ -42,12 +64,12 @@ export const GET_MARKETS = {
       "any.only": "sortOrder must be 'ASC' | 'DESC'",
       "any.required": "sortOrder is required"
     }),
-    perPage: Joi.number().required().min(1).max(2000).messages({
+    perPage: Joi.number().required().default(10).min(1).max(2000).messages({
       "number.min": "perPage must be greater than or equal to 1",
       "any.required": "perPage is required",
       "number.max": "perPage cannot be greater than 2000"
     }),
-    page: Joi.number().required().min(1).messages({
+    page: Joi.number().required().default(1).min(1).messages({
       "number.min": "page must be greater than or equal to 1",
       "any.required": "page is required"
     })
@@ -69,12 +91,12 @@ export const GET_ASSET_EXCHANGES = {
     })
   }),
   [Segments.QUERY]: Joi.object().keys({
-    perPage: Joi.number().required().min(1).max(2000).messages({
+    perPage: Joi.number().required().default(10).min(1).max(2000).messages({
       "number.min": "perPage must be greater than or equal to 1",
       "any.required": "perPage is required",
       "number.max": "perPage cannot be greater than 2000"
     }),
-    page: Joi.number().required().min(1).messages({
+    page: Joi.number().required().default(1).min(1).messages({
       "number.min": "page must be greater than or equal to 1",
       "any.required": "page is required"
     })

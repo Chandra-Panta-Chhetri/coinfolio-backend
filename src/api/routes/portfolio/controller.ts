@@ -1,40 +1,41 @@
 import { NextFunction, Request, Response } from "express";
-import ERROR_MESSAGES from "../../../constants/error-messages";
-import { ErrorType } from "../../../enums/error";
-import ErrorService from "../../../services/error";
 import PortfolioService from "../../../services/portfolio";
 
 export const getPortfolios = async (req: Request, res: Response, next: NextFunction) => {
-  const ps = new PortfolioService();
-  const portfoliosRes = await ps.getAll(req.user!);
-  const portfolios = ps.toPortfoliosDTO(portfoliosRes);
-  res.send(portfolios);
+  try {
+    const portfolios = await PortfolioService.getAll(req.user!);
+    const portfoliosDTO = PortfolioService.toPortfoliosDTO(portfolios);
+    res.send(portfoliosDTO);
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const createPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const ps = new PortfolioService();
-    const createdPortfolio = await ps.create(req.user!, req.body);
-    const formattedPortfolio = ps.toPortfolioDTO(createdPortfolio);
-    res.send(formattedPortfolio);
+    const newPortfolio = await PortfolioService.create(req.user!, req.body);
+    const newPortfolioDTO = PortfolioService.toPortfolioDTO(newPortfolio);
+    res.send(newPortfolioDTO);
   } catch (err) {
     next(err);
   }
 };
 
 export const getPortfolioByID = async (req: Request, res: Response, next: NextFunction) => {
-  const ps = new PortfolioService();
-  const portfolioRes = await ps.getByID(req.user!, req.params.id);
-  const portfolio = portfolioRes;
-  res.send(portfolio);
+  try {
+    const portfolio = await PortfolioService.getByID(req.user!, req.params.id);
+    const portfolioDTO = PortfolioService.toPortfolioDTO(portfolio);
+    res.send(portfolioDTO);
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const updatePortfolioByID = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const ps = new PortfolioService();
-    const portfolioRes = await ps.updateByID(req.user!, req.params.id, req.body);
-    const updatedPortfolio = ps.toPortfolioDTO(portfolioRes);
-    res.send(updatedPortfolio);
+    const updatedPortfolio = await PortfolioService.updateByID(req.user!, req.params.id, req.body);
+    const updatedPortfolioDTO = PortfolioService.toPortfolioDTO(updatedPortfolio);
+    res.send(updatedPortfolioDTO);
   } catch (err) {
     next(err);
   }
@@ -42,10 +43,9 @@ export const updatePortfolioByID = async (req: Request, res: Response, next: Nex
 
 export const deletePortfolioByID = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const ps = new PortfolioService();
-    const portfolioRes = await ps.deleteByID(req.user!, req.params.id);
-    const deletedPortfolio = ps.toPortfolioDTO(portfolioRes);
-    res.send(deletedPortfolio);
+    const deletedPortfolio = await PortfolioService.deleteByID(req.user!, req.params.id);
+    const deletedPortfolioDTO = PortfolioService.toPortfolioDTO(deletedPortfolio);
+    res.send(deletedPortfolioDTO);
   } catch (err) {
     next(err);
   }

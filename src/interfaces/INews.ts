@@ -1,10 +1,3 @@
-export interface IGetNewsQueryParams {
-  filter?: string;
-  currencies?: string;
-  kind?: string;
-  page?: number;
-}
-
 interface IGetNewsResultsDTO {
   source: string;
   title: string;

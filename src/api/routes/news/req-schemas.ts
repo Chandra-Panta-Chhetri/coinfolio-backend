@@ -1,6 +1,13 @@
 import { Joi, Segments } from "celebrate";
 import REGEXES from "../../../constants/regex";
 
+export interface IGetNewsQuery {
+  filter?: string;
+  currencies?: string;
+  kind?: string;
+  page?: number;
+}
+
 export const GET_NEWS = {
   [Segments.QUERY]: Joi.object().keys({
     filter: Joi.string().valid("rising", "hot", "bullish", "bearish", "important", "saved", "lol").messages({

@@ -1,5 +1,7 @@
 export default class ErrorService extends Error {
-  constructor(name: string, message: string, ...params: any) {
+  statusCode?: number;
+
+  constructor(name: string, message: string, statusCode?: number, ...params: any) {
     super(...params);
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, ErrorService);
@@ -7,5 +9,6 @@ export default class ErrorService extends Error {
 
     this.name = name;
     this.message = message;
+    this.statusCode = statusCode;
   }
 }

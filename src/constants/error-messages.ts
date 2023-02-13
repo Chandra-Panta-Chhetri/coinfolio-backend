@@ -6,7 +6,9 @@ const ERROR_MESSAGES = {
   PORTFOLIO_UPDATE: "Failed to update portfolio. Please try again.",
   PORTFOLIO_DELETE: "Failed to delete portfolio. Please try again.",
   AUTHENTICATION: "Please login and try again.",
-  REQUIRES_NO_AUTHENTICATION: "Please logout and try again."
+  REQUIRES_NO_AUTHENTICATION: "Please logout and try again.",
+  PORTFOLIO_UNAUTHORIZED_ACTION: "Insufficent permission.",
+  GENERIC: ERROR_MESSAGES.GENERIC
 };
 
 export default ERROR_MESSAGES;

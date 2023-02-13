@@ -1,17 +1,22 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
 import * as authController from "./controller";
-import * as reqSchemas from "./req-schemas";
+import * as authReqSchemas from "./req-schemas";
 import middlewares from "../../middlewares";
 
-const route = Router();
+const authRouter = Router();
 
 export default (app: Router) => {
-  app.use("/auth", route);
+  app.use("/auth", authRouter);
 
-  route.post("/login", middlewares.isNotAuthenticated, celebrate(reqSchemas.LOGIN), authController.login);
+  authRouter.post("/login", middlewares.isNotAuthenticated, celebrate(authReqSchemas.LOGIN), authController.login);
 
-  route.post("/register", middlewares.isNotAuthenticated, celebrate(reqSchemas.REGISTER), authController.register);
+  authRouter.post(
+    "/register",
+    middlewares.isNotAuthenticated,
+    celebrate(authReqSchemas.REGISTER),
+    authController.register
+  );
 
-  route.get("/user", middlewares.isAuthenticated, authController.getCurrentUser);
+  authRouter.get("/user", middlewares.isAuthenticated, authController.getCurrentUser);
 };

@@ -3,9 +3,8 @@ import UserService from "../../../services/user";
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const us = new UserService();
-    const user = await us.login(req.body);
-    res.send(user);
+    const userDTO = await UserService.login(req.body);
+    res.send(userDTO);
   } catch (err) {
     next(err);
   }
@@ -13,9 +12,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const us = new UserService();
-    const user = await us.register(req.body);
-    res.send(user);
+    const newUserDTO = await UserService.register(req.body);
+    res.send(newUserDTO);
   } catch (err) {
     next(err);
   }
@@ -23,10 +21,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const us = new UserService();
-    const user = await us.getUserById(req.user?.id!);
-    res.send(user);
+    const userDTO = await UserService.getUserById(req.user?.id!);
+    res.send(userDTO);
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };

@@ -1,20 +1,15 @@
 import axios from "../config/axios";
-import {
-  IGetEventsQuery,
-  IEventsDTO,
-  IGetEventsRes,
-  IEventsStatus,
-  IEventCoin,
-  IEventCoinDTO
-} from "../interfaces/IEvents";
+import { IEventsDTO, IGetEventsRes, IEventsStatus, IEventCoin, IEventCoinDTO } from "../interfaces/IEvents";
 import config from "../config";
 import { AxiosError } from "axios";
-import { toEventImageURL } from "../api/utils";
+import { IGetEventsQuery } from "../api/routes/events/req-schemas";
+import ErrorService from "./error";
+import { ErrorType } from "../enums/error";
 
-export default class EventsService {
+export default class EventService {
   constructor() {}
 
-  async getEvents(query: IGetEventsQuery): Promise<IGetEventsRes | IEventsStatus> {
+  static async getEvents(query: IGetEventsQuery) {
     try {
       const res = await axios.get<IGetEventsRes>(`${config.eventsAPI.coinMarketCal}/events`, {
         params: query,
@@ -23,11 +18,12 @@ export default class EventsService {
       return res.data;
     } catch (err) {
       const axiosError = err as AxiosError;
-      return (axiosError.response!.data as IGetEventsRes).status as IEventsStatus;
+      const formattedError = (axiosError.response!.data as IGetEventsRes).status as IEventsStatus;
+      throw new ErrorService(ErrorType.Failed, formattedError.error_message, formattedError.error_code);
     }
   }
 
-  toGetEventsDTO(eventsRes: IGetEventsRes): IEventsDTO {
+  static toEventsDTO(eventsRes: IGetEventsRes): IEventsDTO {
     return {
       metadata: eventsRes._metadata,
       results: eventsRes.body.map((e) => ({
@@ -43,13 +39,17 @@ export default class EventsService {
     };
   }
 
-  toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
+  static toEventCoinDTO(coin: IEventCoin): IEventCoinDTO {
     return {
-      iconURL: toEventImageURL(coin.id),
+      iconURL: this.toEventImageURL(coin.id),
       fullname: coin.fullname,
       id: coin.id,
       name: coin.name,
       symbol: coin.symbol
     };
+  }
+
+  static toEventImageURL(coinId: string) {
+    return `${config.icons.events}/${coinId}_small.png`;
   }
 }

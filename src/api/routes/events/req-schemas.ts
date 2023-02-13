@@ -1,6 +1,16 @@
 import { Joi, Segments } from "celebrate";
 import REGEXES from "../../../constants/regex";
 
+export interface IGetEventsQuery {
+  page?: number;
+  max?: number;
+  dateRangeStart?: string;
+  dateRangeEnd?: string;
+  showOnly?: string;
+  coins?: string;
+  sortBy?: string;
+}
+
 export const GET_EVENTS = {
   [Segments.QUERY]: Joi.object().keys({
     page: Joi.number().min(1).messages({

@@ -1,5 +1,13 @@
-import config from "../config";
-import { IAddSubtractOptions } from "../interfaces/IUtils";
+export interface IAddSubtractOptions {
+  years?: number;
+  months?: number;
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
+  weeks?: number;
+}
 
 export const roundToNDecimals = (num: number | string, numDecimals: number = 2): number =>
   +(Math.round(+(+num + `e+${numDecimals}`)) + `e-${numDecimals}`);
@@ -37,10 +45,6 @@ export const abbreviateNum = (num: number | string): string => {
   if (+num >= 1e12) return roundToNDecimals(+num / 1e12) + " Tr";
   return `${formatNum(num)}`;
 };
-
-export const toMarketImageURL = (symbol: string) => `${config.icons.markets}/${symbol.toLowerCase()}@2x.png`;
-
-export const toEventImageURL = (id: string) => `${config.icons.events}/${id}_small.png`;
 
 export const calculatePercentChange = (final: number, initial: number) => ((final - initial) / initial) * 100;
 

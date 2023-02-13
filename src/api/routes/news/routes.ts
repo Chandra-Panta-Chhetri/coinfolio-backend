@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import * as reqSchemas from "./req-schemas";
+import * as newsReqSchemas from "./req-schemas";
 import * as newsController from "./controller";
 import rl from "express-rate-limit";
 
-const route = Router();
+const newsRouter = Router();
 
 export default (app: Router) => {
-  app.use("/news", route);
+  app.use("/news", newsRouter);
 
-  route.get(
+  newsRouter.get(
     "/",
     rl({
       windowMs: 1000,
@@ -17,7 +17,7 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_NEWS),
-    newsController.index
+    celebrate(newsReqSchemas.GET_NEWS),
+    newsController.getNews
   );
 };

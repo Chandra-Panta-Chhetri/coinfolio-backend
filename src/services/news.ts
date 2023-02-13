@@ -1,27 +1,26 @@
 import axios from "../config/axios";
 import config from "../config";
-import { IGetNewsDTO, IGetNewsQueryParams, IGetNews } from "../interfaces/INews";
+import { IGetNewsDTO, IGetNews } from "../interfaces/INews";
+import { IGetNewsQuery } from "../api/routes/news/req-schemas";
+import ErrorService from "./error";
+import { ErrorType } from "../enums/error";
+import ERROR_MESSAGES from "../constants/error-messages";
 
 export default class NewsService {
   constructor() {}
 
-  async getNews(query: IGetNewsQueryParams): Promise<IGetNews> {
+  static async getNews(query: IGetNewsQuery) {
     try {
       const res = await axios.get<IGetNews>(config.newsAPI.cryptoPanic, {
         params: { ...query, ...config.newsAPI.params }
       });
       return res.data;
     } catch (err) {
-      return {
-        count: 0,
-        results: [],
-        next: "",
-        previous: ""
-      };
+      throw new ErrorService(ErrorType.Failed, ERROR_MESSAGES.GENERIC);
     }
   }
 
-  toGetNewsDTO(newsRes: IGetNews): IGetNewsDTO {
+  static toNewsDTO(newsRes: IGetNews): IGetNewsDTO {
     return {
       totalResults: newsRes.count,
       results: newsRes.results.map((r) => ({

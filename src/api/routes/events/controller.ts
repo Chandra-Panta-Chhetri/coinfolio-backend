@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
-import EventsService from "../../../services/events";
+import { NextFunction, Request, Response } from "express";
+import EventService from "../../../services/event";
 
-export const getEvents = async (req: Request, res: Response) => {
-  const es = new EventsService();
-  const eventsRes = await es.getEvents(req.query);
-  if ("error_code" in eventsRes) {
-    return res.status(eventsRes.error_code).send({ message: eventsRes.error_message });
+export const getEvents = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const events = await EventService.getEvents(req.query);
+    const eventsDTO = EventService.toEventsDTO(events);
+    res.send(eventsDTO);
+  } catch (err) {
+    next(err);
   }
-  const events = es.toGetEventsDTO(eventsRes);
-  res.send(events);
 };

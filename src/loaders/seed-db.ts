@@ -1,17 +1,17 @@
 import db from "./db";
 import Logger from "./logger";
 import bcrypt from "bcryptjs";
-import MarketsService from "../services/markets";
+import MarketsService from "../services/market";
 import { IMarketAssetIdMap, INamesToIds } from "../interfaces/IMarkets";
+import TABLE_NAMES from "../constants/db-table-names";
 
 const deleteAllTables = async () => {
   await db.schema
-    .dropTableIfExists("portfolio_transaction")
-    .dropTableIfExists("portfolio_asset")
-    .dropTableIfExists("portfolio")
-    .dropTableIfExists("users")
-    .dropTableIfExists("coincap_coinpaprika_map")
-    .dropTableIfExists("currency")
+    .dropTableIfExists(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+    .dropTableIfExists(TABLE_NAMES.PORTFOLIO)
+    .dropTableIfExists(TABLE_NAMES.USERS)
+    .dropTableIfExists(TABLE_NAMES.COINCAP_MAP)
+    .dropTableIfExists(TABLE_NAMES.CURRENCY)
     .raw("DROP TYPE IF EXISTS transaction_type");
   Logger.info("All tables deleted");
 };
@@ -19,14 +19,14 @@ const deleteAllTables = async () => {
 const createTables = async () => {
   await db.schema
     .raw("CREATE TYPE transaction_type AS ENUM ( 'buy', 'sell', 'transfer_in', 'transfer_out' )")
-    .createTable("currency", (table) => {
+    .createTable(TABLE_NAMES.CURRENCY, (table) => {
       table.string("code", 10).primary();
     })
-    .createTable("coincap_coinpaprika_map", (table) => {
+    .createTable(TABLE_NAMES.COINCAP_MAP, (table) => {
       table.string("coincap_id", 100).primary();
       table.string("coinpaprika_id", 100);
     })
-    .createTable("users", (table) => {
+    .createTable(TABLE_NAMES.USERS, (table) => {
       table.bigIncrements("id").primary();
       table.string("name", 80).notNullable();
       table.string("password", 80).notNullable();
@@ -39,19 +39,12 @@ const createTables = async () => {
       table.bigIncrements("id").primary();
       table.boolean("is_deleted").defaultTo(false);
     })
-    .createTable("portfolio_asset", (table) => {
+    .createTable(TABLE_NAMES.PORTFOLIO_TRANSACTIONS, (table) => {
+      table.string("notes", 255);
       table.bigint("portfolio_id").notNullable();
       table.foreign("portfolio_id").references("id").inTable("portfolio");
       table.string("coincap_id", 30).notNullable();
       table.foreign("coincap_id").references("coincap_id").inTable("coincap_coinpaprika_map");
-      table.bigIncrements("id").primary();
-      table.decimal("total_invested").defaultTo(0);
-      table.decimal("total_holdings").defaultTo(0);
-    })
-    .createTable("portfolio_transaction", (table) => {
-      table.string("notes", 255);
-      table.bigint("asset_id").notNullable();
-      table.foreign("asset_id").references("id").inTable("portfolio_asset");
       table.bigIncrements("id").primary();
       table.enu("type", null, { useNative: true, existingType: true, enumName: "transaction_type" });
       table.decimal("quantity").notNullable();
@@ -64,7 +57,7 @@ const createTables = async () => {
 const createUsers = async () => {
   let salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash("Password12", salt);
-  await db("users").insert({
+  await db(TABLE_NAMES.USERS).insert({
     name: "Chandra Panta",
     password: hashedPassword,
     email: "chandra@hotmail.com"
@@ -73,14 +66,12 @@ const createUsers = async () => {
 };
 
 export const mapCoincapToCoinPaprika = async () => {
-  const ms = new MarketsService();
-
   //get all coins from coincap
   let page = 1;
   let perPage = 2000;
   const coincapCoins = [];
   while (true) {
-    let coincapRes = await ms.getAssets({ limit: perPage, offset: perPage * (page - 1) });
+    let coincapRes = await MarketsService.getAssets({ limit: perPage, offset: perPage * (page - 1) });
     if (coincapRes.length === 0) {
       break;
     }
@@ -89,7 +80,7 @@ export const mapCoincapToCoinPaprika = async () => {
   }
 
   //get all coins from coinpaprika
-  const coinPaprikaCoins = await ms.getCoinPaprikaAssets();
+  const coinPaprikaCoins = await MarketsService.getCoinPaprikaAssets();
 
   //create dictionaries for both coins
   const coincapNameToIds: INamesToIds = {};
@@ -115,12 +106,13 @@ export const mapCoincapToCoinPaprika = async () => {
   }
 
   //add to DB
-  await db("coincap_coinpaprika_map").insert(idMaps).onConflict("coincap_id").ignore();
+  await db(TABLE_NAMES.COINCAP_MAP).insert(idMaps).onConflict("coincap_id").ignore();
   Logger.info("Created coincap to coinpaprika mappings");
 };
 
 export default async () => {
   try {
+    //Put inside same DB transaction
     Logger.info("Initilizing DB " + new Date().toLocaleTimeString());
     await deleteAllTables();
     await createTables();

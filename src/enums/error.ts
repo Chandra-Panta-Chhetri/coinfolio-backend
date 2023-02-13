@@ -3,5 +3,6 @@ export enum ErrorType {
   Validation = "Validation",
   BadRequest = "BadRequest",
   NotFound = "NotFound",
-  Authorized = "Authorized"
+  Authorized = "Authorized",
+  Failed = "Failed"
 }

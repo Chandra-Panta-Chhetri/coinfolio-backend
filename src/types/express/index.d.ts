@@ -1,4 +1,3 @@
-import { Document, Model } from "mongoose";
 import { IRequestUser } from "../../interfaces/IUser";
 
 declare global {

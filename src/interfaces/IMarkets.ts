@@ -77,16 +77,6 @@ export interface ISearchAssetsDTO {
   data: ISearchAssetDTO[];
 }
 
-export interface IGetAssetsQuery {
-  search?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface IGetGainersLosersQuery {
-  limit?: number;
-}
-
 export interface IMarketsGraphqlRes {
   data: {
     assets: {
@@ -107,17 +97,6 @@ export interface IMarketGainersLosersDTO {
 
 export interface IMarketsDTO {
   data: IMarketAssetDTO[];
-}
-
-export interface IGetMarketsQuery {
-  sortBy?: string;
-  sortOrder?: string;
-  perPage?: number;
-  page?: number;
-}
-
-export interface IGetAssetOverviewParams {
-  id?: string;
 }
 
 export interface IPrice {
@@ -185,15 +164,6 @@ export interface IGetAssetRes {
   data: IMarketAsset;
 }
 
-export interface IGetAssetExchangesParams {
-  id?: string;
-}
-
-export interface IGetAssetExchangesQuery {
-  perPage?: number;
-  page?: number;
-}
-
 export interface IAssetExchange {
   exchangeId: string;
   baseId: string;
@@ -218,10 +188,6 @@ export interface IAssetExchangesDTO {
 
 export interface IGetAssetMarketsRes {
   data: IAssetExchange[];
-}
-
-export interface IGetAssetAboutParams {
-  id?: string;
 }
 
 interface IAssetAboutTag {

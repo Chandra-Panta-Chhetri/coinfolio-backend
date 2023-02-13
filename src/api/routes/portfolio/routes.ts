@@ -1,16 +1,17 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import * as reqSchemas from "./req-schemas";
+import * as portfolioReqSchemas from "./req-schemas";
 import * as portfolioController from "./controller";
 import rl from "express-rate-limit";
 import middlewares from "../../middlewares";
+import initTransactionRoutes from "./transactions/routes";
 
-const route = Router();
+const portfolioRouter = Router();
 
 export default (app: Router) => {
-  app.use("/portfolios", route);
+  app.use("/portfolios", portfolioRouter);
 
-  route.get(
+  portfolioRouter.get(
     "/",
     rl({
       windowMs: 1000,
@@ -22,7 +23,7 @@ export default (app: Router) => {
     portfolioController.getPortfolios
   );
 
-  route.post(
+  portfolioRouter.post(
     "/",
     rl({
       windowMs: 1000,
@@ -30,12 +31,12 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.CREATE_PORTFOLIO),
+    celebrate(portfolioReqSchemas.CREATE_PORTFOLIO),
     middlewares.isAuthenticated,
     portfolioController.createPortfolio
   );
 
-  route.get(
+  portfolioRouter.get(
     "/:id",
     rl({
       windowMs: 1000,
@@ -43,12 +44,12 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_PORTFOLIO_BY_ID),
+    celebrate(portfolioReqSchemas.GET_PORTFOLIO_BY_ID),
     middlewares.isAuthenticated,
     portfolioController.getPortfolioByID
   );
 
-  route.put(
+  portfolioRouter.patch(
     "/:id",
     rl({
       windowMs: 1000,
@@ -56,12 +57,12 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.UPDATE_PORTFOLIO_BY_ID),
+    celebrate(portfolioReqSchemas.UPDATE_PORTFOLIO_BY_ID),
     middlewares.isAuthenticated,
     portfolioController.updatePortfolioByID
   );
 
-  route.delete(
+  portfolioRouter.delete(
     "/:id",
     rl({
       windowMs: 1000,
@@ -69,8 +70,10 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.DELETE_PORTFOLIO_BY_ID),
+    celebrate(portfolioReqSchemas.DELETE_PORTFOLIO_BY_ID),
     middlewares.isAuthenticated,
     portfolioController.deletePortfolioByID
   );
+
+  initTransactionRoutes(app);
 };
