@@ -32,7 +32,7 @@ const createTables = async () => {
       table.string("password", 80).notNullable();
       table.string("email", 255).notNullable().unique();
     })
-    .createTable("portfolio", (table) => {
+    .createTable(TABLE_NAMES.PORTFOLIO, (table) => {
       table.string("nickname", 80).notNullable();
       table.bigint("user_id").notNullable();
       table.foreign("user_id").references("id").inTable("users");

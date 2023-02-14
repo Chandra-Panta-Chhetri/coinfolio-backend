@@ -1,7 +1,8 @@
 import PortfolioService from ".";
 import {
   IAddPTransactionReqBody,
-  IDeletePTransactionsQuery
+  IDeletePTransactionsQuery,
+  IGetPTransactionsQuery
 } from "../../api/routes/portfolio/transactions/req-schemas";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
@@ -22,6 +23,34 @@ export default class PTransactionService {
       .where(criteria)
       .returning<IPortfolioTransaction[]>("*");
     return deletedTransactions;
+  }
+
+  private static async findWhere(criteria: Partial<IPortfolioTransaction>) {
+    const transactions = await db
+      .select<IPortfolioTransaction[]>("*")
+      .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+      .where(criteria);
+    return transactions;
+  }
+
+  static async getById(user: IRequestUser, portfolioId: string, id: string) {
+    await PortfolioService.getByID(user, portfolioId);
+    const [transaction] = await this.findWhere({ portfolio_id: +portfolioId, id: +id });
+    if (transaction === undefined) {
+      throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
+    }
+    return transaction;
+  }
+
+  static async getMany(user: IRequestUser, portfolioId: string, query: IGetPTransactionsQuery) {
+    await PortfolioService.getByID(user, portfolioId);
+    const searchCriteria: Partial<IPortfolioTransaction> = {};
+    if (query.coin_id !== undefined) {
+      searchCriteria.coincap_id = query.coin_id;
+    }
+    searchCriteria.portfolio_id = +portfolioId;
+    const transactions = await this.findWhere(searchCriteria);
+    return transactions;
   }
 
   static async deleteMany(user: IRequestUser, portfolioId: string, criteria: IDeletePTransactionsQuery) {

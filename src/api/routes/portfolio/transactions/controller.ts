@@ -18,3 +18,21 @@ export const deleteTransactions = async (req: Request, res: Response, next: Next
     next(err);
   }
 };
+
+export const getTransactions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const transactions = await PTransactionService.getMany(req.user!, req.params.portfolioId, req.query);
+    res.send(transactions);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getTransactionById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const transaction = await PTransactionService.getById(req.user!, req.params.portfolioId, req.params.id);
+    res.send(transaction);
+  } catch (err) {
+    next(err);
+  }
+};

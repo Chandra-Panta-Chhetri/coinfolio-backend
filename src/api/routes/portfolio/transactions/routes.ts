@@ -10,6 +10,19 @@ const transactionRouter = Router({ mergeParams: true });
 export default (app: Router) => {
   app.use("/portfolios/:portfolioId/transactions", transactionRouter);
 
+  transactionRouter.get(
+    "/",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(transactionReqSchemas.GET_TRANSACTIONS),
+    middlewares.isAuthenticated,
+    transactionController.getTransactions
+  );
+
   transactionRouter.delete(
     "/",
     rl({
@@ -34,5 +47,17 @@ export default (app: Router) => {
     celebrate(transactionReqSchemas.ADD_PORTFOLIO_TRANSACTION),
     middlewares.isAuthenticated,
     transactionController.addTransaction
+  );
+
+  transactionRouter.get(
+    "/:id",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    middlewares.isAuthenticated,
+    transactionController.getTransactionById
   );
 };
