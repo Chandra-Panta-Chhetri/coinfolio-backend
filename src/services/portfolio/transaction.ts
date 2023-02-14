@@ -2,8 +2,10 @@ import PortfolioService from ".";
 import {
   IAddPTransactionReqBody,
   IDeletePTransactionsQuery,
-  IGetPTransactionsQuery
+  IGetPTransactionsQuery,
+  IUpdatePTransactionReqBody
 } from "../../api/routes/portfolio/transactions/req-schemas";
+import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
@@ -31,6 +33,14 @@ export default class PTransactionService {
       .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
       .where(criteria);
     return transactions;
+  }
+
+  private static async updateWhere(update: Partial<IPortfolioTransaction>, criteria: Partial<IPortfolioTransaction>) {
+    const updatedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+      .update(update)
+      .where(criteria)
+      .returning<IPortfolioTransaction[]>("*");
+    return updatedTransactions;
   }
 
   static async getById(user: IRequestUser, portfolioId: string, id: string) {
@@ -64,6 +74,34 @@ export default class PTransactionService {
       portfolio_id: +portfolioId
     });
     return deletedTransactions;
+  }
+
+  static async deleteOne(user: IRequestUser, portfolioId: string, id: string) {
+    const portfolio = await PortfolioService.getByID(user, portfolioId);
+    const [deletedTransaction] = await this.deleteWhere({
+      id: +id,
+      portfolio_id: +portfolioId
+    });
+    if (deletedTransaction === undefined) {
+      throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
+    }
+    return deletedTransaction;
+  }
+
+  static async updateById(user: IRequestUser, portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
+    const portfolio = await PortfolioService.getByID(user, portfolioId);
+    const mappedUpdates: Partial<IPortfolioTransaction> = {
+      notes: update.notes,
+      price_per_usd: update.pricePer,
+      type: update.type,
+      quantity: update.quantity
+    };
+    removeUndefinedProperties(mappedUpdates);
+    const [updatedTransaction] = await this.updateWhere(mappedUpdates, { id: +id, portfolio_id: +portfolioId });
+    if (updatedTransaction === undefined) {
+      throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
+    }
+    return updatedTransaction;
   }
 
   private static async create(transactions: Partial<IPortfolioTransaction> | Partial<IPortfolioTransaction>[]) {

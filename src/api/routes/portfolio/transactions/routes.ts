@@ -60,4 +60,29 @@ export default (app: Router) => {
     middlewares.isAuthenticated,
     transactionController.getTransactionById
   );
+
+  transactionRouter.patch(
+    "/:id",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(transactionReqSchemas.UPDATE_TRANSACTION_BY_ID),
+    middlewares.isAuthenticated,
+    transactionController.updateTransactionById
+  );
+
+  transactionRouter.delete(
+    "/:id",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    middlewares.isAuthenticated,
+    transactionController.deleteTransactionById
+  );
 };

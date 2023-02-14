@@ -1,3 +1,5 @@
+import { IObject } from "../interfaces/IUtils";
+
 export interface IAddSubtractOptions {
   years?: number;
   months?: number;
@@ -62,3 +64,10 @@ export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions)
 
   return result;
 };
+
+export const removeUndefinedProperties = (obj: IObject) =>
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "undefined") {
+      delete obj[key];
+    }
+  });

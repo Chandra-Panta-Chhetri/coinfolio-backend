@@ -20,6 +20,13 @@ export interface IGetPTransactionsQuery {
   date?: string;
 }
 
+export interface IUpdatePTransactionReqBody {
+  notes?: string;
+  type?: IPortfolioTransactionType;
+  quantity?: number;
+  pricePer?: number;
+}
+
 export const ADD_PORTFOLIO_TRANSACTION = {
   [Segments.PARAMS]: Joi.object().keys({
     portfolioId: Joi.string().required().messages({
@@ -69,6 +76,31 @@ export const GET_TRANSACTIONS = {
     }),
     date: Joi.date().max("now").messages({
       "date.less": "date cannot be in the future"
+    })
+  })
+};
+
+export const UPDATE_TRANSACTION_BY_ID = {
+  [Segments.PARAMS]: Joi.object().keys({
+    portfolioId: Joi.string().required().messages({
+      "any.required": "portfolioId is required"
+    }),
+    id: Joi.string().required().messages({
+      "any.required": "id is required"
+    })
+  }),
+  [Segments.BODY]: Joi.object().keys({
+    notes: Joi.string().max(255).messages({
+      "string.max": "notes cannot be greater than 255 characters"
+    }),
+    type: Joi.string().valid("buy", "sell", "transfer_in", "transfer_out").messages({
+      "any.only": "type must be 'buy' | 'sell' | 'transfer_in' | 'transfer_out'"
+    }),
+    quantity: Joi.number().messages({
+      "any.required": "quantity is required"
+    }),
+    pricePer: Joi.number().messages({
+      "any.required": "pricePer is required"
     })
   })
 };

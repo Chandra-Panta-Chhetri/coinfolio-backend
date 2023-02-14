@@ -36,3 +36,26 @@ export const getTransactionById = async (req: Request, res: Response, next: Next
     next(err);
   }
 };
+
+export const updateTransactionById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const updatedTransaction = await PTransactionService.updateById(
+      req.user!,
+      req.params.portfolioId,
+      req.params.id,
+      req.body
+    );
+    res.send(updatedTransaction);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteTransactionById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const deletedTransaction = await PTransactionService.deleteOne(req.user!, req.params.portfolioId, req.params.id);
+    res.send(deletedTransaction);
+  } catch (err) {
+    next(err);
+  }
+};
