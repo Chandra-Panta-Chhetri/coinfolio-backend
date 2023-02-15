@@ -1,6 +1,5 @@
 import axios from "../config/axios";
 import config from "../config";
-import db from "../loaders/db";
 import {
   IGrahpqlReqBody,
   IMarketAsset,
@@ -16,7 +15,6 @@ import {
   IAssetOverview,
   IAssetOverviewDTO,
   ITicker,
-  IPrice,
   IGetAssetPriceHistoryQuery,
   IGetAssetRes,
   IGetAssetPriceHistoryRes,
@@ -28,8 +26,7 @@ import {
   IAssetAbout,
   IAssetAboutDTO,
   IAboutLinksDTO,
-  ICoinPaprikaAsset,
-  IMarketAssetIdMap
+  ICoinPaprikaAsset
 } from "../interfaces/IMarkets";
 import { addSubtractTime, calculatePercentChange, abbreviateNum, formatNum } from "../api/utils";
 import {
@@ -41,7 +38,6 @@ import {
 import ErrorService from "./error";
 import { ErrorType } from "../enums/error";
 import ERROR_MESSAGES from "../constants/error-messages";
-import TABLE_NAMES from "../constants/db-table-names";
 import CoinMapService from "./coin-map";
 
 export default class MarketService {
@@ -56,10 +52,10 @@ export default class MarketService {
 
   static async getAssets(query: IGetAssetsQuery) {
     try {
-      const assetsRes = await axios.get<IGetAssetsRes>(`${config.marketsAPI.coinCap}/assets`, {
+      const assetsRes = await axios.get<IGetAssetsRes>(`${config?.marketsAPI?.coinCap}/assets`, {
         params: query
       });
-      return assetsRes.data.data;
+      return assetsRes?.data?.data;
     } catch (err) {
       throw new ErrorService(ErrorType.Failed, ERROR_MESSAGES.GENERIC);
     }
@@ -314,7 +310,7 @@ export default class MarketService {
       ];
       return priceHistories;
     } catch (err) {
-      throw new ErrorService(ErrorType.BadRequest, `Asset with id ${assetId} does not exist`);
+      throw new ErrorService(ErrorType.NotFound, `Asset with id ${assetId} does not exist`);
     }
   }
 
@@ -325,7 +321,7 @@ export default class MarketService {
       } = await axios.get<IGetAssetRes>(`${config.marketsAPI.coinCap}/assets/${assetId}`);
       return asset;
     } catch (err) {
-      throw new ErrorService(ErrorType.BadRequest, `Asset with id ${assetId} does not exist`);
+      throw new ErrorService(ErrorType.NotFound, `Asset with id ${assetId} does not exist`);
     }
   }
 
@@ -334,13 +330,15 @@ export default class MarketService {
       const { data: assetStats } = await axios.get<ITicker>(`${config.marketsAPI.coinPaprika}/tickers/${tickerId}`);
       return assetStats;
     } catch (err) {
-      throw new ErrorService(ErrorType.BadRequest, `Asset with id ${tickerId} does not exist`);
+      throw new ErrorService(ErrorType.NotFound, `Asset with id ${tickerId} does not exist`);
     }
   }
 
   static async getAssetOverview(assetId: string): Promise<IAssetOverview> {
     const idMap = await CoinMapService.getCorrespondingIds(assetId);
-
+    if (idMap === undefined) {
+      throw new ErrorService(ErrorType.NotFound, `Asset with id ${assetId} does not exist`);
+    }
     const assetReq = this.getAsset(assetId);
     const priceHistoriesReq = this.getAssetPriceHistories(assetId);
     const statisticsReq = this.getAssetStats(idMap?.coinpaprika_id!);
@@ -424,10 +422,13 @@ export default class MarketService {
   static async getAssetAbout(assetId: string) {
     try {
       const idMap = await CoinMapService.getCorrespondingIds(assetId);
+      if (idMap === undefined) {
+        throw new ErrorService(ErrorType.NotFound, `Asset with id ${assetId} does not exist`);
+      }
       const { data } = await axios.get<IAssetAbout>(`${config.marketsAPI.coinPaprika}/coins/${idMap.coinpaprika_id!}`);
       return data;
     } catch (err) {
-      throw new ErrorService(ErrorType.BadRequest, `Asset with id ${assetId} does not exist`);
+      throw new ErrorService(ErrorType.NotFound, `Asset with id ${assetId} does not exist`);
     }
   }
 }

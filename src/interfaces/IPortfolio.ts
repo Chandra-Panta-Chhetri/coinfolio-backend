@@ -1,6 +1,6 @@
 export interface IPortfolio {
   nickname: string;
-  user: number;
+  user_id: number;
   is_deleted: boolean;
   id: number;
 }
@@ -14,17 +14,17 @@ export interface IPortfoliosDTO {
   data: IPortfolioDTO[];
 }
 
-export enum IPortfolioTransactionType {
+export enum IPTransactionType {
   BUY = "buy",
   SELL = "sell",
   TRANSFER_IN = "transfer_in",
   TRANSFER_OUT = "transfer_out"
 }
 
-export interface IPortfolioTransaction {
+export interface IPTransaction {
   notes: string;
   id: number;
-  type: IPortfolioTransactionType;
+  type: IPTransactionType;
   quantity: number;
   date: Date;
   price_per_usd: number;

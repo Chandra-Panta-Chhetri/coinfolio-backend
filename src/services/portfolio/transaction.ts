@@ -9,7 +9,7 @@ import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
-import { IPortfolioTransaction, IPortfolioTransactionType } from "../../interfaces/IPortfolio";
+import { IPTransaction, IPTransactionType } from "../../interfaces/IPortfolio";
 import { IRequestUser } from "../../interfaces/IUser";
 import db from "../../loaders/db";
 import CoinMapService from "../coin-map";
@@ -19,32 +19,67 @@ import MarketService from "../market";
 export default class PTransactionService {
   constructor() {}
 
-  private static async deleteWhere(criteria: Partial<IPortfolioTransaction>) {
-    const deletedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
-      .del()
-      .where(criteria)
-      .returning<IPortfolioTransaction[]>("*");
-    return deletedTransactions;
+  private static async create(transactions: Partial<IPTransaction> | Partial<IPTransaction>[]) {
+    try {
+      const createdTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .insert(transactions)
+        .returning<IPTransaction[]>("*");
+      return createdTransactions;
+    } catch (err) {
+      return [];
+    }
   }
 
-  private static async findWhere(criteria: Partial<IPortfolioTransaction>) {
-    const transactions = await db
-      .select<IPortfolioTransaction[]>("*")
-      .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
-      .where(criteria);
-    return transactions;
+  private static async deleteWhere(criteria: Partial<IPTransaction>) {
+    try {
+      const deletedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .del()
+        .where(criteria)
+        .returning<IPTransaction[]>("*");
+      return deletedTransactions;
+    } catch (err) {
+      return [];
+    }
   }
 
-  private static async updateWhere(update: Partial<IPortfolioTransaction>, criteria: Partial<IPortfolioTransaction>) {
-    const updatedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
-      .update(update)
-      .where(criteria)
-      .returning<IPortfolioTransaction[]>("*");
-    return updatedTransactions;
+  private static async findWhere(criteria: Partial<IPTransaction>) {
+    try {
+      const transactions = await db
+        .select<IPTransaction[]>("*")
+        .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .where(criteria);
+      return transactions;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  private static async updateWhere(update: Partial<IPTransaction>, criteria: Partial<IPTransaction>) {
+    try {
+      const updatedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .update(update)
+        .where(criteria)
+        .returning<IPTransaction[]>("*");
+      return updatedTransactions;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  private static async checkPermission(user: IRequestUser, portfolioId: string) {
+    try {
+      await PortfolioService.getByID(user, portfolioId);
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   static async getById(user: IRequestUser, portfolioId: string, id: string) {
-    await PortfolioService.getByID(user, portfolioId);
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
     const [transaction] = await this.findWhere({ portfolio_id: +portfolioId, id: +id });
     if (transaction === undefined) {
       throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
@@ -53,31 +88,39 @@ export default class PTransactionService {
   }
 
   static async getMany(user: IRequestUser, portfolioId: string, query: IGetPTransactionsQuery) {
-    await PortfolioService.getByID(user, portfolioId);
-    const searchCriteria: Partial<IPortfolioTransaction> = {};
-    if (query.coin_id !== undefined) {
-      searchCriteria.coincap_id = query.coin_id;
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
-    searchCriteria.portfolio_id = +portfolioId;
-    const transactions = await this.findWhere(searchCriteria);
+    const mappedCriteria: Partial<IPTransaction> = {
+      coincap_id: query.coin_id,
+      type: query.type,
+      portfolio_id: +portfolioId
+    };
+    removeUndefinedProperties(mappedCriteria);
+    const transactions = await this.findWhere(mappedCriteria);
     return transactions;
   }
 
   static async deleteMany(user: IRequestUser, portfolioId: string, criteria: IDeletePTransactionsQuery) {
-    const portfolio = await PortfolioService.getByID(user, portfolioId);
-    const deleteCriteria: Partial<IPortfolioTransaction> = {};
-    if (criteria.coin_id !== undefined) {
-      deleteCriteria.coincap_id = criteria.coin_id;
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
-    const deletedTransactions = await this.deleteWhere({
-      ...deleteCriteria,
+    const mappedCriteria: Partial<IPTransaction> = {
+      coincap_id: criteria.coin_id,
       portfolio_id: +portfolioId
-    });
+    };
+    removeUndefinedProperties(mappedCriteria);
+    const deletedTransactions = await this.deleteWhere(mappedCriteria);
     return deletedTransactions;
   }
 
   static async deleteOne(user: IRequestUser, portfolioId: string, id: string) {
-    const portfolio = await PortfolioService.getByID(user, portfolioId);
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
     const [deletedTransaction] = await this.deleteWhere({
       id: +id,
       portfolio_id: +portfolioId
@@ -89,8 +132,11 @@ export default class PTransactionService {
   }
 
   static async updateById(user: IRequestUser, portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
-    const portfolio = await PortfolioService.getByID(user, portfolioId);
-    const mappedUpdates: Partial<IPortfolioTransaction> = {
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
+    const mappedUpdates: Partial<IPTransaction> = {
       notes: update.notes,
       price_per_usd: update.pricePer,
       type: update.type,
@@ -104,25 +150,22 @@ export default class PTransactionService {
     return updatedTransaction;
   }
 
-  private static async create(transactions: Partial<IPortfolioTransaction> | Partial<IPortfolioTransaction>[]) {
-    const createdTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
-      .insert(transactions)
-      .returning<IPortfolioTransaction[]>("*");
-    return createdTransactions;
-  }
-
   static async addToPortfolio(user: IRequestUser, portfolioId: string, transaction: IAddPTransactionReqBody) {
-    const portfolio = await PortfolioService.getByID(user, portfolioId);
-    //or skip and try to insert, if error, most likely coinid wrong
-    const idMap = await CoinMapService.getCorrespondingIds(transaction.coinId);
+    const hasPermission = await this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
     const [createdTransaction] = await this.create({
       notes: transaction.notes,
-      type: transaction.type as IPortfolioTransactionType,
+      type: transaction.type as IPTransactionType,
       quantity: transaction.quantity,
       price_per_usd: transaction.pricePer,
       coincap_id: transaction.coinId,
       portfolio_id: +portfolioId
     });
+    if (createdTransaction === undefined) {
+      throw new ErrorService(ErrorType.BadRequest, "Failed to add transaction to portfolio");
+    }
     return createdTransaction;
   }
 }

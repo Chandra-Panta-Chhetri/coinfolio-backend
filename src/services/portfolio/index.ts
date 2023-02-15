@@ -10,14 +10,42 @@ import ErrorService from "../error";
 export default class PortfolioService {
   constructor() {}
 
-  static async create(user: IRequestUser, newPortfolio: ICreatePortfolioReqBody) {
-    const [createdPortfolio] = await db(TABLE_NAMES.PORTFOLIO)
-      .insert({
-        is_deleted: false,
-        nickname: newPortfolio.nickname,
-        user_id: user.id
-      })
-      .returning<IPortfolio[]>("*");
+  private static async create(portfolios: Partial<IPortfolio> | Partial<IPortfolio>[]) {
+    try {
+      const newPortfolios = await db(TABLE_NAMES.PORTFOLIO).insert(portfolios).returning<IPortfolio[]>("*");
+      return newPortfolios;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  private static async findWhere(criteria: Partial<IPortfolio>) {
+    try {
+      const portfolios = await db.select<IPortfolio[]>("*").from(TABLE_NAMES.PORTFOLIO).where(criteria);
+      return portfolios;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  private static async updateWhere(update: Partial<IPortfolio>, criteria: Partial<IPortfolio>) {
+    try {
+      const updatedPortfolios = await db(TABLE_NAMES.PORTFOLIO)
+        .update(update)
+        .where(criteria)
+        .returning<IPortfolio[]>("*");
+      return updatedPortfolios;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  static async add(user: IRequestUser, newPortfolio: ICreatePortfolioReqBody) {
+    const [createdPortfolio] = await this.create({
+      is_deleted: false,
+      nickname: newPortfolio.nickname,
+      user_id: user.id
+    });
     if (createdPortfolio === undefined) {
       throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_CREATE);
     }
@@ -25,7 +53,7 @@ export default class PortfolioService {
   }
 
   static async getAll(user: IRequestUser) {
-    const portfolios = await db.select<IPortfolio[]>("*").from(TABLE_NAMES.PORTFOLIO).where({
+    const portfolios = await this.findWhere({
       user_id: user.id,
       is_deleted: false
     });
@@ -46,24 +74,22 @@ export default class PortfolioService {
   }
 
   static async getByID(user: IRequestUser, id: string) {
-    const [portfolio] = await db.select<IPortfolio[]>("*").from(TABLE_NAMES.PORTFOLIO).where({
+    const [portfolio] = await this.findWhere({
       user_id: user.id,
-      id
+      id: +id,
+      is_deleted: false
     });
     if (portfolio === undefined) {
-      throw new ErrorService(ErrorType.BadRequest, `Portfolio with id ${id} does not exist`);
+      throw new ErrorService(ErrorType.NotFound, `Portfolio with id ${id} does not exist`);
     }
     return portfolio;
   }
 
   static async updateByID(user: IRequestUser, id: string, updates: IUpdatePortfolioReqBody) {
-    const [updatedPortfolio] = await db(TABLE_NAMES.PORTFOLIO)
-      .update(updates)
-      .where({
-        user_id: user.id,
-        id
-      })
-      .returning<IPortfolio[]>("*");
+    const [updatedPortfolio] = await this.updateWhere(updates, {
+      user_id: user.id,
+      id: +id
+    });
     if (updatedPortfolio === undefined) {
       throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_UPDATE);
     }

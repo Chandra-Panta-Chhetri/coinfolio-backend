@@ -8,7 +8,8 @@ const ERROR_MESSAGES = {
   AUTHENTICATION: "Please login and try again.",
   REQUIRES_NO_AUTHENTICATION: "Please logout and try again.",
   PORTFOLIO_UNAUTHORIZED_ACTION: "Insufficent permission.",
-  GENERIC: "Failed request"
+  GENERIC: "Failed request.",
+  SERVER: "Internal server error."
 };
 
 export default ERROR_MESSAGES;

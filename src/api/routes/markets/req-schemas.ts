@@ -64,12 +64,12 @@ export const GET_MARKETS = {
       "any.only": "sortOrder must be 'ASC' | 'DESC'",
       "any.required": "sortOrder is required"
     }),
-    perPage: Joi.number().required().default(10).min(1).max(2000).messages({
+    perPage: Joi.number().default(10).min(1).max(2000).messages({
       "number.min": "perPage must be greater than or equal to 1",
       "any.required": "perPage is required",
       "number.max": "perPage cannot be greater than 2000"
     }),
-    page: Joi.number().required().default(1).min(1).messages({
+    page: Joi.number().default(1).min(1).messages({
       "number.min": "page must be greater than or equal to 1",
       "any.required": "page is required"
     })
@@ -79,7 +79,7 @@ export const GET_MARKETS = {
 export const GET_ASSET_OVERVIEW = {
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.string().required().messages({
-      "any.required": "id is required"
+      "any.required": "asset id is required"
     })
   })
 };
@@ -87,16 +87,16 @@ export const GET_ASSET_OVERVIEW = {
 export const GET_ASSET_EXCHANGES = {
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.string().required().messages({
-      "any.required": "id is required"
+      "any.required": "asset id is required"
     })
   }),
   [Segments.QUERY]: Joi.object().keys({
-    perPage: Joi.number().required().default(10).min(1).max(2000).messages({
+    perPage: Joi.number().default(10).min(1).max(2000).messages({
       "number.min": "perPage must be greater than or equal to 1",
       "any.required": "perPage is required",
       "number.max": "perPage cannot be greater than 2000"
     }),
-    page: Joi.number().required().default(1).min(1).messages({
+    page: Joi.number().default(1).min(1).messages({
       "number.min": "page must be greater than or equal to 1",
       "any.required": "page is required"
     })
@@ -106,7 +106,7 @@ export const GET_ASSET_EXCHANGES = {
 export const GET_ASSET_ABOUT = {
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.string().required().messages({
-      "any.required": "id is required"
+      "any.required": "asset id is required"
     })
   })
 };

@@ -9,6 +9,7 @@ import { ErrorType } from "../enums/error";
 import middlewares from "../api/middlewares";
 import ErrorService from "../services/error";
 import Logger from "./logger";
+import ERROR_MESSAGES from "../constants/error-messages";
 
 export default async (app: ExpressApplication) => {
   app.enable("trust proxy");
@@ -46,6 +47,7 @@ export default async (app: ExpressApplication) => {
 
     switch (err.name) {
       case ErrorType.Unauthorized:
+      case ErrorType.Authorized:
         return res.status(401).send({ message: err.message });
       case ErrorType.Validation:
       case ErrorType.BadRequest:
@@ -54,7 +56,7 @@ export default async (app: ExpressApplication) => {
       case ErrorType.NotFound:
         return res.status(404).send({ message: err.message });
       default:
-        return res.status(500).send({ message: "Internal Server Error" });
+        return res.status(500).send({ message: ERROR_MESSAGES.SERVER });
     }
   });
 };

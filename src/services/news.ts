@@ -11,8 +11,8 @@ export default class NewsService {
 
   static async getNews(query: IGetNewsQuery) {
     try {
-      const res = await axios.get<IGetNews>(config.newsAPI.cryptoPanic, {
-        params: { ...query, ...config.newsAPI.params }
+      const res = await axios.get<IGetNews>(config?.newsAPI?.cryptoPanic, {
+        params: { ...query, ...config?.newsAPI?.params }
       });
       return res.data;
     } catch (err) {
@@ -22,13 +22,13 @@ export default class NewsService {
 
   static toNewsDTO(newsRes: IGetNews): IGetNewsDTO {
     return {
-      totalResults: newsRes.count,
-      results: newsRes.results.map((r) => ({
-        source: r.source.title,
-        title: r.title,
-        published: r.published_at,
-        url: r.url,
-        id: r.id
+      totalResults: newsRes?.count,
+      results: newsRes?.results?.map((r) => ({
+        source: r?.source.title,
+        title: r?.title,
+        published: r?.published_at,
+        url: r?.url,
+        id: r?.id
       }))
     };
   }

@@ -13,7 +13,7 @@ export const getPortfolios = async (req: Request, res: Response, next: NextFunct
 
 export const createPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const newPortfolio = await PortfolioService.create(req.user!, req.body);
+    const newPortfolio = await PortfolioService.add(req.user!, req.body);
     const newPortfolioDTO = PortfolioService.toPortfolioDTO(newPortfolio);
     res.send(newPortfolioDTO);
   } catch (err) {

@@ -1,5 +1,5 @@
 import { Joi, Segments } from "celebrate";
-import { IPortfolioTransactionType } from "../../../../interfaces/IPortfolio";
+import { IPTransactionType } from "../../../../interfaces/IPortfolio";
 
 export interface IAddPTransactionReqBody {
   notes: string;
@@ -16,13 +16,13 @@ export interface IDeletePTransactionsQuery {
 
 export interface IGetPTransactionsQuery {
   coin_id?: string;
-  type?: IPortfolioTransactionType;
+  type?: IPTransactionType;
   date?: string;
 }
 
 export interface IUpdatePTransactionReqBody {
   notes?: string;
-  type?: IPortfolioTransactionType;
+  type?: IPTransactionType;
   quantity?: number;
   pricePer?: number;
 }
