@@ -4,7 +4,8 @@ import PTransactionService from "../../../../services/portfolio/transaction";
 export const addTransaction = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const newTransaction = await PTransactionService.addToPortfolio(req.user!, req.params.portfolioId, req.body);
-    res.send(newTransaction);
+    const newTransactionDTO = PTransactionService.toTransactionDTO(newTransaction);
+    res.send(newTransactionDTO);
   } catch (err) {
     next(err);
   }
@@ -13,7 +14,8 @@ export const addTransaction = async (req: Request, res: Response, next: NextFunc
 export const deleteTransactions = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deletedTransactions = await PTransactionService.deleteMany(req.user!, req.params.portfolioId!, req.query);
-    res.send(deletedTransactions);
+    const deletedTransactionsDTO = PTransactionService.toTransactionsDTO(deletedTransactions);
+    res.send(deletedTransactionsDTO);
   } catch (err) {
     next(err);
   }
@@ -22,7 +24,8 @@ export const deleteTransactions = async (req: Request, res: Response, next: Next
 export const getTransactions = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const transactions = await PTransactionService.getMany(req.user!, req.params.portfolioId, req.query);
-    res.send(transactions);
+    const transactionsDTO = PTransactionService.toTransactionsDTO(transactions);
+    res.send(transactionsDTO);
   } catch (err) {
     next(err);
   }
@@ -31,7 +34,8 @@ export const getTransactions = async (req: Request, res: Response, next: NextFun
 export const getTransactionById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const transaction = await PTransactionService.getById(req.user!, req.params.portfolioId, req.params.id);
-    res.send(transaction);
+    const transactionDTO = PTransactionService.toTransactionDTO(transaction);
+    res.send(transactionDTO);
   } catch (err) {
     next(err);
   }
@@ -45,7 +49,8 @@ export const updateTransactionById = async (req: Request, res: Response, next: N
       req.params.id,
       req.body
     );
-    res.send(updatedTransaction);
+    const updatedTransactionDTO = PTransactionService.toTransactionDTO(updatedTransaction);
+    res.send(updatedTransactionDTO);
   } catch (err) {
     next(err);
   }
@@ -54,7 +59,8 @@ export const updateTransactionById = async (req: Request, res: Response, next: N
 export const deleteTransactionById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deletedTransaction = await PTransactionService.deleteOne(req.user!, req.params.portfolioId, req.params.id);
-    res.send(deletedTransaction);
+    const deletedTransactionDTO = PTransactionService.toTransactionDTO(deletedTransaction);
+    res.send(deletedTransactionDTO);
   } catch (err) {
     next(err);
   }

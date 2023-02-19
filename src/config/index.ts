@@ -5,7 +5,8 @@ export default {
   port: parseInt(process.env.PORT!),
   jwtSecret: process.env.JWT_SECRET!,
   api: {
-    prefix: "/api/v1"
+    prefix: "/api/v1",
+    docs: "/api-docs"
   },
   env: process.env.NODE_ENV || "development",
   db: {

@@ -10,14 +10,12 @@ export interface IAddPTransactionReqBody {
 }
 
 export interface IDeletePTransactionsQuery {
-  coin_id?: string;
-  portfolio_id?: string | number;
+  coinId?: string;
 }
 
 export interface IGetPTransactionsQuery {
-  coin_id?: string;
+  coinId?: string;
   type?: IPTransactionType;
-  date?: string;
 }
 
 export interface IUpdatePTransactionReqBody {
@@ -59,7 +57,7 @@ export const DELETE_TRANSACTIONS = {
     })
   }),
   [Segments.QUERY]: Joi.object().keys({
-    coin_id: Joi.string().messages({})
+    coinId: Joi.string().messages({})
   })
 };
 
@@ -70,12 +68,9 @@ export const GET_TRANSACTIONS = {
     })
   }),
   [Segments.QUERY]: Joi.object().keys({
-    coin_id: Joi.string().messages({}),
+    coinId: Joi.string().messages({}),
     type: Joi.string().valid("buy", "sell", "transfer_in", "transfer_out").messages({
       "any.only": "type must be 'buy' | 'sell' | 'transfer_in' | 'transfer_out'"
-    }),
-    date: Joi.date().max("now").messages({
-      "date.less": "date cannot be in the future"
     })
   })
 };

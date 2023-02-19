@@ -9,7 +9,7 @@ import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
-import { IPTransaction, IPTransactionType } from "../../interfaces/IPortfolio";
+import { IPTransaction, IPTransactionDTO, IPTransactionType } from "../../interfaces/IPortfolio";
 import { IRequestUser } from "../../interfaces/IUser";
 import db from "../../loaders/db";
 import CoinMapService from "../coin-map";
@@ -75,6 +75,22 @@ export default class PTransactionService {
     }
   }
 
+  static toTransactionDTO(transaction: IPTransaction): IPTransactionDTO {
+    return {
+      coinId: transaction.coincap_id,
+      date: transaction.date,
+      id: transaction.id,
+      notes: transaction.notes,
+      pricePerUSD: transaction.price_per_usd,
+      quantity: transaction.quantity,
+      type: transaction.type
+    };
+  }
+
+  static toTransactionsDTO(transactions: IPTransaction[]): IPTransactionDTO[] {
+    return transactions.map((t) => this.toTransactionDTO(t));
+  }
+
   static async getById(user: IRequestUser, portfolioId: string, id: string) {
     const hasPermission = await this.checkPermission(user, portfolioId);
     if (!hasPermission) {
@@ -93,7 +109,7 @@ export default class PTransactionService {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
     const mappedCriteria: Partial<IPTransaction> = {
-      coincap_id: query.coin_id,
+      coincap_id: query.coinId,
       type: query.type,
       portfolio_id: +portfolioId
     };
@@ -108,7 +124,7 @@ export default class PTransactionService {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
     const mappedCriteria: Partial<IPTransaction> = {
-      coincap_id: criteria.coin_id,
+      coincap_id: criteria.coinId,
       portfolio_id: +portfolioId
     };
     removeUndefinedProperties(mappedCriteria);

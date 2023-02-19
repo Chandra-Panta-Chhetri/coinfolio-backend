@@ -342,7 +342,6 @@ export default class MarketService {
     const assetReq = this.getAsset(assetId);
     const priceHistoriesReq = this.getAssetPriceHistories(assetId);
     const statisticsReq = this.getAssetStats(idMap?.coinpaprika_id!);
-
     const [statistics, asset, priceHistory] = await Promise.all([statisticsReq, assetReq, priceHistoriesReq]);
     return {
       asset,

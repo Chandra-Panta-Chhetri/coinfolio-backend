@@ -31,3 +31,13 @@ export interface IPTransaction {
   coincap_id: string;
   portfolio_id: number;
 }
+
+export interface IPTransactionDTO {
+  notes: string;
+  id: number;
+  type: IPTransactionType;
+  quantity: number;
+  date: Date;
+  pricePerUSD: number;
+  coinId: string;
+}

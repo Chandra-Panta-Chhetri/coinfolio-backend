@@ -10,6 +10,8 @@ import middlewares from "../api/middlewares";
 import ErrorService from "../services/error";
 import Logger from "./logger";
 import ERROR_MESSAGES from "../constants/error-messages";
+import swaggerUi from "swagger-ui-express";
+import swaggerJson from "../config/swagger.json";
 
 export default async (app: ExpressApplication) => {
   app.enable("trust proxy");
@@ -22,6 +24,7 @@ export default async (app: ExpressApplication) => {
   app.use(middlewares.extractUserFromToken);
 
   app.use(config.api.prefix, routes());
+  app.use(config.api.docs, swaggerUi.serve, swaggerUi.setup(swaggerJson, { customSiteTitle: "CoinFolio API Docs" }));
 
   //Catches 404 routes
   app.use((req: Request, res: Response, next: NextFunction) => {
