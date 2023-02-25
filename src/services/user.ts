@@ -106,7 +106,7 @@ export default class UserService {
   static async getUserById(id: number): Promise<Partial<IUserDTO>> {
     const [userWithId] = await this.findWhere({ id });
     if (userWithId === undefined) {
-      throw new ErrorService(ErrorType.NotFound, `User with id ${id} was not found`);
+      throw new ErrorService(ErrorType.NotFound, `User not found`);
     }
     return { email: userWithId?.email?.toLocaleLowerCase(), id: +userWithId?.id, name: userWithId?.name };
   }

@@ -39,7 +39,9 @@
   "paths": {
     "/auth/user": {
       "get": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Retrieves a user from token",
         "security": [
           {
@@ -82,7 +84,9 @@
     },
     "/auth/register": {
       "post": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Creates a new user",
         "requestBody": {
           "content": {
@@ -100,7 +104,11 @@
                     "type": "string"
                   }
                 },
-                "required": ["email", "password", "name"]
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ]
               }
             }
           }
@@ -136,7 +144,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Login using email and password",
         "responses": {
           "200": {
@@ -183,7 +193,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -192,7 +205,9 @@
     },
     "/events": {
       "get": {
-        "tags": ["events"],
+        "tags": [
+          "events"
+        ],
         "summary": "Retrives a list of crypto events",
         "parameters": [
           {
@@ -238,7 +253,11 @@
             "description": "filter events",
             "schema": {
               "type": "string",
-              "enum": ["hot_events", "trending_events", "significant_events"]
+              "enum": [
+                "hot_events",
+                "trending_events",
+                "significant_events"
+              ]
             }
           },
           {
@@ -256,7 +275,11 @@
             "description": "sort events by one the following",
             "schema": {
               "type": "string",
-              "enum": ["hot_events", "trending_events", "significant_events"]
+              "enum": [
+                "hot_events",
+                "trending_events",
+                "significant_events"
+              ]
             }
           }
         ],
@@ -286,7 +309,9 @@
     },
     "/news": {
       "get": {
-        "tags": ["news"],
+        "tags": [
+          "news"
+        ],
         "summary": "Retrives a list of crypto news",
         "parameters": [
           {
@@ -295,7 +320,13 @@
             "description": "filter news",
             "schema": {
               "type": "string",
-              "enum": ["rising", "hot", "bullish", "bearish", "important"]
+              "enum": [
+                "rising",
+                "hot",
+                "bullish",
+                "bearish",
+                "important"
+              ]
             }
           },
           {
@@ -313,7 +344,11 @@
             "description": "filter news by type",
             "schema": {
               "type": "string",
-              "enum": ["news", "media", "significant_events"]
+              "enum": [
+                "news",
+                "media",
+                "significant_events"
+              ]
             }
           },
           {
@@ -353,7 +388,9 @@
     },
     "/markets": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos",
         "parameters": [
           {
@@ -362,7 +399,14 @@
             "description": "sort cryptos",
             "schema": {
               "type": "string",
-              "enum": ["rank", "name", "priceUsd", "marketCapUsd", "volumeUsd24Hr", "changePercent24Hr"]
+              "enum": [
+                "rank",
+                "name",
+                "priceUsd",
+                "marketCapUsd",
+                "volumeUsd24Hr",
+                "changePercent24Hr"
+              ]
             },
             "required": true
           },
@@ -372,7 +416,10 @@
             "description": "order to sort cryptos by",
             "schema": {
               "type": "string",
-              "enum": ["ASC", "DESC"]
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
             },
             "required": true
           },
@@ -426,7 +473,9 @@
     },
     "/markets/summary": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves global market summary",
         "responses": {
           "200": {
@@ -454,7 +503,9 @@
     },
     "/markets/top-coins": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos sorted by highest market cap",
         "parameters": [
           {
@@ -495,7 +546,9 @@
     },
     "/markets/gainers-losers": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos with the highest price increase & decrease",
         "parameters": [
           {
@@ -536,7 +589,9 @@
     },
     "/markets/search": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos by keyword(s)",
         "parameters": [
           {
@@ -575,7 +630,9 @@
     },
     "/markets/{id}/about": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves details about an asset such as description",
         "parameters": [
           {
@@ -614,7 +671,9 @@
     },
     "/markets/{id}/overview": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves overview of an asset such as price history and statistics",
         "parameters": [
           {
@@ -653,7 +712,9 @@
     },
     "/markets/{id}/exchanges": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves exchanges an asset can be traded on",
         "parameters": [
           {
@@ -715,7 +776,9 @@
     },
     "/portfolios": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves a list of portfolios",
         "security": [
           {
@@ -746,7 +809,9 @@
         }
       },
       "post": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Creates a portfolio",
         "security": [
           {
@@ -763,7 +828,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["nickname"]
+                "required": [
+                  "nickname"
+                ]
               }
             }
           }
@@ -804,7 +871,9 @@
     },
     "/portfolios/{id}": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves portfolio by id",
         "security": [
           {
@@ -856,7 +925,9 @@
         }
       },
       "patch": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Updates a portfolio with id",
         "security": [
           {
@@ -922,7 +993,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Deletes a portfolio with id",
         "security": [
           {
@@ -976,7 +1049,9 @@
     },
     "/portfolios/{id}/overview": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves overview of a portfolio",
         "security": [
           {
@@ -1030,7 +1105,9 @@
     },
     "/portfolios/{portfolioId}/transactions": {
       "get": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Retrieves transactions for a portfolio",
         "security": [
           {
@@ -1092,7 +1169,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Deletes transactions in a portfolio",
         "security": [
           {
@@ -1146,7 +1225,9 @@
         }
       },
       "post": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Add a transaction to a portfolio",
         "security": [
           {
@@ -1172,23 +1253,27 @@
                 "properties": {
                   "notes": {
                     "type": "string",
-                    "default": "",
                     "maximum": 255
                   },
                   "type": {
                     "$ref": "#/components/schemas/PTransactionType"
                   },
                   "quantity": {
-                    "type": "number"
+                    "type": "string"
                   },
                   "pricePer": {
-                    "type": "number"
+                    "type": "string"
                   },
                   "coinId": {
                     "type": "string"
                   }
                 },
-                "required": ["coinId", "pricePer", "type", "quantity"]
+                "required": [
+                  "coinId",
+                  "pricePer",
+                  "type",
+                  "quantity"
+                ]
               }
             }
           }
@@ -1229,7 +1314,9 @@
     },
     "/portfolios/{portfolioId}/transactions/{id}": {
       "get": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Retrieves transaction with id",
         "security": [
           {
@@ -1290,7 +1377,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Deletes transaction with id",
         "security": [
           {
@@ -1351,7 +1440,9 @@
         }
       },
       "patch": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Updates transaction with id",
         "security": [
           {
@@ -1392,10 +1483,10 @@
                     "$ref": "#/components/schemas/PTransactionType"
                   },
                   "quantity": {
-                    "type": "number"
+                    "type": "string"
                   },
                   "pricePer": {
-                    "type": "number"
+                    "type": "string"
                   }
                 }
               }
@@ -1801,13 +1892,24 @@
               "prices": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/AssetExchangeDTO"
+                  "$ref": "#/components/schemas/Price"
                 }
               },
               "percentChange": {
                 "type": "number"
               }
             }
+          }
+        }
+      },
+      "Price": {
+        "type": "object",
+        "properties": {
+          "priceUsd": {
+            "type": "string"
+          },
+          "time": {
+            "type": "number"
           }
         }
       },
@@ -1938,13 +2040,13 @@
             "$ref": "#/components/schemas/PTransactionType"
           },
           "quantity": {
-            "type": "number"
+            "type": "string"
           },
           "date": {
             "type": "string"
           },
           "pricePerUSD": {
-            "type": "number"
+            "type": "string"
           },
           "coinId": {
             "type": "string"
@@ -1953,7 +2055,12 @@
       },
       "PTransactionType": {
         "type": "string",
-        "enum": ["buy", "sell", "transfer_in", "transfer_out"]
+        "enum": [
+          "buy",
+          "sell",
+          "transfer_in",
+          "transfer_out"
+        ]
       }
     },
     "securitySchemes": {
