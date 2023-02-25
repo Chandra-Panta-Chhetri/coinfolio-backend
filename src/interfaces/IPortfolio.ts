@@ -1,8 +1,8 @@
 export interface IPortfolio {
   nickname: string;
-  user_id: number;
+  user_id: string | number;
   is_deleted: boolean;
-  id: number;
+  id: string | number;
 }
 
 export interface IPortfolioDTO {
@@ -23,21 +23,64 @@ export enum IPTransactionType {
 
 export interface IPTransaction {
   notes: string;
-  id: number;
+  id: string | number;
   type: IPTransactionType;
-  quantity: number;
-  date: Date;
-  price_per_usd: number;
+  quantity: string;
+  date: string;
+  price_per_usd: string;
   coincap_id: string;
-  portfolio_id: number;
+  portfolio_id: string | number;
 }
 
 export interface IPTransactionDTO {
   notes: string;
   id: number;
   type: IPTransactionType;
-  quantity: number;
-  date: Date;
-  pricePerUSD: number;
+  quantity: string;
+  date: string;
+  pricePerUSD: string;
   coinId: string;
+}
+
+export interface IPortfolioHoldingDTO {
+  totalCost: string;
+  coinId: string;
+  amount: string;
+  priceUSD: string;
+  profitLoss: string;
+  totalValue: string;
+  avgCost: string;
+  coinSymbol: string;
+  coinName: string;
+  coinURL: string;
+}
+
+export interface IPortfolioHolding {
+  amount: string;
+  total_cost: string;
+  coin_id: string;
+  avg_cost: string;
+}
+
+export interface IPortfolioPieChartDTO {
+  coinId: string;
+  percent: string;
+  coinSymbol: string;
+  coinName: string;
+  totalValue: string;
+}
+
+export interface IPortfolioOverview {
+  holdings: IPortfolioHoldingDTO[];
+  pieCharts: IPortfolioPieChartDTO[];
+  totalValue: string;
+  totalProfitLoss: string;
+  totalCost: string;
+}
+
+export interface IPortfolioStats {
+  holdings: IPortfolioHoldingDTO[];
+  totalValue: string;
+  totalProfitLoss: string;
+  totalCost: string;
 }

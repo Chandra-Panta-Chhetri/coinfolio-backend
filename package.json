@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "start:debug": "node --inspect=0.0.0.0:9229 ./dist/app.js",
-    "dev:debug": "nodemon -L --watch src --exec -e ts,json \"npm run build && npm run start:debug\"",
+    "dev:debug": "nodemon -L --watch src -e ts,json --exec \"npm run build && npm run start:debug\"",
     "dev": "nodemon -L --watch src -e ts,json --exec \"npm run build && npm run start\"",
     "build": "tsc"
   },

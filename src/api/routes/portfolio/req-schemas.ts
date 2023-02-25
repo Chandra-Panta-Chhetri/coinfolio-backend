@@ -25,6 +25,14 @@ export const GET_PORTFOLIO_BY_ID = {
   })
 };
 
+export const GET_PORTFOLIO_OVERVIEW = {
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.string().required().messages({
+      "any.required": "id is required"
+    })
+  })
+};
+
 export const UPDATE_PORTFOLIO_BY_ID = {
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.string().required().messages({

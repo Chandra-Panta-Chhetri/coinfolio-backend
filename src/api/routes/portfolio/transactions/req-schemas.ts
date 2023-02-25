@@ -4,8 +4,8 @@ import { IPTransactionType } from "../../../../interfaces/IPortfolio";
 export interface IAddPTransactionReqBody {
   notes: string;
   type: string;
-  quantity: number;
-  pricePer: number;
+  quantity: string;
+  pricePer: string;
   coinId: string;
 }
 
@@ -21,8 +21,8 @@ export interface IGetPTransactionsQuery {
 export interface IUpdatePTransactionReqBody {
   notes?: string;
   type?: IPTransactionType;
-  quantity?: number;
-  pricePer?: number;
+  quantity?: string;
+  pricePer?: string;
 }
 
 export const ADD_PORTFOLIO_TRANSACTION = {

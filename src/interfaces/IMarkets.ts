@@ -56,10 +56,10 @@ export interface IMarketAssetDTO {
   symbol: string;
   name: string;
   priceUsd: string;
-  changePercent24Hr: string | null;
+  changePercent24Hr?: string;
   image: string;
   rank: string;
-  marketCap: string | null;
+  marketCap?: string;
 }
 
 export interface IGetAssetsRes {
@@ -178,7 +178,7 @@ export interface IAssetExchange {
 interface IAssetExchangeDTO {
   name: string;
   priceUsd: string;
-  vol24h: string | null;
+  vol24h?: string;
   pair: string;
 }
 

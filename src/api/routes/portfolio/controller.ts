@@ -50,3 +50,12 @@ export const deletePortfolioByID = async (req: Request, res: Response, next: Nex
     next(err);
   }
 };
+
+export const getPortfolioOverview = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const portfolioOverview = await PortfolioService.getOverview(req.user!, req.params.id);
+    res.send(portfolioOverview);
+  } catch (err) {
+    next(err);
+  }
+};

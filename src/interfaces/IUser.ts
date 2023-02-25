@@ -8,7 +8,7 @@ export interface IUserDTO {
 export interface IUser {
   name: string;
   email: string;
-  id: number;
+  id: string | number;
   password: string;
 }
 

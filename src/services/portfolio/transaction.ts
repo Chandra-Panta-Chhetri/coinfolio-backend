@@ -9,7 +9,7 @@ import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
-import { IPTransaction, IPTransactionDTO, IPTransactionType } from "../../interfaces/IPortfolio";
+import { IPortfolioHolding, IPTransaction, IPTransactionDTO, IPTransactionType } from "../../interfaces/IPortfolio";
 import { IRequestUser } from "../../interfaces/IUser";
 import db from "../../loaders/db";
 import CoinMapService from "../coin-map";
@@ -79,7 +79,7 @@ export default class PTransactionService {
     return {
       coinId: transaction.coincap_id,
       date: transaction.date,
-      id: transaction.id,
+      id: +transaction.id,
       notes: transaction.notes,
       pricePerUSD: transaction.price_per_usd,
       quantity: transaction.quantity,
@@ -166,11 +166,43 @@ export default class PTransactionService {
     return updatedTransaction;
   }
 
+  static async groupByCoin(user: IRequestUser, portfolioId: string) {
+    const hasPermission = this.checkPermission(user, portfolioId);
+    if (!hasPermission) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
+    const holdings = await db
+      .select<IPortfolioHolding[]>("*", db.raw("holding.total_cost / holding.amount as avg_cost"))
+      .from(
+        db
+          .select(
+            "coincap_id as coin_id",
+            db.raw(
+              "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
+            ),
+            db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
+          )
+          .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+          .where({
+            portfolio_id: +portfolioId
+          })
+          .groupBy("coincap_id")
+          .as("holding")
+      );
+
+    return holdings;
+  }
+
   static async addToPortfolio(user: IRequestUser, portfolioId: string, transaction: IAddPTransactionReqBody) {
     const hasPermission = await this.checkPermission(user, portfolioId);
     if (!hasPermission) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
+
+    if (transaction.type === IPTransactionType.TRANSFER_IN || transaction.type === IPTransactionType.TRANSFER_OUT) {
+      transaction.pricePer = "0";
+    }
+
     const [createdTransaction] = await this.create({
       notes: transaction.notes,
       type: transaction.type as IPTransactionType,

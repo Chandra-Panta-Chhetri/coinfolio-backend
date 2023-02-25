@@ -75,5 +75,18 @@ export default (app: Router) => {
     portfolioController.deletePortfolioByID
   );
 
+  portfolioRouter.get(
+    "/:id/overview",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(portfolioReqSchemas.GET_PORTFOLIO_OVERVIEW),
+    middlewares.isAuthenticated,
+    portfolioController.getPortfolioOverview
+  );
+
   initTransactionRoutes(app);
 };

@@ -11,6 +11,7 @@ export interface IGetAssetsQuery {
   search?: string;
   limit?: number;
   offset?: number;
+  ids?: string;
 }
 
 export interface IGetGainersLosersQuery {

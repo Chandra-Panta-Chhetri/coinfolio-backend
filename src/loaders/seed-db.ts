@@ -47,9 +47,9 @@ const createTables = async () => {
       table.foreign("coincap_id").references("coincap_id").inTable("coincap_coinpaprika_map");
       table.bigIncrements("id").primary();
       table.enu("type", null, { useNative: true, existingType: true, enumName: "transaction_type" });
-      table.decimal("quantity").notNullable();
+      table.decimal("quantity", 20, 8).notNullable();
       table.timestamp("date").defaultTo(db.fn.now());
-      table.decimal("price_per_usd").notNullable();
+      table.decimal("price_per_usd", 30, 15).notNullable();
     });
   Logger.info("Tables created");
 };

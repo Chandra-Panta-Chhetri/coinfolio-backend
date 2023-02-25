@@ -31,7 +31,7 @@ export default class UserService {
     return {
       name: user?.name,
       email: user?.email?.toLowerCase(),
-      id: user?.id,
+      id: +user?.id,
       token
     };
   }
@@ -108,6 +108,6 @@ export default class UserService {
     if (userWithId === undefined) {
       throw new ErrorService(ErrorType.NotFound, `User with id ${id} was not found`);
     }
-    return { email: userWithId?.email?.toLocaleLowerCase(), id: userWithId?.id, name: userWithId?.name };
+    return { email: userWithId?.email?.toLocaleLowerCase(), id: +userWithId?.id, name: userWithId?.name };
   }
 }

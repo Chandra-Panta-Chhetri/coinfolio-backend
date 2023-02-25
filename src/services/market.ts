@@ -101,19 +101,19 @@ export default class MarketService {
     return {
       totalMarketCap: {
         label: "Market Cap",
-        value: `$${abbreviateNum(summary.data.marketTotal.marketCapUsd)}`
+        value: summary?.data?.marketTotal?.marketCapUsd
       },
       volume24hr: {
         label: "24hr Vol",
-        value: `$${abbreviateNum(summary.data.marketTotal.exchangeVolumeUsd24Hr)}`
+        value: summary?.data?.marketTotal?.exchangeVolumeUsd24Hr
       },
       numExchanges: {
         label: "Exchanges",
-        value: summary.data.marketTotal.exchanges
+        value: formatNum(summary?.data?.marketTotal?.exchanges)
       },
       numAssets: {
         label: "Assets",
-        value: summary.data.marketTotal.assets
+        value: formatNum(summary?.data?.marketTotal?.assets)
       },
       btcDom: {
         label: "BTC Dominance",
@@ -164,14 +164,14 @@ export default class MarketService {
 
   static toMarketAssetDTO(ma: IMarketAsset): IMarketAssetDTO {
     return {
-      changePercent24Hr: ma.changePercent24Hr || "0.00",
-      id: ma.id,
-      name: ma.name,
-      priceUsd: `$${formatNum(ma.priceUsd)}`,
-      symbol: ma.symbol,
-      image: this.toMarketImageURL(ma.symbol),
-      rank: ma.rank,
-      marketCap: ma.marketCapUsd ? `$${abbreviateNum(ma.marketCapUsd)}` : "$0.00"
+      changePercent24Hr: ma?.changePercent24Hr,
+      id: ma?.id,
+      name: ma?.name,
+      priceUsd: ma?.priceUsd,
+      symbol: ma?.symbol,
+      image: this.toMarketImageURL(ma?.symbol),
+      rank: ma?.rank,
+      marketCap: ma?.marketCapUsd
     };
   }
 
@@ -227,8 +227,8 @@ export default class MarketService {
         .filter((ae) => ae.volumeUsd24Hr !== null)
         .map((ae) => ({
           name: ae.exchangeId,
-          priceUsd: `$${formatNum(ae.priceUsd)}`,
-          vol24h: `$${abbreviateNum(ae.volumeUsd24Hr)}`,
+          priceUsd: ae.priceUsd,
+          vol24h: ae.volumeUsd24Hr,
           pair: `${ae.quoteSymbol}/${ae.baseSymbol}`
         }))
     };
@@ -366,13 +366,13 @@ export default class MarketService {
     return {
       rank: ao.asset.rank,
       name: ao.asset.name,
-      priceUsd: `$${formatNum(ao.asset.priceUsd)}`,
+      priceUsd: ao.asset.priceUsd,
       priceHistory: ao.priceHistory.map((ph) => this.toPriceHistoryDTO(ph, ao.asset.priceUsd)),
       statistics: [
         {
           data: [
-            { label: "Market Cap", value: `$${abbreviateNum(ao.asset.marketCapUsd)}` },
-            { label: "Volume 24h", value: `$${abbreviateNum(ao.asset.volumeUsd24Hr)}` },
+            { label: "Market Cap", value: ao.asset.marketCapUsd },
+            { label: "Volume 24h", value: ao.asset.volumeUsd24Hr },
             {
               label: "Max Supply",
               value: ao.statistics.max_supply !== undefined ? abbreviateNum(ao.statistics.max_supply) : "--"
@@ -387,10 +387,7 @@ export default class MarketService {
             },
             {
               label: "All Time High",
-              value:
-                ao.statistics.quotes?.USD.ath_price !== undefined
-                  ? `$${formatNum(ao.statistics.quotes.USD.ath_price)}`
-                  : "--"
+              value: ao.statistics.quotes?.USD.ath_price !== undefined ? `${ao.statistics.quotes.USD.ath_price}` : "--"
             }
           ]
         }
