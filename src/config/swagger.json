@@ -1959,10 +1959,10 @@
             "type": "number"
           },
           "priceUSD": {
-            "type": "number"
+            "$ref": "#/components/schemas/ValueAndPercent"
           },
           "profitLoss": {
-            "type": "number"
+            "$ref": "#/components/schemas/ValueAndPercent"
           },
           "totalValue": {
             "type": "number"
@@ -2020,10 +2020,21 @@
             "type": "number"
           },
           "totalProfitLoss": {
-            "type": "number"
+            "$ref": "#/components/schemas/ValueAndPercent"
           },
           "totalCost": {
             "type": "number"
+          }
+        }
+      },
+      "ValueAndPercent": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "percentChange": {
+            "type": "string"
           }
         }
       },

@@ -46,8 +46,8 @@ export interface IPortfolioHoldingDTO {
   totalCost: string;
   coinId: string;
   amount: string;
-  priceUSD: string;
-  profitLoss: string;
+  priceUSD: IValueAndPercent;
+  profitLoss: IValueAndPercent;
   totalValue: string;
   avgCost: string;
   coinSymbol: string;
@@ -70,17 +70,22 @@ export interface IPortfolioPieChartDTO {
   totalValue: string;
 }
 
+interface IValueAndPercent {
+  value: string;
+  percentChange: string;
+}
+
 export interface IPortfolioOverview {
   holdings: IPortfolioHoldingDTO[];
   pieCharts: IPortfolioPieChartDTO[];
   totalValue: string;
-  totalProfitLoss: string;
+  totalProfitLoss: IValueAndPercent;
   totalCost: string;
 }
 
 export interface IPortfolioStats {
   holdings: IPortfolioHoldingDTO[];
   totalValue: string;
-  totalProfitLoss: string;
+  totalProfitLoss: IValueAndPercent;
   totalCost: string;
 }

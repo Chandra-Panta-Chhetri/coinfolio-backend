@@ -114,8 +114,14 @@ export default class PortfolioService {
             totalCost: a.total_cost,
             coinId: a.coin_id,
             amount: a.amount,
-            priceUSD: correspondingAsset.priceUsd,
-            profitLoss: `${profitLoss}`,
+            priceUSD: {
+              value: correspondingAsset.priceUsd,
+              percentChange: correspondingAsset.changePercent24Hr
+            },
+            profitLoss: {
+              value: `${profitLoss}`,
+              percentChange: `${+a.total_cost === 0 ? 0 : (profitLoss / +a.total_cost) * 100}`
+            },
             totalValue: `${totalValue}`,
             avgCost: a.avg_cost,
             coinSymbol: currentAssetDTO.symbol,
@@ -131,7 +137,7 @@ export default class PortfolioService {
         0
       );
       const totalProfitLoss = assetsWithStats.reduce(
-        (totalPLSoFar, currentAsset) => totalPLSoFar + +currentAsset.profitLoss,
+        (totalPLSoFar, currentAsset) => totalPLSoFar + +currentAsset.profitLoss.value,
         0
       );
       const totalCost = assetsWithStats.reduce(
@@ -141,7 +147,10 @@ export default class PortfolioService {
       return {
         totalCost: `${totalCost}`,
         totalValue: `${totalValue}`,
-        totalProfitLoss: `${totalProfitLoss}`,
+        totalProfitLoss: {
+          value: `${totalProfitLoss}`,
+          percentChange: `${totalCost === 0 ? 0 : (totalProfitLoss / totalCost) * 100}`
+        },
         holdings: assetsWithStats
       };
     } catch (err) {

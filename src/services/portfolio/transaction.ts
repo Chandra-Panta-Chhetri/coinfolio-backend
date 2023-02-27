@@ -167,7 +167,7 @@ export default class PTransactionService {
   }
 
   static async groupByCoin(user: IRequestUser, portfolioId: string) {
-    const hasPermission = this.checkPermission(user, portfolioId);
+    const hasPermission = await this.checkPermission(user, portfolioId);
     if (!hasPermission) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
     }
