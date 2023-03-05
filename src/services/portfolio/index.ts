@@ -211,7 +211,7 @@ export default class PortfolioService {
     const [updatedPortfolio] = await this.updateWhere(updates, {
       user_id: user.id,
       id: +id,
-      is_deleted: true
+      is_deleted: false
     });
     if (updatedPortfolio === undefined) {
       throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_UPDATE);
