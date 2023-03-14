@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import MarketService from "../../../services/market";
 import PortfolioService from "../../../services/portfolio";
 
 export const getPortfolios = async (req: Request, res: Response, next: NextFunction) => {
@@ -55,6 +56,16 @@ export const getPortfolioOverview = async (req: Request, res: Response, next: Ne
   try {
     const portfolioOverview = await PortfolioService.getOverview(req.user!, req.params.id);
     res.send(portfolioOverview);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getSupportedCoins = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const coins = await PortfolioService.getSupportedCoins(req.query);
+    const coinsDTO = MarketService.toSearchAssetsDTO(coins);
+    res.send(coinsDTO);
   } catch (err) {
     next(err);
   }

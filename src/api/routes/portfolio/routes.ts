@@ -37,6 +37,19 @@ export default (app: Router) => {
   );
 
   portfolioRouter.get(
+    "/supported-coins",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(portfolioReqSchemas.GET_SUPPORTED_COINS),
+    middlewares.isAuthenticated,
+    portfolioController.getSupportedCoins
+  );
+
+  portfolioRouter.get(
     "/:id",
     rl({
       windowMs: 1000,

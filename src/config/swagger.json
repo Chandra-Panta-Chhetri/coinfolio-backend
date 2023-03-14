@@ -1103,6 +1103,61 @@
         }
       }
     },
+    "/portfolios/supported-coins": {
+      "get": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Retrieves coins that can be tracked",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of coins to show",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "filter coins by symbol or name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchAssetsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/portfolios/{portfolioId}/transactions": {
       "get": {
         "tags": [

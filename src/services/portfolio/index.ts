@@ -1,4 +1,8 @@
-import { ICreatePortfolioReqBody, IUpdatePortfolioReqBody } from "../../api/routes/portfolio/req-schemas";
+import {
+  ICreatePortfolioReqBody,
+  IGetTrackableCoinsQuery,
+  IUpdatePortfolioReqBody
+} from "../../api/routes/portfolio/req-schemas";
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
@@ -226,5 +230,13 @@ export default class PortfolioService {
     } catch (err) {
       throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PORTFOLIO_DELETE);
     }
+  }
+
+  static async getSupportedCoins(query: IGetTrackableCoinsQuery) {
+    if (query?.search?.trim() === "") {
+      delete query.search;
+    }
+    const coins = await MarketService.getAssets(query);
+    return coins;
   }
 }
