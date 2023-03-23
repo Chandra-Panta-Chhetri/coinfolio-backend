@@ -1158,6 +1158,71 @@
         }
       }
     },
+    "/portfolios/{id}/holdings/{coinId}/overview": {
+      "get": {
+        "tags": [
+          "portfolio"
+        ],
+        "summary": "Overview of a holding in a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "coinId",
+            "in": "path",
+            "description": "id of coin",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioHoldingOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/portfolios/{portfolioId}/transactions": {
       "get": {
         "tags": [
@@ -2053,6 +2118,20 @@
           },
           "totalValue": {
             "type": "number"
+          }
+        }
+      },
+      "PortfolioHoldingOverview": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/PortfolioHoldingDTO"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PTransactionDTO"
+            }
           }
         }
       },

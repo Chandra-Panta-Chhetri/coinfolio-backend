@@ -66,15 +66,6 @@ export default class PTransactionService {
     }
   }
 
-  private static async checkPermission(user: IRequestUser, portfolioId: string) {
-    try {
-      await PortfolioService.getByID(user, portfolioId);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-
   static toTransactionDTO(transaction: IPTransaction): IPTransactionDTO {
     return {
       coinId: transaction.coincap_id,
@@ -87,15 +78,11 @@ export default class PTransactionService {
     };
   }
 
-  static toTransactionsDTO(transactions: IPTransaction[]): IPTransactionDTO[] {
+  static toTransactionDTOs(transactions: IPTransaction[]): IPTransactionDTO[] {
     return transactions.map((t) => this.toTransactionDTO(t));
   }
 
-  static async getById(user: IRequestUser, portfolioId: string, id: string) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
+  static async getById(portfolioId: string, id: string) {
     const [transaction] = await this.findWhere({ portfolio_id: +portfolioId, id: +id });
     if (transaction === undefined) {
       throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
@@ -103,11 +90,7 @@ export default class PTransactionService {
     return transaction;
   }
 
-  static async getMany(user: IRequestUser, portfolioId: string, query: IGetPTransactionsQuery) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
+  static async getMany(portfolioId: string, query: IGetPTransactionsQuery) {
     const mappedCriteria: Partial<IPTransaction> = {
       coincap_id: query.coinId,
       type: query.type,
@@ -118,11 +101,7 @@ export default class PTransactionService {
     return transactions;
   }
 
-  static async deleteMany(user: IRequestUser, portfolioId: string, criteria: IDeletePTransactionsQuery) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
+  static async deleteMany(portfolioId: string, criteria: IDeletePTransactionsQuery) {
     const mappedCriteria: Partial<IPTransaction> = {
       coincap_id: criteria.coinId,
       portfolio_id: +portfolioId
@@ -132,11 +111,7 @@ export default class PTransactionService {
     return deletedTransactions;
   }
 
-  static async deleteOne(user: IRequestUser, portfolioId: string, id: string) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
+  static async deleteOne(portfolioId: string, id: string) {
     const [deletedTransaction] = await this.deleteWhere({
       id: +id,
       portfolio_id: +portfolioId
@@ -147,11 +122,7 @@ export default class PTransactionService {
     return deletedTransaction;
   }
 
-  static async updateById(user: IRequestUser, portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
+  static async updateById(portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
     const mappedUpdates: Partial<IPTransaction> = {
       notes: update.notes,
       price_per_usd: update.pricePer,
@@ -166,41 +137,50 @@ export default class PTransactionService {
     return updatedTransaction;
   }
 
-  static async groupByCoin(user: IRequestUser, portfolioId: string) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+  static async groupByCoin(portfolioId: string, coinIds?: string[]) {
+    let groupedHoldings;
+    if (coinIds === undefined || coinIds === null) {
+      groupedHoldings = db
+        .select(
+          "coincap_id as coin_id",
+          db.raw(
+            "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
+          ),
+          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
+        )
+        .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .where({
+          portfolio_id: +portfolioId
+        })
+        .groupBy("coincap_id")
+        .as("holding");
+    } else {
+      groupedHoldings = db
+        .select(
+          "coincap_id as coin_id",
+          db.raw(
+            "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
+          ),
+          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
+        )
+        .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
+        .where({
+          portfolio_id: +portfolioId
+        })
+        .whereIn("coincap_id", coinIds)
+        .groupBy("coincap_id")
+        .as("holding");
     }
     const holdings = await db
       .select<IPortfolioHolding[]>("*", db.raw("holding.total_cost / holding.amount as avg_cost"))
-      .from(
-        db
-          .select(
-            "coincap_id as coin_id",
-            db.raw(
-              "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
-            ),
-            db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
-          )
-          .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
-          .where({
-            portfolio_id: +portfolioId
-          })
-          .groupBy("coincap_id")
-          .as("holding")
-      );
+      .from(groupedHoldings);
 
     return holdings;
   }
 
-  static async addToPortfolio(user: IRequestUser, portfolioId: string, transaction: IAddPTransactionReqBody) {
-    const hasPermission = await this.checkPermission(user, portfolioId);
-    if (!hasPermission) {
-      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
-    }
-
+  static async addToPortfolio(portfolioId: string, transaction: IAddPTransactionReqBody) {
     if (transaction.type === IPTransactionType.TRANSFER_IN || transaction.type === IPTransactionType.TRANSFER_OUT) {
-      transaction.pricePer = "0";
+      transaction.pricePer = "0.00";
     }
 
     const [createdTransaction] = await this.create({

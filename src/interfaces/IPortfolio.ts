@@ -84,8 +84,12 @@ export interface IPortfolioOverview {
 }
 
 export interface IPortfolioStats {
-  holdings: IPortfolioHoldingDTO[];
   totalValue: string;
   totalProfitLoss: IValueAndPercent;
   totalCost: string;
+}
+
+export interface IPHoldingOverview {
+  summary: IPortfolioHoldingDTO;
+  transactions: IPTransactionDTO[];
 }

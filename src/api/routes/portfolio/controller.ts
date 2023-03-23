@@ -1,4 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import ERROR_MESSAGES from "../../../constants/error-messages";
+import { ErrorType } from "../../../enums/error";
+import ErrorService from "../../../services/error";
 import MarketService from "../../../services/market";
 import PortfolioService from "../../../services/portfolio";
 
@@ -54,9 +57,16 @@ export const deletePortfolioByID = async (req: Request, res: Response, next: Nex
 
 export const getPortfolioOverview = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const portfolioOverview = await PortfolioService.getOverview(req.user!, req.params.id);
+    const portfolioId = req.params.id;
+    const user = req.user!;
+    const hasAccess = await PortfolioService.hasAccess(user, portfolioId);
+    if (!hasAccess) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
+    const portfolioOverview = await PortfolioService.getOverview(portfolioId);
     res.send(portfolioOverview);
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
@@ -66,6 +76,21 @@ export const getSupportedCoins = async (req: Request, res: Response, next: NextF
     const coins = await PortfolioService.getSupportedCoins(req.query);
     const coinsDTO = MarketService.toSearchAssetsDTO(coins);
     res.send(coinsDTO);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getPortfolioHoldingOverview = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const portfolioId = req.params.id;
+    const user = req.user!;
+    const hasAccess = await PortfolioService.hasAccess(user, portfolioId);
+    if (!hasAccess) {
+      throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.PORTFOLIO_UNAUTHORIZED_ACTION);
+    }
+    const holdingOverview = await PortfolioService.getHoldingOverview(portfolioId, req.params.coinId);
+    res.send(holdingOverview);
   } catch (err) {
     next(err);
   }

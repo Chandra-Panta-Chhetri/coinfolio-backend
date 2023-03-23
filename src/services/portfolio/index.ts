@@ -6,7 +6,9 @@ import {
 import TABLE_NAMES from "../../constants/db-table-names";
 import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
+import { IMarketAsset } from "../../interfaces/IMarkets";
 import {
+  IPHoldingOverview,
   IPortfolio,
   IPortfolioDTO,
   IPortfolioHolding,
@@ -57,8 +59,6 @@ export default class PortfolioService {
     }
   }
 
-  private static async getPieCharts(user: IRequestUser, portfolioId: string) {}
-
   static async add(user: IRequestUser, newPortfolio: ICreatePortfolioReqBody) {
     const [createdPortfolio] = await this.create({
       is_deleted: false,
@@ -104,71 +104,87 @@ export default class PortfolioService {
     return portfolio;
   }
 
-  static async calculateStats(assets: IPortfolioHolding[]): Promise<IPortfolioStats | null> {
-    try {
-      const assetIds = assets.map((a) => a.coin_id).join(",");
-      const currentDataForAssets = await MarketService.getAssets({ ids: assetIds });
-      const assetsWithStats = assets.map<IPortfolioHoldingDTO>((a) => {
-        const correspondingAsset = currentDataForAssets.find((assetData) => assetData.id === a.coin_id);
-        if (correspondingAsset !== undefined) {
-          const currentAssetDTO = MarketService.toMarketAssetDTO(correspondingAsset);
-          const totalValue = +a.amount * +currentAssetDTO.priceUsd;
-          const profitLoss = totalValue - +a.total_cost;
-          return {
-            totalCost: a.total_cost,
-            coinId: a.coin_id,
-            amount: a.amount,
-            priceUSD: {
-              value: correspondingAsset.priceUsd,
-              percentChange: correspondingAsset.changePercent24Hr
-            },
-            profitLoss: {
-              value: `${profitLoss}`,
-              percentChange: `${+a.total_cost === 0 ? 0 : (profitLoss / +a.total_cost) * 100}`
-            },
-            totalValue: `${totalValue}`,
-            avgCost: a.avg_cost,
-            coinSymbol: currentAssetDTO.symbol,
-            coinName: currentAssetDTO.name,
-            coinURL: currentAssetDTO.image
-          };
-        } else {
-          throw new ErrorService(ErrorType.Failed, `Could not find corresponding current data for ${a.coin_id}`);
-        }
-      });
-      const totalValue = assetsWithStats.reduce(
-        (totalValueSoFar, currentAsset) => totalValueSoFar + +currentAsset.totalValue,
-        0
-      );
-      const totalProfitLoss = assetsWithStats.reduce(
-        (totalPLSoFar, currentAsset) => totalPLSoFar + +currentAsset.profitLoss.value,
-        0
-      );
-      const totalCost = assetsWithStats.reduce(
-        (totalCostSoFar, currentAsset) => totalCostSoFar + +currentAsset.totalCost,
-        0
-      );
+  static toPortfolioHoldingDTO(holding: IPortfolioHolding, marketDataForHolding?: IMarketAsset): IPortfolioHoldingDTO {
+    if (marketDataForHolding !== undefined && marketDataForHolding !== null) {
+      const marketAssetDTO = MarketService.toMarketAssetDTO(marketDataForHolding);
+      const totalValue = +holding.amount * +marketAssetDTO.priceUsd;
+      const profitLoss = totalValue - +holding.total_cost;
       return {
-        totalCost: `${totalCost}`,
-        totalValue: `${totalValue}`,
-        totalProfitLoss: {
-          value: `${totalProfitLoss}`,
-          percentChange: `${totalCost === 0 ? 0 : (totalProfitLoss / totalCost) * 100}`
+        totalCost: holding.total_cost,
+        coinId: holding.coin_id,
+        amount: holding.amount,
+        priceUSD: {
+          value: marketDataForHolding.priceUsd,
+          percentChange: marketDataForHolding.changePercent24Hr
         },
-        holdings: assetsWithStats
+        profitLoss: {
+          value: `${profitLoss}`,
+          percentChange: `${+holding.total_cost === 0 ? 0 : (profitLoss / +holding.total_cost) * 100}`
+        },
+        totalValue: `${totalValue}`,
+        avgCost: holding.avg_cost,
+        coinSymbol: marketAssetDTO.symbol,
+        coinName: marketAssetDTO.name,
+        coinURL: marketAssetDTO.image
       };
-    } catch (err) {
-      return null;
+    } else {
+      return {
+        totalCost: holding.total_cost,
+        coinId: holding.coin_id,
+        amount: holding.amount,
+        priceUSD: {
+          value: "0.00",
+          percentChange: "0.00"
+        },
+        profitLoss: {
+          value: `0.00`,
+          percentChange: `0.00`
+        },
+        totalValue: `0.00`,
+        avgCost: holding.avg_cost,
+        coinSymbol: "",
+        coinName: "",
+        coinURL: ""
+      };
     }
   }
 
-  static calculatePieCharts(portfolioStats: IPortfolioStats) {
+  static toPortfolioHoldingDTOs(
+    holdings: IPortfolioHolding[],
+    marketDataForHoldings: IMarketAsset[]
+  ): IPortfolioHoldingDTO[] {
+    return holdings.map((holding) => {
+      const marketDataForHolding = marketDataForHoldings.find((md) => md.id === holding.coin_id);
+      return this.toPortfolioHoldingDTO(holding, marketDataForHolding);
+    });
+  }
+
+  static async calculateStats(holdingDTOs: IPortfolioHoldingDTO[]): Promise<IPortfolioStats> {
+    const totalValue = holdingDTOs.reduce(
+      (totalValueSoFar, currentAsset) => totalValueSoFar + +currentAsset.totalValue,
+      0
+    );
+    const totalProfitLoss = holdingDTOs.reduce(
+      (totalPLSoFar, currentAsset) => totalPLSoFar + +currentAsset.profitLoss.value,
+      0
+    );
+    const totalCost = holdingDTOs.reduce((totalCostSoFar, currentAsset) => totalCostSoFar + +currentAsset.totalCost, 0);
+    return {
+      totalCost: `${totalCost}`,
+      totalValue: `${totalValue}`,
+      totalProfitLoss: {
+        value: `${totalProfitLoss}`,
+        percentChange: `${totalCost === 0 ? 0 : (totalProfitLoss / totalCost) * 100}`
+      }
+    };
+  }
+
+  static calculatePieCharts(portfolioStats: IPortfolioStats, holdingDTOs: IPortfolioHoldingDTO[]) {
     const pieCharts: IPortfolioPieChartDTO[] = [];
-    const numHoldings = portfolioStats?.holdings?.length;
-    const holdings = portfolioStats?.holdings;
+    const numHoldings = holdingDTOs?.length;
     const totalPortfolioValue = portfolioStats?.totalValue;
     for (let i = 0; i < numHoldings; i++) {
-      let holding = holdings[i];
+      let holding = holdingDTOs[i];
       if (i < MAX_ALLOCATIONS_TO_CALCULATE - 1 || numHoldings <= MAX_ALLOCATIONS_TO_CALCULATE) {
         pieCharts.push({
           coinId: holding.coinId,
@@ -195,20 +211,45 @@ export default class PortfolioService {
     return pieCharts;
   }
 
-  static async getOverview(user: IRequestUser, id: string): Promise<IPortfolioOverview> {
-    const portfolioAssets = await PTransactionService.groupByCoin(user, id);
-    const portfolioStats = await this.calculateStats(portfolioAssets);
-    if (portfolioStats != null) {
-      //sort holdings by highest totalValue to lowest
-      portfolioStats.holdings.sort((a, b) => (+a.totalValue > +b.totalValue ? -1 : 1));
-      const pieCharts = this.calculatePieCharts(portfolioStats);
-      return {
-        ...portfolioStats,
-        pieCharts
-      };
-    } else {
-      throw new ErrorService(ErrorType.Failed, "Failed to calculate stats for portfolio");
+  static async hasAccess(user: IRequestUser, portfolioId: string) {
+    try {
+      await this.getByID(user, portfolioId);
+      return true;
+    } catch (err) {
+      return false;
     }
+  }
+
+  static async getHoldings(portfolioId: string, coinIds?: string[]) {
+    const holdings = await PTransactionService.groupByCoin(portfolioId, coinIds);
+    const holdingIds = holdings.map((h) => h.coin_id).join(",");
+    const marketDataForHoldings = await MarketService.getAssets({ ids: holdingIds });
+    const holdingDTOs = this.toPortfolioHoldingDTOs(holdings, marketDataForHoldings);
+    return holdingDTOs;
+  }
+
+  static async getOverview(id: string): Promise<IPortfolioOverview> {
+    const holdings = await this.getHoldings(id);
+    const portfolioStats = await this.calculateStats(holdings);
+    //sort holdings by highest totalValue to lowest
+    holdings.sort((a, b) => (+a.totalValue > +b.totalValue ? -1 : 1));
+    const pieCharts = this.calculatePieCharts(portfolioStats, holdings);
+    return {
+      holdings,
+      pieCharts,
+      ...portfolioStats
+    };
+  }
+
+  static async getHoldingOverview(id: string, coinId: string): Promise<IPHoldingOverview> {
+    const getHoldingReq = this.getHoldings(id, [coinId]);
+    const getTransactionsReq = PTransactionService.getMany(id, { coinId });
+    const [[holdingDTO], transactions] = await Promise.all([getHoldingReq, getTransactionsReq]);
+    if (holdingDTO === undefined || holdingDTO === null) {
+      throw new ErrorService(ErrorType.NotFound, `Coin with id ${coinId} not found in Portfolio`);
+    }
+    const transactionDTOs = PTransactionService.toTransactionDTOs(transactions);
+    return { summary: holdingDTO, transactions: transactionDTOs };
   }
 
   static async updateByID(user: IRequestUser, id: string, updates: IUpdatePortfolioReqBody) {

@@ -101,5 +101,18 @@ export default (app: Router) => {
     portfolioController.getPortfolioOverview
   );
 
+  portfolioRouter.get(
+    "/:id/holdings/:coinId/overview",
+    rl({
+      windowMs: 1000,
+      max: 5,
+      legacyHeaders: false,
+      standardHeaders: true
+    }),
+    celebrate(portfolioReqSchemas.GET_PORTFOLIO_HOLDING_OVERVIEW),
+    middlewares.isAuthenticated,
+    portfolioController.getPortfolioHoldingOverview
+  );
+
   initTransactionRoutes(app);
 };

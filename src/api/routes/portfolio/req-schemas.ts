@@ -68,3 +68,14 @@ export const GET_SUPPORTED_COINS = {
     })
   })
 };
+
+export const GET_PORTFOLIO_HOLDING_OVERVIEW = {
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.string().required().messages({
+      "any.required": "id is required"
+    }),
+    coinId: Joi.string().required().messages({
+      "any.required": "coinId is required"
+    })
+  })
+};
