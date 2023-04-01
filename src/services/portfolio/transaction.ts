@@ -172,7 +172,7 @@ export default class PTransactionService {
         .as("holding");
     }
     const holdings = await db
-      .select<IPortfolioHolding[]>("*", db.raw("holding.total_cost / holding.amount as avg_cost"))
+      .select<IPortfolioHolding[]>("*", db.raw("holding.total_cost / NULLIF(holding.amount, 0) as avg_cost"))
       .from(groupedHoldings);
 
     return holdings;
