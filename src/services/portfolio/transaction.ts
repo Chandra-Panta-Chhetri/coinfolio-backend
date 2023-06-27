@@ -72,8 +72,8 @@ export default class PTransactionService {
       date: transaction.date,
       id: +transaction.id,
       notes: transaction.notes,
-      pricePerUSD: transaction.price_per_usd,
-      quantity: transaction.quantity,
+      pricePerUSD: `${Number(transaction.price_per_usd)}`,
+      quantity: `${Number(transaction.quantity)}`,
       type: transaction.type
     };
   }
@@ -124,10 +124,11 @@ export default class PTransactionService {
 
   static async updateById(portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
     const mappedUpdates: Partial<IPTransaction> = {
-      notes: update.notes,
-      price_per_usd: update.pricePer,
-      type: update.type,
-      quantity: update.quantity
+      notes: update?.notes,
+      price_per_usd: update?.pricePer,
+      type: update?.type,
+      quantity: update?.quantity,
+      date: update?.date
     };
     removeUndefinedProperties(mappedUpdates);
     const [updatedTransaction] = await this.updateWhere(mappedUpdates, { id: +id, portfolio_id: +portfolioId });
@@ -189,7 +190,8 @@ export default class PTransactionService {
       quantity: transaction.quantity,
       price_per_usd: transaction.pricePer,
       coincap_id: transaction.coinId,
-      portfolio_id: +portfolioId
+      portfolio_id: +portfolioId,
+      date: transaction.date
     });
     if (createdTransaction === undefined) {
       throw new ErrorService(ErrorType.BadRequest, "Failed to add transaction to portfolio");

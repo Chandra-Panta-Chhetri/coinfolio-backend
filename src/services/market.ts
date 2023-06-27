@@ -109,19 +109,19 @@ export default class MarketService {
       },
       numExchanges: {
         label: "Exchanges",
-        value: formatNum(summary?.data?.marketTotal?.exchanges)
+        value: summary?.data?.marketTotal?.exchanges
       },
       numAssets: {
         label: "Assets",
-        value: formatNum(summary?.data?.marketTotal?.assets)
+        value: summary?.data?.marketTotal?.assets
       },
       btcDom: {
         label: "BTC Dominance",
-        value: `${formatNum((+summary.data.btc.marketCapUsd / +summary.data.marketTotal.marketCapUsd) * 100)}%`
+        value: `${(+summary.data.btc.marketCapUsd / +summary.data.marketTotal.marketCapUsd) * 100}`
       },
       ethDom: {
         label: "ETH Dominance",
-        value: `${formatNum((+summary.data.eth.marketCapUsd / +summary.data.marketTotal.marketCapUsd) * 100)}%`
+        value: `${(+summary.data.eth.marketCapUsd / +summary.data.marketTotal.marketCapUsd) * 100}`
       }
     };
   }

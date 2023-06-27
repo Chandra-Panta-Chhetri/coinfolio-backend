@@ -7,6 +7,7 @@ export interface IAddPTransactionReqBody {
   quantity: string;
   pricePer: string;
   coinId: string;
+  date: string;
 }
 
 export interface IDeletePTransactionsQuery {
@@ -23,6 +24,7 @@ export interface IUpdatePTransactionReqBody {
   type?: IPTransactionType;
   quantity?: string;
   pricePer?: string;
+  date?: string;
 }
 
 export const ADD_PORTFOLIO_TRANSACTION = {
@@ -32,7 +34,7 @@ export const ADD_PORTFOLIO_TRANSACTION = {
     })
   }),
   [Segments.BODY]: Joi.object().keys({
-    notes: Joi.string().default("").max(255).messages({
+    notes: Joi.string().allow("", null).default("").max(255).messages({
       "string.max": "notes cannot be greater than 255 characters"
     }),
     type: Joi.string().required().valid("buy", "sell", "transfer_in", "transfer_out").messages({
@@ -46,6 +48,9 @@ export const ADD_PORTFOLIO_TRANSACTION = {
     }),
     coinId: Joi.string().required().messages({
       "any.required": "coinId is required"
+    }),
+    date: Joi.date().optional().iso().messages({
+      "date.format": "date must be in ISO format"
     })
   })
 };
@@ -85,7 +90,7 @@ export const UPDATE_TRANSACTION_BY_ID = {
     })
   }),
   [Segments.BODY]: Joi.object().keys({
-    notes: Joi.string().max(255).messages({
+    notes: Joi.string().allow("", null).default("").max(255).messages({
       "string.max": "notes cannot be greater than 255 characters"
     }),
     type: Joi.string().valid("buy", "sell", "transfer_in", "transfer_out").messages({
@@ -96,6 +101,9 @@ export const UPDATE_TRANSACTION_BY_ID = {
     }),
     pricePer: Joi.number().messages({
       "any.required": "pricePer is required"
+    }),
+    date: Joi.date().optional().iso().messages({
+      "date.format": "date must be in ISO format"
     })
   })
 };
