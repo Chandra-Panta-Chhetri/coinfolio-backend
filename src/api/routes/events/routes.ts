@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import * as reqSchemas from "./req-schemas";
+import * as eventsReqSchemas from "./req-schemas";
 import * as eventsController from "./controller";
 import rl from "express-rate-limit";
 
-const route = Router();
+const eventsRouter = Router();
 
 export default (app: Router) => {
-  app.use("/events", route);
+  app.use("/events", eventsRouter);
 
-  route.get(
+  eventsRouter.get(
     "/",
     rl({
       windowMs: 1000,
@@ -17,7 +17,7 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_EVENTS),
+    celebrate(eventsReqSchemas.GET_EVENTS),
     eventsController.getEvents
   );
 };

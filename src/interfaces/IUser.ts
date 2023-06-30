@@ -5,31 +5,14 @@ export interface IUserDTO {
   token: string;
 }
 
-export interface IUserDTONoToken {
+export interface IUser {
   name: string;
   email: string;
-  id: number;
-}
-
-export interface IUserSchema {
-  name: string;
-  email: string;
-  id: number;
+  id: string | number;
   password: string;
 }
 
 export interface IRequestUser {
   id: number;
   email: string;
-}
-
-export interface ILoginReqBody {
-  email?: string;
-  password?: string;
-}
-
-export interface IRegisterReqBody {
-  email?: string;
-  password?: string;
-  name?: string;
 }

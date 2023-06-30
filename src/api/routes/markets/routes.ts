@@ -2,14 +2,14 @@ import { Router } from "express";
 import * as marketsController from "./controller";
 import rl from "express-rate-limit";
 import { celebrate } from "celebrate";
-import * as reqSchemas from "./req-schemas";
+import * as marketsReqSchemas from "./req-schemas";
 
-const route = Router();
+const marketsRouter = Router();
 
 export default (app: Router) => {
-  app.use("/markets", route);
+  app.use("/markets", marketsRouter);
 
-  route.get(
+  marketsRouter.get(
     "/",
     rl({
       windowMs: 1000,
@@ -17,11 +17,11 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_MARKETS),
+    celebrate(marketsReqSchemas.GET_MARKETS),
     marketsController.getMarkets
   );
 
-  route.get(
+  marketsRouter.get(
     "/:id/overview",
     rl({
       windowMs: 1000,
@@ -29,11 +29,11 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_ASSET_OVERVIEW),
+    celebrate(marketsReqSchemas.GET_ASSET_OVERVIEW),
     marketsController.getAssetOverview
   );
 
-  route.get(
+  marketsRouter.get(
     "/:id/exchanges",
     rl({
       windowMs: 1000,
@@ -41,11 +41,11 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_ASSET_EXCHANGES),
+    celebrate(marketsReqSchemas.GET_ASSET_EXCHANGES),
     marketsController.getAssetExchanges
   );
 
-  route.get(
+  marketsRouter.get(
     "/:id/about",
     rl({
       windowMs: 1000,
@@ -53,13 +53,17 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_ASSET_ABOUT),
+    celebrate(marketsReqSchemas.GET_ASSET_ABOUT),
     marketsController.getAssetAbout
   );
 
-  route.get("/search", celebrate(reqSchemas.GET_ASSETS_BY_KEYWORD), marketsController.getAssetsByKeyword);
+  marketsRouter.get(
+    "/search",
+    celebrate(marketsReqSchemas.GET_ASSETS_BY_KEYWORD),
+    marketsController.getAssetsByKeyword
+  );
 
-  route.get(
+  marketsRouter.get(
     "/summary",
     rl({
       windowMs: 1000,
@@ -70,7 +74,7 @@ export default (app: Router) => {
     marketsController.getSummary
   );
 
-  route.get(
+  marketsRouter.get(
     "/top-coins",
     rl({
       windowMs: 1000,
@@ -78,11 +82,11 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_TOP_COINS),
+    celebrate(marketsReqSchemas.GET_TOP_COINS),
     marketsController.getTopCoins
   );
 
-  route.get(
+  marketsRouter.get(
     "/gainers-losers",
     rl({
       windowMs: 1000,
@@ -90,7 +94,7 @@ export default (app: Router) => {
       legacyHeaders: false,
       standardHeaders: true
     }),
-    celebrate(reqSchemas.GET_GAINERS_LOSERS),
+    celebrate(marketsReqSchemas.GET_GAINERS_LOSERS),
     marketsController.getGainersLosers
   );
 };

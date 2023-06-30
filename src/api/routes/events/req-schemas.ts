@@ -1,6 +1,16 @@
 import { Joi, Segments } from "celebrate";
 import REGEXES from "../../../constants/regex";
 
+export interface IGetEventsQuery {
+  page?: number;
+  max?: number;
+  dateRangeStart?: string;
+  dateRangeEnd?: string;
+  showOnly?: string;
+  coins?: string;
+  sortBy?: string;
+}
+
 export const GET_EVENTS = {
   [Segments.QUERY]: Joi.object().keys({
     page: Joi.number().min(1).messages({
@@ -12,16 +22,12 @@ export const GET_EVENTS = {
       "number.min": "max must be greater than or equal to 1",
       "number.base": "max must be a number"
     }),
-    dateRangeStart: Joi.string()
-      .pattern(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)
-      .messages({
-        "string.pattern.base": "dateRangeStart must be of the form 'yyyy-mm-dd'"
-      }),
-    dateRangeEnd: Joi.string()
-      .pattern(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)
-      .messages({
-        "string.pattern.base": "dateRangeEnd must be of the form 'yyyy-mm-dd'"
-      }),
+    dateRangeStart: Joi.string().pattern(REGEXES.DATE).messages({
+      "string.pattern.base": "dateRangeStart must be of the form 'yyyy-mm-dd'"
+    }),
+    dateRangeEnd: Joi.string().pattern(REGEXES.DATE).messages({
+      "string.pattern.base": "dateRangeEnd must be of the form 'yyyy-mm-dd'"
+    }),
     showOnly: Joi.string().valid("hot_events", "trending_events", "significant_events").messages({
       "any.only": "showOnly must be 'hot_events' | 'trending_events' | 'significant_events'"
     }),

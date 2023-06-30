@@ -56,10 +56,10 @@ export interface IMarketAssetDTO {
   symbol: string;
   name: string;
   priceUsd: string;
-  changePercent24Hr: string | null;
+  changePercent24Hr?: string;
   image: string;
   rank: string;
-  marketCap: string | null;
+  marketCap?: string;
 }
 
 export interface IGetAssetsRes {
@@ -75,16 +75,6 @@ export interface ISearchAssetDTO {
 
 export interface ISearchAssetsDTO {
   data: ISearchAssetDTO[];
-}
-
-export interface IGetAssetsQuery {
-  search?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface IGetGainersLosersQuery {
-  limit?: number;
 }
 
 export interface IMarketsGraphqlRes {
@@ -107,17 +97,6 @@ export interface IMarketGainersLosersDTO {
 
 export interface IMarketsDTO {
   data: IMarketAssetDTO[];
-}
-
-export interface IGetMarketsQuery {
-  sortBy?: string;
-  sortOrder?: string;
-  perPage?: number;
-  page?: number;
-}
-
-export interface IGetAssetOverviewParams {
-  id?: string;
 }
 
 export interface IPrice {
@@ -185,15 +164,6 @@ export interface IGetAssetRes {
   data: IMarketAsset;
 }
 
-export interface IGetAssetExchangesParams {
-  id?: string;
-}
-
-export interface IGetAssetExchangesQuery {
-  perPage?: number;
-  page?: number;
-}
-
 export interface IAssetExchange {
   exchangeId: string;
   baseId: string;
@@ -208,7 +178,7 @@ export interface IAssetExchange {
 interface IAssetExchangeDTO {
   name: string;
   priceUsd: string;
-  vol24h: string | null;
+  vol24h?: string;
   pair: string;
 }
 
@@ -218,10 +188,6 @@ export interface IAssetExchangesDTO {
 
 export interface IGetAssetMarketsRes {
   data: IAssetExchange[];
-}
-
-export interface IGetAssetAboutParams {
-  id?: string;
 }
 
 interface IAssetAboutTag {

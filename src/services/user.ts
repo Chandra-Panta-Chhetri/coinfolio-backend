@@ -1,101 +1,113 @@
 import bcrypt from "bcryptjs";
-import { EventDispatcher } from "event-dispatch";
 import ErrorService from "./error";
-import events from "../subscribers/events";
-import { ILoginReqBody, IRegisterReqBody, IUserDTO, IUserDTONoToken, IUserSchema } from "../interfaces/IUser";
-import postgres from "../loaders/postgres";
+import { IUserDTO, IUser } from "../interfaces/IUser";
+import db from "../loaders/db";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import { ErrorType } from "../enums/error";
 import ERROR_MESSAGES from "../constants/error-messages";
 import REGEXES from "../constants/regex";
+import { ILoginReqBody, IRegisterReqBody } from "../api/routes/auth/req-schemas";
+import TABLE_NAMES from "../constants/db-table-names";
 
 const HASH_SALT_ROUNDS = 10;
 
 export default class UserService {
-  private _eventDispatcher: EventDispatcher;
+  constructor() {}
 
-  constructor() {
-    this._eventDispatcher = new EventDispatcher();
+  private static async findWhere(criteria: Partial<IUser>) {
+    try {
+      if (criteria?.email !== undefined) {
+        criteria.email = criteria?.email?.toLowerCase();
+      }
+      const users = await db.select<IUser[]>("*").from(TABLE_NAMES.USERS).where(criteria);
+      return users;
+    } catch (err) {
+      return [];
+    }
   }
 
-  private toUserDTO(userSchema: IUserSchema, token: string): IUserDTO {
+  static toUserDTO(user: IUser, token: string): IUserDTO {
     return {
-      name: userSchema.name,
-      email: userSchema.email.toLowerCase(),
-      id: userSchema.id,
+      name: user?.name,
+      email: user?.email?.toLowerCase(),
+      id: +user?.id,
       token
     };
   }
 
-  public async login(authCredentials: ILoginReqBody): Promise<IUserDTO> {
-    const usersWithEmail = await postgres<
-      IUserSchema[]
-    >`SELECT * FROM users WHERE email = ${authCredentials.email?.toLowerCase()!}`;
-    const user = usersWithEmail[0];
-    if (!user) {
+  static async login(authCredentials: ILoginReqBody) {
+    const [userWithEmail] = await this.findWhere({ email: authCredentials.email });
+    if (userWithEmail === undefined) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.LOGIN);
     }
-
-    const isPasswordValid = await bcrypt.compare(authCredentials.password!, user.password);
+    const isPasswordValid = await bcrypt.compare(authCredentials?.password, userWithEmail?.password);
     if (!isPasswordValid) {
       throw new ErrorService(ErrorType.Unauthorized, ERROR_MESSAGES.LOGIN);
     }
-
-    const token = this.createToken(user);
-    this._eventDispatcher.dispatch(events.user.login);
-    return this.toUserDTO(user, token);
+    const token = this.createToken(userWithEmail);
+    return this.toUserDTO(userWithEmail, token);
   }
 
-  public async register(newUser: IRegisterReqBody): Promise<IUserDTO> {
-    const usersWithEmail = await postgres<IUserSchema[]>`SELECT * FROM users WHERE email = ${newUser.email!}`;
-    const user = usersWithEmail[0];
-    if (user) {
-      throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.DUPLICATE_EMAIL);
+  private static async createUsers(users: Partial<IUser> | Partial<IUser>[]) {
+    try {
+      const createdUsers = await db(TABLE_NAMES.USERS).insert(users).returning<IUser[]>("id");
+      return createdUsers;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  static async register(newUser: IRegisterReqBody) {
+    const hashedPassword = await this.hashPassword(newUser.password!);
+    if (hashedPassword === undefined) {
+      throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PASSWORD_FORMAT);
+    }
+    const [createdDBUser] = await this.createUsers({
+      name: newUser?.name,
+      password: hashedPassword,
+      email: newUser?.email?.toLowerCase()
+    });
+    if (createdDBUser === undefined) {
+      throw new ErrorService(ErrorType.Failed, ERROR_MESSAGES.GENERIC);
     }
 
-    const hashedPassword = await this.hashPassword(newUser.password!);
-    const insertedUsers = await postgres<
-      IUserSchema[]
-    >`INSERT INTO users (name, password, email) VALUES(${newUser.name!}, ${hashedPassword!}, ${newUser.email?.toLowerCase()!}) RETURNING id`;
     const userSchema = {
-      email: newUser.email!,
-      id: insertedUsers[0].id,
-      name: newUser.name!,
-      password: newUser.password!
+      email: newUser?.email,
+      id: createdDBUser?.id,
+      name: newUser.name,
+      password: newUser.password
     };
     const token = this.createToken(userSchema);
-    this._eventDispatcher.dispatch(events.user.register);
     return this.toUserDTO(userSchema, token);
   }
 
-  private createToken(userSchema: IUserSchema): string {
+  private static createToken(user: IUser) {
     const payload = {
-      id: userSchema.id,
-      email: userSchema.email
+      id: user?.id,
+      email: user?.email
     };
-    const token = jwt.sign(payload, config.jwtSecret);
+    const token = jwt.sign(payload, config?.jwtSecret);
     return token;
   }
 
-  private async hashPassword(password = "") {
+  private static async hashPassword(password = "") {
     if (!REGEXES.PASSWORD.test(password)) {
-      throw new ErrorService(ErrorType.BadRequest, ERROR_MESSAGES.PASSWORD_FORMAT);
+      return undefined;
     }
     const salt = await bcrypt.genSalt(HASH_SALT_ROUNDS);
     return await bcrypt.hash(password, salt);
   }
 
-  public async resetPassword() {}
+  static async resetPassword() {}
 
-  public async changePassword() {}
+  static async changePassword() {}
 
-  public async getUserById(id: number): Promise<IUserDTONoToken> {
-    const usersWithId = await postgres<IUserSchema[]>`SELECT * FROM users WHERE id = ${id}`;
-    const user = usersWithId[0];
-    if (!user) {
-      throw new ErrorService(ErrorType.NotFound, `User with id ${id} was not found`);
+  static async getUserById(id: number): Promise<Partial<IUserDTO>> {
+    const [userWithId] = await this.findWhere({ id });
+    if (userWithId === undefined) {
+      throw new ErrorService(ErrorType.NotFound, `User not found`);
     }
-    return { email: user.email, id: user.id, name: user.name };
+    return { email: userWithId?.email?.toLocaleLowerCase(), id: +userWithId?.id, name: userWithId?.name };
   }
 }

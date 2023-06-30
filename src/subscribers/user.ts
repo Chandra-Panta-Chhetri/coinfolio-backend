@@ -5,12 +5,12 @@ import Logger from "../loaders/logger";
 @EventSubscriber()
 export default class UserSubscriber {
   @On(events.user.login)
-  public onUserLogin() {
+  onUserLogin() {
     Logger.info("User Signing in");
   }
 
   @On(events.user.register)
-  public onUserRegister() {
+  onUserRegister() {
     Logger.info("User Signing up");
   }
 }

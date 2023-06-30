@@ -1,10 +1,17 @@
 import { Joi, Segments } from "celebrate";
 import REGEXES from "../../../constants/regex";
 
+export interface IGetNewsQuery {
+  filter?: string;
+  currencies?: string;
+  kind?: string;
+  page?: number;
+}
+
 export const GET_NEWS = {
   [Segments.QUERY]: Joi.object().keys({
-    filter: Joi.string().valid("rising", "hot", "bullish", "bearish", "important", "saved", "lol").messages({
-      "any.only": "filter must be 'rising' | 'hot' | 'bullish' | 'bearish' | 'important' | 'saved' | 'lol'"
+    filter: Joi.string().valid("rising", "hot", "bullish", "bearish", "important").messages({
+      "any.only": "filter must be 'rising' | 'hot' | 'bullish' | 'bearish' | 'important'"
     }),
     currencies: Joi.string().pattern(REGEXES.COMMA_SEPARATED).messages({
       "string.pattern.base": "currencies must be comma separated values"

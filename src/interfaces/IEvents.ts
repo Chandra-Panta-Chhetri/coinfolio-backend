@@ -1,13 +1,3 @@
-export interface IGetEventsQuery {
-  page?: number;
-  max?: number;
-  dateRangeStart?: string;
-  dateRangeEnd?: string;
-  showOnly?: string;
-  coins?: string;
-  sortBy?: string;
-}
-
 export interface IEventsStatus {
   error_code: number;
   error_message: string;

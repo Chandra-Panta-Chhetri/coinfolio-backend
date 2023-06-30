@@ -1,12 +1,22 @@
-import config from "../config";
-import { IAddSubtractOptions } from "../interfaces/IUtils";
+import { IObject } from "../interfaces/IUtils";
+
+export interface IAddSubtractOptions {
+  years?: number;
+  months?: number;
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
+  weeks?: number;
+}
 
 export const roundToNDecimals = (num: number | string, numDecimals: number = 2): number =>
   +(Math.round(+(+num + `e+${numDecimals}`)) + `e-${numDecimals}`);
 
 export const formatNum = (num: string | number): string => {
   if (num === "") return num;
-  if (Math.abs(+num) < 1) {
+  if (Math.abs(+num) < 1 && +num !== 0) {
     let numOfOs = 0;
     let fractionalNum = String(num).split(".")[1] || "";
     for (let char of fractionalNum) {
@@ -38,10 +48,6 @@ export const abbreviateNum = (num: number | string): string => {
   return `${formatNum(num)}`;
 };
 
-export const toMarketImageURL = (symbol: string) => `${config.icons.markets}/${symbol.toLowerCase()}@2x.png`;
-
-export const toEventImageURL = (id: string) => `${config.icons.events}/${id}_small.png`;
-
 export const calculatePercentChange = (final: number, initial: number) => ((final - initial) / initial) * 100;
 
 export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions): Date => {
@@ -58,3 +64,10 @@ export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions)
 
   return result;
 };
+
+export const removeUndefinedProperties = (obj: IObject) =>
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "undefined") {
+      delete obj[key];
+    }
+  });
