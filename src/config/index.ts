@@ -54,5 +54,8 @@ export default {
   },
   sockets: {
     coinCap: "wss://ws.coincap.io"
+  },
+  currencyAPI: {
+    coinCap: "https://api.coincap.io/v2"
   }
 };

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import MarketsService from "../services/market";
 import { IMarketAssetIdMap, INamesToIds } from "../interfaces/IMarkets";
 import TABLE_NAMES from "../constants/db-table-names";
+import CURRENCIES from "../constants/currencies";
 
 const deleteAllTables = async () => {
   await db.schema
@@ -21,6 +22,10 @@ const createTables = async () => {
     .raw("CREATE TYPE transaction_type AS ENUM ( 'buy', 'sell', 'transfer_in', 'transfer_out' )")
     .createTable(TABLE_NAMES.CURRENCY, (table) => {
       table.string("code", 10).primary();
+      table.string("coincap_id", 255).notNullable();
+      table.string("currency_symbol", 10);
+      table.string("icon_url", 255);
+      table.string("full_name", 100);
     })
     .createTable(TABLE_NAMES.COINCAP_MAP, (table) => {
       table.string("coincap_id", 100).primary();
@@ -43,7 +48,7 @@ const createTables = async () => {
       table.string("notes", 255);
       table.bigint("portfolio_id").notNullable();
       table.foreign("portfolio_id").references("id").inTable("portfolio");
-      table.string("coincap_id", 30).notNullable();
+      table.string("coincap_id", 100).notNullable();
       table.foreign("coincap_id").references("coincap_id").inTable("coincap_coinpaprika_map");
       table.bigIncrements("id").primary();
       table.enu("type", null, { useNative: true, existingType: true, enumName: "transaction_type" });
@@ -62,10 +67,10 @@ const createUsers = async () => {
     password: hashedPassword,
     email: "chandra@hotmail.com"
   });
-  Logger.info("Created users");
+  Logger.info("Created user");
 };
 
-export const mapCoincapToCoinPaprika = async () => {
+export const populateCoincapCoinPaprikaMapTable = async () => {
   //get all coins from coincap
   let page = 1;
   let perPage = 2000;
@@ -105,9 +110,13 @@ export const mapCoincapToCoinPaprika = async () => {
     });
   }
 
-  //add to DB
   await db(TABLE_NAMES.COINCAP_MAP).insert(idMaps).onConflict("coincap_id").ignore();
-  Logger.info("Created coincap to coinpaprika mappings");
+  Logger.info(`Populated ${TABLE_NAMES.COINCAP_MAP} tabe`);
+};
+
+export const populateCurrencyTable = async () => {
+  await db(TABLE_NAMES.CURRENCY).insert(CURRENCIES).onConflict("code").ignore();
+  Logger.info(`Populated ${TABLE_NAMES.CURRENCY} table`);
 };
 
 export default async () => {
@@ -117,8 +126,9 @@ export default async () => {
     await deleteAllTables();
     await createTables();
     await createUsers();
-    await mapCoincapToCoinPaprika();
-    Logger.info("Done initilizing DB " + new Date().toLocaleTimeString());
+    await populateCoincapCoinPaprikaMapTable();
+    await populateCurrencyTable();
+    Logger.info("Initialized DB " + new Date().toLocaleTimeString());
   } catch (err) {
     Logger.warn("Failed to initilize DB \n" + err);
   }
