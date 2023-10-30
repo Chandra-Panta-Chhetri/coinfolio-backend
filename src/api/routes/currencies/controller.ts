@@ -9,3 +9,12 @@ export const getCurrencies = async (req: Request, res: Response, next: NextFunct
     next(err);
   }
 };
+
+export const getCurrency = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const currencyDTO = await CurrencyService.getCurrency(req?.params?.currencyCode);
+    res.send(currencyDTO);
+  } catch (err) {
+    next(err);
+  }
+};

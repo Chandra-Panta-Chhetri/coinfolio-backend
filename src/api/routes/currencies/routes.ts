@@ -8,4 +8,9 @@ export default (app: Router) => {
   app.use("/currencies", currenciesRouter);
 
   currenciesRouter.get("/", celebrate(currenciesReqSchemas.GET_CURRENCIES), currenciesController.getCurrencies);
+  currenciesRouter.get(
+    "/:currencyCode",
+    celebrate(currenciesReqSchemas.GET_CURRENCY),
+    currenciesController.getCurrency
+  );
 };

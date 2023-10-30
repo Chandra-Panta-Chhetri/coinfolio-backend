@@ -30,7 +30,8 @@
       "name": "portfolio transaction"
     },
     {
-      "name": "currencies"
+      "name": "currencies",
+      "description": "currencies prices can be displayed in"
     }
   ],
   "paths": {
@@ -1649,7 +1650,7 @@
         "tags": [
           "currencies"
         ],
-        "summary": "Retrieves a list of currencies that prices can be converted to",
+        "summary": "Retrieves a list of currencies",
         "parameters": [
           {
             "name": "page",
@@ -1676,7 +1677,48 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CurrenciesDTO"
+                  "$ref": "#/components/schemas/Currencies"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies/{currencyCode}": {
+      "get": {
+        "tags": [
+          "currencies"
+        ],
+        "summary": "Retrieves a currency with its rate",
+        "parameters": [
+          {
+            "name": "currencyCode",
+            "in": "path",
+            "description": "currency code (e.g. 'CAD')",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyRate"
                 }
               }
             }
@@ -2254,7 +2296,7 @@
           "transfer_out"
         ]
       },
-      "CurrenciesDTO": {
+      "Currencies": {
         "type": "object",
         "properties": {
           "data": {
@@ -2281,6 +2323,29 @@
             "type": "string"
           },
           "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "CurrencyRate": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "rate_usd": {
             "type": "string"
           }
         }

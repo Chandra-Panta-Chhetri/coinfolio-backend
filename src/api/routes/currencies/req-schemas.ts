@@ -18,3 +18,11 @@ export const GET_CURRENCIES = {
     })
   })
 };
+
+export const GET_CURRENCY = {
+  [Segments.PARAMS]: Joi.object().keys({
+    currencyCode: Joi.string().required().messages({
+      "any.required": "currencyCode is required"
+    })
+  })
+};
