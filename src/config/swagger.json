@@ -12,34 +12,33 @@
   ],
   "tags": [
     {
-      "name": "user",
-      "description": "Authenticating and creating users"
+      "name": "user"
     },
     {
-      "name": "events",
-      "description": "Crypto events"
+      "name": "events"
     },
     {
-      "name": "news",
-      "description": "Crypto news"
+      "name": "news"
     },
     {
-      "name": "markets",
-      "description": "Crypto market overview and details about a specific crypto"
+      "name": "markets"
     },
     {
-      "name": "portfolio",
-      "description": "Manage portfolio(s) used to track crypto investments"
+      "name": "portfolio"
     },
     {
-      "name": "portfolio transaction",
-      "description": "Manage activities (i.e. buys, sells, transfers) for a portfolio"
+      "name": "portfolio transaction"
+    },
+    {
+      "name": "currencies"
     }
   ],
   "paths": {
     "/auth/user": {
       "get": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Retrieves a user from token",
         "security": [
           {
@@ -82,7 +81,9 @@
     },
     "/auth/register": {
       "post": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Creates a new user",
         "requestBody": {
           "content": {
@@ -100,7 +101,11 @@
                     "type": "string"
                   }
                 },
-                "required": ["email", "password", "name"]
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ]
               }
             }
           }
@@ -136,7 +141,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["user"],
+        "tags": [
+          "user"
+        ],
         "summary": "Login using email and password",
         "responses": {
           "200": {
@@ -183,7 +190,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -192,8 +202,10 @@
     },
     "/events": {
       "get": {
-        "tags": ["events"],
-        "summary": "Retrives a list of crypto events",
+        "tags": [
+          "events"
+        ],
+        "summary": "Retrieves a list of crypto events",
         "parameters": [
           {
             "name": "page",
@@ -238,7 +250,11 @@
             "description": "filter events",
             "schema": {
               "type": "string",
-              "enum": ["hot_events", "trending_events", "significant_events"]
+              "enum": [
+                "hot_events",
+                "trending_events",
+                "significant_events"
+              ]
             }
           },
           {
@@ -256,7 +272,11 @@
             "description": "sort events by one the following",
             "schema": {
               "type": "string",
-              "enum": ["hot_events", "trending_events", "significant_events"]
+              "enum": [
+                "hot_events",
+                "trending_events",
+                "significant_events"
+              ]
             }
           }
         ],
@@ -286,8 +306,10 @@
     },
     "/news": {
       "get": {
-        "tags": ["news"],
-        "summary": "Retrives a list of crypto news",
+        "tags": [
+          "news"
+        ],
+        "summary": "Retrieves a list of crypto news",
         "parameters": [
           {
             "name": "filter",
@@ -295,7 +317,13 @@
             "description": "filter news",
             "schema": {
               "type": "string",
-              "enum": ["rising", "hot", "bullish", "bearish", "important"]
+              "enum": [
+                "rising",
+                "hot",
+                "bullish",
+                "bearish",
+                "important"
+              ]
             }
           },
           {
@@ -313,7 +341,11 @@
             "description": "filter news by type",
             "schema": {
               "type": "string",
-              "enum": ["news", "media", "significant_events"]
+              "enum": [
+                "news",
+                "media",
+                "significant_events"
+              ]
             }
           },
           {
@@ -353,7 +385,9 @@
     },
     "/markets": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos",
         "parameters": [
           {
@@ -362,7 +396,14 @@
             "description": "sort cryptos",
             "schema": {
               "type": "string",
-              "enum": ["rank", "name", "priceUsd", "marketCapUsd", "volumeUsd24Hr", "changePercent24Hr"]
+              "enum": [
+                "rank",
+                "name",
+                "priceUsd",
+                "marketCapUsd",
+                "volumeUsd24Hr",
+                "changePercent24Hr"
+              ]
             },
             "required": true
           },
@@ -372,7 +413,10 @@
             "description": "order to sort cryptos by",
             "schema": {
               "type": "string",
-              "enum": ["ASC", "DESC"]
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
             },
             "required": true
           },
@@ -426,7 +470,9 @@
     },
     "/markets/summary": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves global market summary",
         "responses": {
           "200": {
@@ -454,7 +500,9 @@
     },
     "/markets/top-coins": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos sorted by highest market cap",
         "parameters": [
           {
@@ -495,7 +543,9 @@
     },
     "/markets/gainers-losers": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos with the highest price increase & decrease",
         "parameters": [
           {
@@ -536,7 +586,9 @@
     },
     "/markets/search": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves cryptos by keyword(s)",
         "parameters": [
           {
@@ -575,7 +627,9 @@
     },
     "/markets/{id}/about": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves details about an asset such as description",
         "parameters": [
           {
@@ -614,7 +668,9 @@
     },
     "/markets/{id}/overview": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves overview of an asset such as price history and statistics",
         "parameters": [
           {
@@ -653,7 +709,9 @@
     },
     "/markets/{id}/exchanges": {
       "get": {
-        "tags": ["markets"],
+        "tags": [
+          "markets"
+        ],
         "summary": "Retrieves exchanges an asset can be traded on",
         "parameters": [
           {
@@ -715,7 +773,9 @@
     },
     "/portfolios": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves a list of portfolios",
         "security": [
           {
@@ -746,7 +806,9 @@
         }
       },
       "post": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Creates a portfolio",
         "security": [
           {
@@ -763,7 +825,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["nickname"]
+                "required": [
+                  "nickname"
+                ]
               }
             }
           }
@@ -804,7 +868,9 @@
     },
     "/portfolios/{id}": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves portfolio by id",
         "security": [
           {
@@ -856,7 +922,9 @@
         }
       },
       "patch": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Updates a portfolio with id",
         "security": [
           {
@@ -922,7 +990,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Deletes a portfolio with id",
         "security": [
           {
@@ -976,7 +1046,9 @@
     },
     "/portfolios/{id}/overview": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves overview of a portfolio",
         "security": [
           {
@@ -1030,7 +1102,9 @@
     },
     "/portfolios/supported-coins": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Retrieves coins that can be tracked",
         "security": [
           {
@@ -1083,7 +1157,9 @@
     },
     "/portfolios/{id}/holdings/{coinId}/overview": {
       "get": {
-        "tags": ["portfolio"],
+        "tags": [
+          "portfolio"
+        ],
         "summary": "Overview of a holding in a portfolio",
         "security": [
           {
@@ -1146,7 +1222,9 @@
     },
     "/portfolios/{portfolioId}/transactions": {
       "get": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Retrieves transactions for a portfolio",
         "security": [
           {
@@ -1208,7 +1286,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Deletes transactions in a portfolio",
         "security": [
           {
@@ -1262,7 +1342,9 @@
         }
       },
       "post": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Add a transaction to a portfolio",
         "security": [
           {
@@ -1303,7 +1385,12 @@
                     "type": "string"
                   }
                 },
-                "required": ["coinId", "pricePer", "type", "quantity"]
+                "required": [
+                  "coinId",
+                  "pricePer",
+                  "type",
+                  "quantity"
+                ]
               }
             }
           }
@@ -1344,7 +1431,9 @@
     },
     "/portfolios/{portfolioId}/transactions/{id}": {
       "get": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Retrieves transaction with id",
         "security": [
           {
@@ -1405,7 +1494,9 @@
         }
       },
       "delete": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Deletes transaction with id",
         "security": [
           {
@@ -1466,7 +1557,9 @@
         }
       },
       "patch": {
-        "tags": ["portfolio transaction"],
+        "tags": [
+          "portfolio transaction"
+        ],
         "summary": "Updates transaction with id",
         "security": [
           {
@@ -1540,6 +1633,56 @@
           },
           "401": {
             "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies": {
+      "get": {
+        "tags": [
+          "currencies"
+        ],
+        "summary": "Retrieves a list of currencies that prices can be converted to",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "number of currencies per page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrenciesDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2104,7 +2247,43 @@
       },
       "PTransactionType": {
         "type": "string",
-        "enum": ["buy", "sell", "transfer_in", "transfer_out"]
+        "enum": [
+          "buy",
+          "sell",
+          "transfer_in",
+          "transfer_out"
+        ]
+      },
+      "CurrenciesDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Currency"
+            }
+          }
+        }
+      },
+      "Currency": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          }
+        }
       }
     },
     "securitySchemes": {

@@ -4,6 +4,7 @@ import news from "./routes/news/routes";
 import events from "./routes/events/routes";
 import markets from "./routes/markets/routes";
 import portfolio from "./routes/portfolio/routes";
+import currencies from "./routes/currencies/routes";
 
 export default () => {
   const app = Router();
@@ -12,6 +13,7 @@ export default () => {
   events(app);
   markets(app);
   portfolio(app);
+  currencies(app);
 
   return app;
 };
