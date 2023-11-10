@@ -11,43 +11,6 @@ export interface IAddSubtractOptions {
   weeks?: number;
 }
 
-export const roundToNDecimals = (num: number | string, numDecimals: number = 2): number =>
-  +(Math.round(+(+num + `e+${numDecimals}`)) + `e-${numDecimals}`);
-
-export const formatNum = (num: string | number): string => {
-  if (num === "") return num;
-  if (Math.abs(+num) < 1 && +num !== 0) {
-    let numOfOs = 0;
-    let fractionalNum = String(num).split(".")[1] || "";
-    for (let char of fractionalNum) {
-      if (char === "0") {
-        numOfOs++;
-      } else {
-        break;
-      }
-    }
-    return `${(+num).toFixed(numOfOs + 3)}`;
-  }
-
-  const numAsStr = `${roundToNDecimals(num)}`;
-
-  const splitNum = numAsStr.split(".");
-  const wholeNum = splitNum[0] || "0";
-  const decimalNum = splitNum[1] || "00";
-
-  const formattedWholeNum = (+wholeNum).toLocaleString("en-US");
-
-  return `${formattedWholeNum}.${decimalNum.substring(0, 2).padEnd(2, "0")}`;
-};
-
-export const abbreviateNum = (num: number | string): string => {
-  if (+num >= 1e3 && +num < 1e6) return roundToNDecimals(+num / 1e3) + " K";
-  if (+num >= 1e6 && +num < 1e9) return roundToNDecimals(+num / 1e6) + " M";
-  if (+num >= 1e9 && +num < 1e12) return roundToNDecimals(+num / 1e9) + " Bn";
-  if (+num >= 1e12) return roundToNDecimals(+num / 1e12) + " Tr";
-  return `${formatNum(num)}`;
-};
-
 export const calculatePercentChange = (final: number, initial: number) => ((final - initial) / initial) * 100;
 
 export const addSubtractTime = (initialDate: Date, options: IAddSubtractOptions): Date => {

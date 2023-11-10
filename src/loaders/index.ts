@@ -7,7 +7,7 @@ import socketLoader from "./socket";
 import { Server as HTTPServer } from "http";
 
 export default async (app: ExpressApplication, server: HTTPServer) => {
-  await dbInitializer();
+  //await dbInitializer();
   socketLoader(server);
   await expressLoader(app);
   //await jobsLoader();

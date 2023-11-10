@@ -1,10 +1,9 @@
+import bcrypt from "bcryptjs";
+import COINCAP_COINPAPRIKA_MAP from "../constants/coincap_coinpaprika_map";
+import CURRENCIES from "../constants/currencies";
+import TABLE_NAMES from "../constants/db-table-names";
 import db from "./db";
 import Logger from "./logger";
-import bcrypt from "bcryptjs";
-import MarketsService from "../services/market";
-import { IMarketAssetIdMap, INamesToIds } from "../interfaces/IMarkets";
-import TABLE_NAMES from "../constants/db-table-names";
-import CURRENCIES from "../constants/currencies";
 
 const deleteAllTables = async () => {
   await db.schema
@@ -71,47 +70,8 @@ const createUsers = async () => {
 };
 
 export const populateCoincapCoinPaprikaMapTable = async () => {
-  //get all coins from coincap
-  let page = 1;
-  let perPage = 2000;
-  const coincapCoins = [];
-  while (true) {
-    let coincapRes = await MarketsService.getAssets({ limit: perPage, offset: perPage * (page - 1) });
-    if (coincapRes.length === 0) {
-      break;
-    }
-    coincapCoins.push(...coincapRes);
-    page += 1;
-  }
-
-  //get all coins from coinpaprika
-  const coinPaprikaCoins = await MarketsService.getCoinPaprikaAssets();
-
-  //create dictionaries for both coins
-  const coincapNameToIds: INamesToIds = {};
-  for (let c of coincapCoins) {
-    if (c.name.length !== 0) {
-      coincapNameToIds[c.name] = c.id;
-    }
-  }
-  const coinPaprikaNameToIds: INamesToIds = {};
-  for (let c of coinPaprikaCoins) {
-    if (c.is_active) {
-      coinPaprikaNameToIds[c.name] = c.id;
-    }
-  }
-
-  //merge dictionaries using symbols
-  const idMaps: IMarketAssetIdMap[] = [];
-  for (let name in coincapNameToIds) {
-    idMaps.push({
-      coincap_id: coincapNameToIds[name],
-      coinpaprika_id: coinPaprikaNameToIds[name] || null
-    });
-  }
-
-  await db(TABLE_NAMES.COINCAP_MAP).insert(idMaps).onConflict("coincap_id").ignore();
-  Logger.info(`Populated ${TABLE_NAMES.COINCAP_MAP} tabe`);
+  await db(TABLE_NAMES.COINCAP_MAP).insert(COINCAP_COINPAPRIKA_MAP).onConflict("coincap_id").ignore();
+  Logger.info(`Populated ${TABLE_NAMES.COINCAP_MAP} table`);
 };
 
 export const populateCurrencyTable = async () => {

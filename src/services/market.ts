@@ -1,44 +1,43 @@
-import axios from "../config/axios";
-import config from "../config";
-import {
-  IGrahpqlReqBody,
-  IMarketAsset,
-  IMarketAssetDTO,
-  IMarketGainersLosersDTO,
-  IMarketGainersLosersMerged,
-  IMarketsGraphqlRes,
-  IMarketSummaryDTO,
-  IMarketSummaryRes,
-  IGetAssetsRes,
-  ISearchAssetsDTO,
-  IMarketsDTO,
-  IAssetOverview,
-  IAssetOverviewDTO,
-  ITicker,
-  IGetAssetPriceHistoryQuery,
-  IGetAssetRes,
-  IGetAssetPriceHistoryRes,
-  IPriceHistory,
-  IPriceHistoryDTO,
-  IAssetExchange,
-  IGetAssetMarketsRes,
-  IAssetExchangesDTO,
-  IAssetAbout,
-  IAssetAboutDTO,
-  IAboutLinksDTO,
-  ICoinPaprikaAsset
-} from "../interfaces/IMarkets";
-import { addSubtractTime, calculatePercentChange, abbreviateNum, formatNum } from "../api/utils";
 import {
   IGetAssetExchangesQuery,
   IGetAssetsQuery,
   IGetGainersLosersQuery,
   IGetMarketsQuery
 } from "../api/routes/markets/req-schemas";
-import ErrorService from "./error";
-import { ErrorType } from "../enums/error";
+import { addSubtractTime, calculatePercentChange } from "../api/utils";
+import config from "../config";
+import axios from "../config/axios";
 import ERROR_MESSAGES from "../constants/error-messages";
+import { ErrorType } from "../enums/error";
+import {
+  IAboutLinksDTO,
+  IAssetAbout,
+  IAssetAboutDTO,
+  IAssetExchange,
+  IAssetExchangesDTO,
+  IAssetOverview,
+  IAssetOverviewDTO,
+  IGetAssetMarketsRes,
+  IGetAssetPriceHistoryQuery,
+  IGetAssetPriceHistoryRes,
+  IGetAssetRes,
+  IGetAssetsRes,
+  IGrahpqlReqBody,
+  IMarketAsset,
+  IMarketAssetDTO,
+  IMarketGainersLosersDTO,
+  IMarketGainersLosersMerged,
+  IMarketSummaryDTO,
+  IMarketSummaryRes,
+  IMarketsDTO,
+  IMarketsGraphqlRes,
+  IPriceHistory,
+  IPriceHistoryDTO,
+  ISearchAssetsDTO,
+  ITicker
+} from "../interfaces/IMarkets";
 import CoinMapService from "./coin-map";
+import ErrorService from "./error";
 
 export default class MarketService {
   constructor() {}
@@ -56,15 +55,6 @@ export default class MarketService {
         params: query
       });
       return assetsRes?.data?.data;
-    } catch (err) {
-      throw new ErrorService(ErrorType.Failed, ERROR_MESSAGES.GENERIC);
-    }
-  }
-
-  static async getCoinPaprikaAssets() {
-    try {
-      const assetsRes = await axios.get<ICoinPaprikaAsset[]>(`${config.marketsAPI.coinPaprika}/coins`);
-      return assetsRes.data;
     } catch (err) {
       throw new ErrorService(ErrorType.Failed, ERROR_MESSAGES.GENERIC);
     }
@@ -375,7 +365,7 @@ export default class MarketService {
             { label: "Volume 24h", value: ao.asset.volumeUsd24Hr },
             {
               label: "Max Supply",
-              value: ao.statistics.max_supply !== undefined ? abbreviateNum(ao.statistics.max_supply) : "--"
+              value: `${ao?.statistics?.max_supply}`
             }
           ]
         },
@@ -383,11 +373,11 @@ export default class MarketService {
           data: [
             {
               label: "Total Supply",
-              value: ao.statistics.total_supply !== undefined ? abbreviateNum(ao.statistics.total_supply) : "--"
+              value: `${ao?.statistics?.total_supply}`
             },
             {
               label: "All Time High",
-              value: ao.statistics.quotes?.USD.ath_price !== undefined ? `${ao.statistics.quotes.USD.ath_price}` : "--"
+              value: `${ao?.statistics?.quotes?.USD?.ath_price}`
             }
           ]
         }
