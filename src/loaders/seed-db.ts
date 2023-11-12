@@ -39,21 +39,24 @@ const createTables = async () => {
     .createTable(TABLE_NAMES.PORTFOLIO, (table) => {
       table.string("nickname", 80).notNullable();
       table.bigint("user_id").notNullable();
-      table.foreign("user_id").references("id").inTable("users");
+      table.foreign("user_id").references("id").inTable(TABLE_NAMES.USERS);
       table.bigIncrements("id").primary();
       table.boolean("is_deleted").defaultTo(false);
     })
     .createTable(TABLE_NAMES.PORTFOLIO_TRANSACTIONS, (table) => {
       table.string("notes", 255);
       table.bigint("portfolio_id").notNullable();
-      table.foreign("portfolio_id").references("id").inTable("portfolio");
+      table.foreign("portfolio_id").references("id").inTable(TABLE_NAMES.PORTFOLIO);
       table.string("coincap_id", 100).notNullable();
-      table.foreign("coincap_id").references("coincap_id").inTable("coincap_coinpaprika_map");
+      table.foreign("coincap_id").references("coincap_id").inTable(TABLE_NAMES.COINCAP_MAP);
       table.bigIncrements("id").primary();
       table.enu("type", null, { useNative: true, existingType: true, enumName: "transaction_type" });
       table.decimal("quantity", 20, 8).notNullable();
       table.timestamp("date").defaultTo(db.fn.now());
-      table.decimal("price_per_usd", 30, 15).notNullable();
+      table.decimal("price_per", 30, 15).notNullable();
+      table.decimal("usd_rate", 30, 15).notNullable();
+      table.string("currency_code", 10).notNullable();
+      table.foreign("currency_code").references("code").inTable(TABLE_NAMES.CURRENCY);
     });
   Logger.info("Tables created");
 };

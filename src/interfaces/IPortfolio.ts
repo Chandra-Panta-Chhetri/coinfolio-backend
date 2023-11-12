@@ -27,9 +27,11 @@ export interface IPTransaction {
   type: IPTransactionType;
   quantity: string;
   date: string;
-  price_per_usd: string;
+  price_per: string;
   coincap_id: string;
   portfolio_id: string | number;
+  currency_code: string;
+  usd_rate: string;
 }
 
 export interface IPTransactionDTO {
@@ -38,8 +40,10 @@ export interface IPTransactionDTO {
   type: IPTransactionType;
   quantity: string;
   date: string;
-  pricePerUSD: string;
+  pricePer: string;
   coinId: string;
+  currencyCode: string;
+  usdRate: string;
 }
 
 export interface IPortfolioHoldingDTO {
@@ -53,6 +57,7 @@ export interface IPortfolioHoldingDTO {
   coinSymbol: string;
   coinName: string;
   coinURL: string;
+  totalProceeds: string;
 }
 
 export interface IPortfolioHolding {
@@ -60,6 +65,7 @@ export interface IPortfolioHolding {
   total_cost: string;
   coin_id: string;
   avg_cost: string;
+  total_proceeds: string;
 }
 
 export interface IPortfolioPieChartDTO {

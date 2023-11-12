@@ -1,4 +1,3 @@
-import PortfolioService from ".";
 import {
   IAddPTransactionReqBody,
   IDeletePTransactionsQuery,
@@ -7,14 +6,10 @@ import {
 } from "../../api/routes/portfolio/transactions/req-schemas";
 import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
-import ERROR_MESSAGES from "../../constants/error-messages";
 import { ErrorType } from "../../enums/error";
-import { IPortfolioHolding, IPTransaction, IPTransactionDTO, IPTransactionType } from "../../interfaces/IPortfolio";
-import { IRequestUser } from "../../interfaces/IUser";
+import { IPTransaction, IPTransactionDTO, IPTransactionType, IPortfolioHolding } from "../../interfaces/IPortfolio";
 import db from "../../loaders/db";
-import CoinMapService from "../coin-map";
 import ErrorService from "../error";
-import MarketService from "../market";
 
 export default class PTransactionService {
   constructor() {}
@@ -72,9 +67,11 @@ export default class PTransactionService {
       date: transaction.date,
       id: +transaction.id,
       notes: transaction.notes,
-      pricePerUSD: `${Number(transaction.price_per_usd)}`,
+      pricePer: `${Number(transaction.price_per)}`,
       quantity: `${Number(transaction.quantity)}`,
-      type: transaction.type
+      type: transaction.type,
+      currencyCode: transaction.currency_code,
+      usdRate: transaction.usd_rate
     };
   }
 
@@ -125,10 +122,12 @@ export default class PTransactionService {
   static async updateById(portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
     const mappedUpdates: Partial<IPTransaction> = {
       notes: update?.notes,
-      price_per_usd: update?.pricePer,
+      price_per: update?.pricePer,
       type: update?.type,
       quantity: update?.quantity,
-      date: update?.date
+      date: update?.date,
+      currency_code: update?.currencyCode,
+      usd_rate: update?.usdRate
     };
     removeUndefinedProperties(mappedUpdates);
     const [updatedTransaction] = await this.updateWhere(mappedUpdates, { id: +id, portfolio_id: +portfolioId });
@@ -145,9 +144,10 @@ export default class PTransactionService {
         .select(
           "coincap_id as coin_id",
           db.raw(
-            "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
+            "CASE WHEN (SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END)) < 0 THEN 0 ELSE (SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END)) END as amount"
           ),
-          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
+          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per * usd_rate ELSE 0 END) as total_cost"),
+          db.raw("SUM(CASE WHEN type = 'sell' THEN quantity * price_per * usd_rate ELSE 0 END) as total_proceeds")
         )
         .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
         .where({
@@ -160,9 +160,10 @@ export default class PTransactionService {
         .select(
           "coincap_id as coin_id",
           db.raw(
-            "SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END) as amount"
+            "CASE WHEN (SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END)) < 0 THEN 0 ELSE (SUM(CASE WHEN type = 'sell' OR type = 'transfer_out' THEN quantity * -1 ELSE quantity END)) END as amount"
           ),
-          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per_usd ELSE 0 END) as total_cost")
+          db.raw("SUM(CASE WHEN type = 'buy' THEN quantity * price_per * usd_rate ELSE 0 END) as total_cost"),
+          db.raw("SUM(CASE WHEN type = 'sell' THEN quantity * price_per * usd_rate ELSE 0 END) as total_proceeds")
         )
         .from(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
         .where({
@@ -173,25 +174,26 @@ export default class PTransactionService {
         .as("holding");
     }
     const holdings = await db
-      .select<IPortfolioHolding[]>("*", db.raw("holding.total_cost / NULLIF(holding.amount, 0) as avg_cost"))
+      .select<IPortfolioHolding[]>(
+        "*",
+        db.raw("COALESCE((holding.total_cost - holding.total_proceeds) / NULLIF(amount, 0), 0) as avg_cost")
+      )
       .from(groupedHoldings);
 
     return holdings;
   }
 
   static async addToPortfolio(portfolioId: string, transaction: IAddPTransactionReqBody) {
-    if (transaction.type === IPTransactionType.TRANSFER_IN || transaction.type === IPTransactionType.TRANSFER_OUT) {
-      transaction.pricePer = "0.00";
-    }
-
     const [createdTransaction] = await this.create({
       notes: transaction.notes,
       type: transaction.type as IPTransactionType,
       quantity: transaction.quantity,
-      price_per_usd: transaction.pricePer,
+      price_per: transaction.pricePer,
       coincap_id: transaction.coinId,
       portfolio_id: +portfolioId,
-      date: transaction.date
+      date: transaction.date,
+      currency_code: transaction.currencyCode,
+      usd_rate: transaction.usdRate
     });
     if (createdTransaction === undefined) {
       throw new ErrorService(ErrorType.BadRequest, "Failed to add transaction to portfolio");
