@@ -180,33 +180,32 @@ export default class PortfolioService {
 
   static calculatePieCharts(portfolioStats: IPortfolioStats, holdingDTOs: IPortfolioHoldingDTO[]) {
     const pieCharts: IPortfolioPieChartDTO[] = [];
-    const numHoldings = holdingDTOs?.length;
+    const nonZeroHoldings = holdingDTOs?.filter((holding) => +holding.totalValue > 0);
+    const numHoldings = nonZeroHoldings?.length;
     const totalPortfolioValue = portfolioStats?.totalValue;
     for (let i = 0; i < numHoldings; i++) {
-      let holding = holdingDTOs[i];
-      if (+holding.totalValue !== 0) {
-        if (i < MAX_ALLOCATIONS_TO_CALCULATE - 1 || numHoldings <= MAX_ALLOCATIONS_TO_CALCULATE) {
-          pieCharts.push({
-            coinId: holding.coinId,
-            coinName: holding.coinName,
-            coinSymbol: holding.coinSymbol,
-            totalValue: holding.totalValue,
-            percent: `${+totalPortfolioValue === 0 ? 0 : (+holding.totalValue / +totalPortfolioValue) * 100}`
-          });
-        } else {
-          const percentSoFar = pieCharts.reduce((acc, currentPieChart) => acc + +currentPieChart.percent, 0);
-          const remainingPercent = 100 - percentSoFar;
-          const totalValueSoFar = pieCharts.reduce((acc, currentPieChart) => acc + +currentPieChart.totalValue, 0);
-          const remainingTotalValue = +totalPortfolioValue - +totalValueSoFar;
-          pieCharts.push({
-            percent: `${remainingPercent}`,
-            coinId: "other",
-            coinName: "Other",
-            coinSymbol: "Other",
-            totalValue: `${remainingTotalValue}`
-          });
-          break;
-        }
+      let holding = nonZeroHoldings[i];
+      if (i < MAX_ALLOCATIONS_TO_CALCULATE - 1 || numHoldings <= MAX_ALLOCATIONS_TO_CALCULATE) {
+        pieCharts.push({
+          coinId: holding.coinId,
+          coinName: holding.coinName,
+          coinSymbol: holding.coinSymbol,
+          totalValue: holding.totalValue,
+          percent: `${(+holding.totalValue / +totalPortfolioValue) * 100}`
+        });
+      } else {
+        const percentSoFar = pieCharts.reduce((acc, currentPieChart) => acc + +currentPieChart.percent, 0);
+        const remainingPercent = 100 - percentSoFar;
+        const totalValueSoFar = pieCharts.reduce((acc, currentPieChart) => acc + +currentPieChart.totalValue, 0);
+        const remainingTotalValue = +totalPortfolioValue - +totalValueSoFar;
+        pieCharts.push({
+          percent: `${remainingPercent}`,
+          coinId: "other",
+          coinName: "Other",
+          coinSymbol: "Other",
+          totalValue: `${remainingTotalValue}`
+        });
+        break;
       }
     }
     return pieCharts;
