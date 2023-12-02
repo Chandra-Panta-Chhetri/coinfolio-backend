@@ -1,6 +1,6 @@
 import { Joi, Segments } from "celebrate";
 import ERROR_MESSAGES from "../../../constants/error-messages";
-import REGEXES from "../../../constants/regex";
+import REGEXES from "../../../constants/regexes";
 
 export interface ILoginReqBody {
   email: string;

@@ -1306,9 +1306,6 @@
                   },
                   "currencyCode": {
                     "type": "string"
-                  },
-                  "usdRate": {
-                    "type": "string"
                   }
                 },
                 "required": ["coinId", "type", "quantity"]
@@ -1473,7 +1470,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "tags": ["portfolio transaction"],
         "summary": "Updates transaction with id",
         "security": [
@@ -1520,17 +1517,18 @@
                   "pricePer": {
                     "type": "string"
                   },
+                  "coinId": {
+                    "type": "string"
+                  },
                   "date": {
                     "type": "string",
                     "format": "date"
                   },
                   "currencyCode": {
                     "type": "string"
-                  },
-                  "usdRate": {
-                    "type": "string"
                   }
-                }
+                },
+                "required": ["coinId", "type", "quantity"]
               }
             }
           }
@@ -2185,7 +2183,8 @@
         "type": "object",
         "properties": {
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "id": {
             "type": "number"
@@ -2201,16 +2200,19 @@
             "format": "date"
           },
           "pricePer": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "coinId": {
             "type": "string"
           },
           "currencyCode": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "usdRate": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },

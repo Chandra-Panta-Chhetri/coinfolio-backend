@@ -1,5 +1,5 @@
 import { Joi, Segments } from "celebrate";
-import REGEXES from "../../../constants/regex";
+import REGEXES from "../../../constants/regexes";
 
 export interface IGetNewsQuery {
   filter?: string;

@@ -53,9 +53,9 @@ const createTables = async () => {
       table.enu("type", null, { useNative: true, existingType: true, enumName: "transaction_type" });
       table.decimal("quantity", 20, 8).notNullable();
       table.timestamp("date").defaultTo(db.fn.now());
-      table.decimal("price_per", 30, 15).notNullable();
-      table.decimal("usd_rate", 30, 15).notNullable();
-      table.string("currency_code", 10).notNullable();
+      table.decimal("price_per", 30, 15);
+      table.decimal("usd_rate", 30, 15);
+      table.string("currency_code", 10);
       table.foreign("currency_code").references("code").inTable(TABLE_NAMES.CURRENCY);
     });
   Logger.info("Tables created");

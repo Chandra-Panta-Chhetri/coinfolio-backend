@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import config from "../config";
 import { ErrorType } from "../enums/error";
 import ERROR_MESSAGES from "../constants/error-messages";
-import REGEXES from "../constants/regex";
+import REGEXES from "../constants/regexes";
 import { ILoginReqBody, IRegisterReqBody } from "../api/routes/auth/req-schemas";
 import TABLE_NAMES from "../constants/db-table-names";
 

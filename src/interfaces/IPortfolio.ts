@@ -22,28 +22,28 @@ export enum IPTransactionType {
 }
 
 export interface IPTransaction {
-  notes: string;
-  id: string | number;
+  notes?: string | null;
+  id?: string | number;
   type: IPTransactionType;
   quantity: string;
-  date: string;
-  price_per: string;
+  date?: string;
+  price_per?: string | null;
   coincap_id: string;
   portfolio_id: string | number;
-  currency_code: string;
-  usd_rate: string;
+  currency_code?: string | null;
+  usd_rate?: string | null;
 }
 
 export interface IPTransactionDTO {
-  notes: string;
+  notes: string | null;
   id: number;
   type: IPTransactionType;
   quantity: string;
   date: string;
-  pricePer: string;
+  pricePer: string | null;
   coinId: string;
-  currencyCode: string;
-  usdRate: string;
+  currencyCode: string | null;
+  usdRate: string | null;
 }
 
 export interface IPortfolioHoldingDTO {

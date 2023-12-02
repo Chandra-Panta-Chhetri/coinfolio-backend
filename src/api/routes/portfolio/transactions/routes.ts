@@ -61,7 +61,7 @@ export default (app: Router) => {
     transactionController.getTransactionById
   );
 
-  transactionRouter.patch(
+  transactionRouter.put(
     "/:id",
     rl({
       windowMs: 1000,

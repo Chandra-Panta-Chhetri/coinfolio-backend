@@ -1,20 +1,20 @@
 import {
-  IAddPTransactionReqBody,
   IDeletePTransactionsQuery,
   IGetPTransactionsQuery,
-  IUpdatePTransactionReqBody
+  IPTransactionReqBody
 } from "../../api/routes/portfolio/transactions/req-schemas";
 import { removeUndefinedProperties } from "../../api/utils";
 import TABLE_NAMES from "../../constants/db-table-names";
 import { ErrorType } from "../../enums/error";
 import { IPTransaction, IPTransactionDTO, IPTransactionType, IPortfolioHolding } from "../../interfaces/IPortfolio";
 import db from "../../loaders/db";
+import CurrencyService from "../currency";
 import ErrorService from "../error";
 
 export default class PTransactionService {
   constructor() {}
 
-  private static async create(transactions: Partial<IPTransaction> | Partial<IPTransaction>[]) {
+  private static async create(transactions: IPTransaction | IPTransaction[]) {
     try {
       const createdTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
         .insert(transactions)
@@ -49,7 +49,7 @@ export default class PTransactionService {
     }
   }
 
-  private static async updateWhere(update: Partial<IPTransaction>, criteria: Partial<IPTransaction>) {
+  private static async updateWhere(update: IPTransaction, criteria: Partial<IPTransaction>) {
     try {
       const updatedTransactions = await db(TABLE_NAMES.PORTFOLIO_TRANSACTIONS)
         .update(update)
@@ -64,14 +64,17 @@ export default class PTransactionService {
   static toTransactionDTO(transaction: IPTransaction): IPTransactionDTO {
     return {
       coinId: transaction.coincap_id,
-      date: transaction.date,
-      id: +transaction.id,
-      notes: transaction.notes,
-      pricePer: `${Number(transaction.price_per)}`,
+      date: transaction.date!,
+      id: +transaction.id!,
+      notes: transaction.notes!,
+      pricePer:
+        transaction.price_per === null || transaction.price_per === undefined
+          ? null
+          : `${Number(transaction.price_per)}`,
       quantity: `${Number(transaction.quantity)}`,
       type: transaction.type,
-      currencyCode: transaction.currency_code,
-      usdRate: transaction.usd_rate
+      currencyCode: transaction.currency_code!,
+      usdRate: transaction.usd_rate!
     };
   }
 
@@ -119,22 +122,14 @@ export default class PTransactionService {
     return deletedTransaction;
   }
 
-  static async updateById(portfolioId: string, id: string, update: IUpdatePTransactionReqBody) {
-    const mappedUpdates: Partial<IPTransaction> = {
-      notes: update?.notes,
-      price_per: update?.pricePer,
-      type: update?.type,
-      quantity: update?.quantity,
-      date: update?.date,
-      currency_code: update?.currencyCode,
-      usd_rate: update?.usdRate
-    };
-    removeUndefinedProperties(mappedUpdates);
-    const [updatedTransaction] = await this.updateWhere(mappedUpdates, { id: +id, portfolio_id: +portfolioId });
-    if (updatedTransaction === undefined) {
+  static async updateById(portfolioId: string, id: string, updatedTransaction: IPTransactionReqBody) {
+    const usdRate = await this.getUSDRate(updatedTransaction.currencyCode);
+    const pTransaction = this.toPortfolioTransaction(updatedTransaction, portfolioId, usdRate);
+    const [transaction] = await this.updateWhere(pTransaction, { id: +id, portfolio_id: +portfolioId });
+    if (transaction === undefined) {
       throw new ErrorService(ErrorType.NotFound, `Transaction with id ${id} does not exist`);
     }
-    return updatedTransaction;
+    return transaction;
   }
 
   static async groupByCoin(portfolioId: string, coinIds?: string[]) {
@@ -183,18 +178,44 @@ export default class PTransactionService {
     return holdings;
   }
 
-  static async addToPortfolio(portfolioId: string, transaction: IAddPTransactionReqBody) {
-    const [createdTransaction] = await this.create({
-      notes: transaction.notes,
-      type: transaction.type as IPTransactionType,
-      quantity: transaction.quantity,
-      price_per: transaction.pricePer,
-      coincap_id: transaction.coinId,
+  private static async getUSDRate(currencyCode?: string) {
+    try {
+      if (currencyCode === null || currencyCode === undefined) {
+        return currencyCode;
+      }
+      let usdRate = "1.0";
+      if (currencyCode !== "USD") {
+        const currency = await CurrencyService.getCurrency(currencyCode);
+        usdRate = currency.rate_usd;
+      }
+      return usdRate;
+    } catch (error) {
+      throw new ErrorService(ErrorType.Failed, `Failed to get usd rate for ${currencyCode}`);
+    }
+  }
+
+  private static toPortfolioTransaction(
+    transactionReqBody: IPTransactionReqBody,
+    portfolioId: string,
+    usdRate?: string
+  ) {
+    return {
+      notes: transactionReqBody.notes,
+      type: transactionReqBody.type as IPTransactionType,
+      quantity: transactionReqBody.quantity,
+      price_per: transactionReqBody.pricePer,
+      coincap_id: transactionReqBody.coinId,
       portfolio_id: +portfolioId,
-      date: transaction.date,
-      currency_code: transaction.currencyCode,
-      usd_rate: transaction.usdRate
-    });
+      date: transactionReqBody.date,
+      currency_code: transactionReqBody.currencyCode,
+      usd_rate: usdRate
+    };
+  }
+
+  static async addToPortfolio(portfolioId: string, transaction: IPTransactionReqBody) {
+    const usdRate = await this.getUSDRate(transaction.currencyCode);
+    const pTransaction = this.toPortfolioTransaction(transaction, portfolioId, usdRate);
+    const [createdTransaction] = await this.create(pTransaction);
     if (createdTransaction === undefined) {
       throw new ErrorService(ErrorType.BadRequest, "Failed to add transaction to portfolio");
     }
