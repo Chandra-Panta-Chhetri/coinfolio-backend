@@ -14,7 +14,7 @@ services:
     - ./.env:/usr/src/app/.env
     - ./package.json:/usr/src/app/package.json
     - ./tsconfig.json:/usr/src/app/tsconfig.json
-
+    - ./dist:/usr/src/app/dist
   db:
     container_name: db
     image: postgres

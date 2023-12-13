@@ -240,14 +240,6 @@ export interface INamesToIds {
   [symbol: string]: string;
 }
 
-export interface ICoinPaprikaAsset {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: string;
-  is_active: boolean;
-}
-
 export interface IMarketAssetIdMap {
   coincap_id: string | null;
   coinpaprika_id: string | null;

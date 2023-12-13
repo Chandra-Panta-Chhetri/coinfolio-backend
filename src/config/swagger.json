@@ -12,28 +12,26 @@
   ],
   "tags": [
     {
-      "name": "user",
-      "description": "Authenticating and creating users"
+      "name": "user"
     },
     {
-      "name": "events",
-      "description": "Crypto events"
+      "name": "events"
     },
     {
-      "name": "news",
-      "description": "Crypto news"
+      "name": "news"
     },
     {
-      "name": "markets",
-      "description": "Crypto market overview and details about a specific crypto"
+      "name": "markets"
     },
     {
-      "name": "portfolio",
-      "description": "Manage portfolio(s) used to track crypto investments"
+      "name": "portfolio"
     },
     {
-      "name": "portfolio transaction",
-      "description": "Manage activities (i.e. buys, sells, transfers) for a portfolio"
+      "name": "portfolio transaction"
+    },
+    {
+      "name": "currencies",
+      "description": "currencies prices can be displayed in"
     }
   ],
   "paths": {
@@ -193,7 +191,7 @@
     "/events": {
       "get": {
         "tags": ["events"],
-        "summary": "Retrives a list of crypto events",
+        "summary": "Retrieves a list of crypto events",
         "parameters": [
           {
             "name": "page",
@@ -287,7 +285,7 @@
     "/news": {
       "get": {
         "tags": ["news"],
-        "summary": "Retrives a list of crypto news",
+        "summary": "Retrieves a list of crypto news",
         "parameters": [
           {
             "name": "filter",
@@ -1301,9 +1299,16 @@
                   },
                   "coinId": {
                     "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currencyCode": {
+                    "type": "string"
                   }
                 },
-                "required": ["coinId", "pricePer", "type", "quantity"]
+                "required": ["coinId", "type", "quantity"]
               }
             }
           }
@@ -1465,7 +1470,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "tags": ["portfolio transaction"],
         "summary": "Updates transaction with id",
         "security": [
@@ -1511,8 +1516,19 @@
                   },
                   "pricePer": {
                     "type": "string"
+                  },
+                  "coinId": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currencyCode": {
+                    "type": "string"
                   }
-                }
+                },
+                "required": ["coinId", "type", "quantity"]
               }
             }
           }
@@ -1540,6 +1556,93 @@
           },
           "401": {
             "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies": {
+      "get": {
+        "tags": ["currencies"],
+        "summary": "Retrieves a list of currencies",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "number of currencies per page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Currencies"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies/{currencyCode}": {
+      "get": {
+        "tags": ["currencies"],
+        "summary": "Retrieves a currency with its rate",
+        "parameters": [
+          {
+            "name": "currencyCode",
+            "in": "path",
+            "description": "currency code (e.g. 'CAD')",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyRate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2080,7 +2183,8 @@
         "type": "object",
         "properties": {
           "notes": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "id": {
             "type": "number"
@@ -2092,19 +2196,83 @@
             "type": "string"
           },
           "date": {
-            "type": "string"
+            "type": "string",
+            "format": "date"
           },
-          "pricePerUSD": {
-            "type": "string"
+          "pricePer": {
+            "type": "string",
+            "nullable": true
           },
           "coinId": {
             "type": "string"
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "usdRate": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "PTransactionType": {
         "type": "string",
         "enum": ["buy", "sell", "transfer_in", "transfer_out"]
+      },
+      "Currencies": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Currency"
+            }
+          }
+        }
+      },
+      "Currency": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "CurrencyRate": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "rate_usd": {
+            "type": "string"
+          }
+        }
       }
     },
     "securitySchemes": {
