@@ -8,13 +8,11 @@ import compression from "compression";
 import { ErrorType } from "../enums/error";
 import middlewares from "../api/middlewares";
 import ErrorService from "../services/error";
-import Logger from "./logger";
 import ERROR_MESSAGES from "../constants/error-messages";
 import swaggerUi from "swagger-ui-express";
 import swaggerJson from "../config/swagger.json";
 
 export default async (app: ExpressApplication) => {
-  app.enable("trust proxy");
   app.use(morgan("dev"));
   app.use(compression());
   app.use(cors());
