@@ -1,10 +1,14 @@
-import express from "express";
+import { Application as ExpressApplication } from "express";
 import expressLoader from "./express";
-import dbDataLoader from "./seed-db";
-import postgresLoader from "./postgres";
+import dbInitializer from "./seed-db";
+//import "./events";
+import jobsLoader from "./job-scheduler";
+import socketLoader from "./socket";
+import { Server as HTTPServer } from "http";
 
-export default async ({ expressApp }: { expressApp: express.Application }) => {
-  await postgresLoader.connectToDb();
-  await dbDataLoader();
-  await expressLoader({ app: expressApp });
+export default async (app: ExpressApplication, server: HTTPServer) => {
+  await dbInitializer();
+  socketLoader(server);
+  await expressLoader(app);
+  //await jobsLoader();
 };

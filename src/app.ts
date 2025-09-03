@@ -1,17 +1,27 @@
 import config from "./config";
 import express from "express";
+import Logger from "./loaders/logger";
+import http from "http";
 
-async function startServer() {
+function startServer() {
   const app = express();
+  const server = http.createServer(app);
 
-  await require("./loaders").default({ expressApp: app });
-
-  app
-    .listen(config.port, () => {
-      console.log(`Server running on port ${config.port}`);
+  require("./loaders")
+    .default(app, server)
+    .then(() => {
+      server
+        .listen(config.port, () => {
+          Logger.info(`Server running on port ${config.port}`);
+        })
+        .on("error", (err) => {
+          Logger.error(`Server failed to start ${config.port}`);
+          Logger.error(err.message);
+          process.exit(1);
+        });
     })
-    .on("error", (err) => {
-      console.log(`Server failed to start on port ${config.port}`);
+    .catch(() => {
+      Logger.error(`Server failed to start ${config.port}`);
       process.exit(1);
     });
 }

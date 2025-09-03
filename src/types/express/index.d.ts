@@ -1,4 +1,3 @@
-import { Document, Model } from "mongoose";
 import { IRequestUser } from "../../interfaces/IUser";
 
 declare global {
@@ -7,9 +6,5 @@ declare global {
     export interface Request {
       user?: IRequestUser;
     }
-  }
-
-  interface Error {
-    status: number;
   }
 }

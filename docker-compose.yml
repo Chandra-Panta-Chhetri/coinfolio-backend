@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  coinfolio-api:
+    container_name: api
+    restart: always
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+      - 9229:9229
+    depends_on:
+      - db
+    volumes:
+    - ./src:/usr/src/app/src
+    - ./.env:/usr/src/app/.env
+    - ./package.json:/usr/src/app/package.json
+    - ./tsconfig.json:/usr/src/app/tsconfig.json
+    - ./dist:/usr/src/app/dist
+  db:
+    container_name: db
+    image: postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - data:/data/db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+ 
+volumes: 
+ data: {}

@@ -1,0 +1,2287 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CoinFolio API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "user"
+    },
+    {
+      "name": "events"
+    },
+    {
+      "name": "news"
+    },
+    {
+      "name": "markets"
+    },
+    {
+      "name": "portfolio"
+    },
+    {
+      "name": "portfolio transaction"
+    },
+    {
+      "name": "currencies",
+      "description": "currencies prices can be displayed in"
+    }
+  ],
+  "paths": {
+    "/auth/user": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Retrieves a user from token",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Creates a new user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password", "name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Login using email and password",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Email or password is wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": ["events"],
+        "summary": "Retrieves a list of crypto events",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "max",
+            "in": "query",
+            "description": "maximum number of events to retrieve",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 75
+            }
+          },
+          {
+            "name": "dateRangeStart",
+            "in": "query",
+            "description": "start date of events in yyyy-mm-dd format",
+            "schema": {
+              "type": "string",
+              "pattern": "/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/"
+            }
+          },
+          {
+            "name": "dateRangeEnd",
+            "in": "query",
+            "description": "end date of events in yyyy-mm-dd format",
+            "schema": {
+              "type": "string",
+              "pattern": "/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/"
+            }
+          },
+          {
+            "name": "showOnly",
+            "in": "query",
+            "description": "filter events",
+            "schema": {
+              "type": "string",
+              "enum": ["hot_events", "trending_events", "significant_events"]
+            }
+          },
+          {
+            "name": "coins",
+            "in": "query",
+            "description": "comma separated list of coins to get events for",
+            "schema": {
+              "type": "string",
+              "pattern": "/^[a-z-A-Z]+(,[a-z-A-Z]+)*$/"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "sort events by one the following",
+            "schema": {
+              "type": "string",
+              "enum": ["hot_events", "trending_events", "significant_events"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news": {
+      "get": {
+        "tags": ["news"],
+        "summary": "Retrieves a list of crypto news",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "filter news",
+            "schema": {
+              "type": "string",
+              "enum": ["rising", "hot", "bullish", "bearish", "important"]
+            }
+          },
+          {
+            "name": "currencies",
+            "in": "query",
+            "description": "comma separated list of coins to get news for",
+            "schema": {
+              "type": "string",
+              "pattern": "/^[a-z-A-Z]+(,[a-z-A-Z]+)*$/"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "filter news by type",
+            "schema": {
+              "type": "string",
+              "enum": ["news", "media", "significant_events"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves cryptos",
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "sort cryptos",
+            "schema": {
+              "type": "string",
+              "enum": ["rank", "name", "priceUsd", "marketCapUsd", "volumeUsd24Hr", "changePercent24Hr"]
+            },
+            "required": true
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "order to sort cryptos by",
+            "schema": {
+              "type": "string",
+              "enum": ["ASC", "DESC"]
+            },
+            "required": true
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "number of cryptos per page",
+            "schema": {
+              "type": "number",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "required": true
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/summary": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves global market summary",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketSummaryDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/top-coins": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves cryptos sorted by highest market cap",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of top cryptos to get",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/gainers-losers": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves cryptos with the highest price increase & decrease",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of cryptos to get (same number of gainers & losers)",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketGainersLosersDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/search": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves cryptos by keyword(s)",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "keyword(s) to filter cryptos",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchAssetsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/{id}/about": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves details about an asset such as description",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of asset",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetAboutDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/{id}/overview": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves overview of an asset such as price history and statistics",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of asset",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOverviewDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets/{id}/exchanges": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Retrieves exchanges an asset can be traded on",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of asset",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "number of exchanges to show per page",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetExchangesDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios": {
+      "get": {
+        "tags": ["portfolio"],
+        "summary": "Retrieves a list of portfolios",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfoliosDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["portfolio"],
+        "summary": "Creates a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string"
+                  }
+                },
+                "required": ["nickname"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/{id}": {
+      "get": {
+        "tags": ["portfolio"],
+        "summary": "Retrieves portfolio by id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["portfolio"],
+        "summary": "Updates a portfolio with id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["portfolio"],
+        "summary": "Deletes a portfolio with id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/{id}/overview": {
+      "get": {
+        "tags": ["portfolio"],
+        "summary": "Retrieves overview of a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/supported-coins": {
+      "get": {
+        "tags": ["portfolio"],
+        "summary": "Retrieves coins that can be tracked",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of coins to show",
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "filter coins by symbol or name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchAssetsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/{id}/holdings/{coinId}/overview": {
+      "get": {
+        "tags": ["portfolio"],
+        "summary": "Overview of a holding in a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "coinId",
+            "in": "path",
+            "description": "id of coin",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioHoldingOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Portfolio not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/{portfolioId}/transactions": {
+      "get": {
+        "tags": ["portfolio transaction"],
+        "summary": "Retrieves transactions for a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "coinId",
+            "in": "query",
+            "description": "filter by crypto (from market endpoints)",
+            "schema": {
+              "type": "string",
+              "example": "bitcoin"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "filter by type",
+            "schema": {
+              "$ref": "#/components/schemas/PTransactionType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PTransactionDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["portfolio transaction"],
+        "summary": "Deletes transactions in a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "coinId",
+            "in": "query",
+            "description": "id of crypto to delete transactions for",
+            "schema": {
+              "type": "string",
+              "example": "bitcoin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PTransactionDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["portfolio transaction"],
+        "summary": "Add a transaction to a portfolio",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "maximum": 255
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/PTransactionType"
+                  },
+                  "quantity": {
+                    "type": "string"
+                  },
+                  "pricePer": {
+                    "type": "string"
+                  },
+                  "coinId": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currencyCode": {
+                    "type": "string"
+                  }
+                },
+                "required": ["coinId", "type", "quantity"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PTransactionDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/portfolios/{portfolioId}/transactions/{id}": {
+      "get": {
+        "tags": ["portfolio transaction"],
+        "summary": "Retrieves transaction with id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of transaction",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PTransactionDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["portfolio transaction"],
+        "summary": "Deletes transaction with id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of transaction",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PTransactionDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["portfolio transaction"],
+        "summary": "Updates transaction with id",
+        "security": [
+          {
+            "token_auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "portfolioId",
+            "in": "path",
+            "description": "id of portfolio",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of transaction",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "maximum": 255
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/PTransactionType"
+                  },
+                  "quantity": {
+                    "type": "string"
+                  },
+                  "pricePer": {
+                    "type": "string"
+                  },
+                  "coinId": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "currencyCode": {
+                    "type": "string"
+                  }
+                },
+                "required": ["coinId", "type", "quantity"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PTransactionDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized or not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies": {
+      "get": {
+        "tags": ["currencies"],
+        "summary": "Retrieves a list of currencies",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "number of currencies per page",
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Currencies"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies/{currencyCode}": {
+      "get": {
+        "tags": ["currencies"],
+        "summary": "Retrieves a currency with its rate",
+        "parameters": [
+          {
+            "name": "currencyCode",
+            "in": "path",
+            "description": "currency code (e.g. 'CAD')",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyRate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "UserDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT"
+          }
+        }
+      },
+      "EventsDTO": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "max": {
+                "type": "number"
+              },
+              "page": {
+                "type": "number"
+              },
+              "page_count": {
+                "type": "number"
+              },
+              "total_count": {
+                "type": "number"
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "can_occur_before": {
+                  "type": "boolean"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "coins": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "fullname": {
+                        "type": "string"
+                      },
+                      "iconURL": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "proof": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NewsDTO": {
+        "type": "object",
+        "properties": {
+          "totalResults": {
+            "type": "number"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "published": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "MarketsDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketAssetDTO"
+            }
+          }
+        }
+      },
+      "MarketAssetDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "string"
+          },
+          "changePercent24Hr": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "string"
+          },
+          "marketCap": {
+            "type": "string"
+          }
+        }
+      },
+      "MarketSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "totalMarketCap": {
+            "$ref": "#/components/schemas/LabelValue"
+          },
+          "volume24hr": {
+            "$ref": "#/components/schemas/LabelValue"
+          },
+          "numExchanges": {
+            "$ref": "#/components/schemas/LabelValue"
+          },
+          "numAssets": {
+            "$ref": "#/components/schemas/LabelValue"
+          },
+          "btcDom": {
+            "$ref": "#/components/schemas/LabelValue"
+          },
+          "ethDom": {
+            "$ref": "#/components/schemas/LabelValue"
+          }
+        }
+      },
+      "LabelValue": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "MarketGainersLosersDTO": {
+        "type": "object",
+        "properties": {
+          "gainers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketAssetDTO"
+            }
+          },
+          "losers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketAssetDTO"
+            }
+          }
+        }
+      },
+      "SearchAssetsDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchAssetDTO"
+            }
+          }
+        }
+      },
+      "SearchAssetDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "AssetAboutDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "links": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "stats": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AssetExchangesDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetExchangeDTO"
+            }
+          }
+        }
+      },
+      "AssetExchangeDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "string"
+          },
+          "vol24h": {
+            "type": "string"
+          },
+          "pair": {
+            "type": "string"
+          }
+        }
+      },
+      "AssetOverviewDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "string"
+          },
+          "priceHistory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PriceHistoryDTO"
+            }
+          },
+          "statistics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatisticsSection"
+            }
+          }
+        }
+      },
+      "PriceHistoryDTO": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "prices": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Price"
+                }
+              },
+              "percentChange": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "Price": {
+        "type": "object",
+        "properties": {
+          "priceUsd": {
+            "type": "string"
+          },
+          "time": {
+            "type": "number"
+          }
+        }
+      },
+      "StatisticsSection": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LabelValue"
+            }
+          }
+        }
+      },
+      "PortfoliosDTO": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortfolioDTO"
+            }
+          }
+        }
+      },
+      "PortfolioDTO": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          }
+        }
+      },
+      "PortfolioHoldingDTO": {
+        "type": "object",
+        "properties": {
+          "totalCost": {
+            "type": "string"
+          },
+          "coinId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "priceUSD": {
+            "$ref": "#/components/schemas/ValueAndPercent"
+          },
+          "profitLoss": {
+            "$ref": "#/components/schemas/ValueAndPercent"
+          },
+          "totalValue": {
+            "type": "string"
+          },
+          "avgCost": {
+            "type": "string"
+          },
+          "coinSymbol": {
+            "type": "string"
+          },
+          "coinName": {
+            "type": "string"
+          },
+          "coinURL": {
+            "type": "string"
+          }
+        }
+      },
+      "PortfolioPieChartDTO": {
+        "type": "object",
+        "properties": {
+          "coinId": {
+            "type": "string"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "coinSymbol": {
+            "type": "string"
+          },
+          "coinName": {
+            "type": "string"
+          },
+          "totalValue": {
+            "type": "number"
+          }
+        }
+      },
+      "PortfolioHoldingOverview": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/PortfolioHoldingDTO"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PTransactionDTO"
+            }
+          }
+        }
+      },
+      "PortfolioOverview": {
+        "type": "object",
+        "properties": {
+          "holdings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortfolioHoldingDTO"
+            }
+          },
+          "pieCharts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortfolioPieChartDTO"
+            }
+          },
+          "totalValue": {
+            "type": "number"
+          },
+          "totalProfitLoss": {
+            "$ref": "#/components/schemas/ValueAndPercent"
+          },
+          "totalCost": {
+            "type": "number"
+          }
+        }
+      },
+      "ValueAndPercent": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "percentChange": {
+            "type": "string"
+          }
+        }
+      },
+      "PTransactionDTO": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "number"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PTransactionType"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "pricePer": {
+            "type": "string",
+            "nullable": true
+          },
+          "coinId": {
+            "type": "string"
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "usdRate": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PTransactionType": {
+        "type": "string",
+        "enum": ["buy", "sell", "transfer_in", "transfer_out"]
+      },
+      "Currencies": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Currency"
+            }
+          }
+        }
+      },
+      "Currency": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "CurrencyRate": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "coincap_id": {
+            "type": "string"
+          },
+          "currency_symbol": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "rate_usd": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "token_auth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-Token",
+        "description": "Token from /auth/register or /auth/login"
+      }
+    }
+  }
+}

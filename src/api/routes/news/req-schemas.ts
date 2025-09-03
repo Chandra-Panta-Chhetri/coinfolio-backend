@@ -1,0 +1,27 @@
+import { Joi, Segments } from "celebrate";
+import REGEXES from "../../../constants/regexes";
+
+export interface IGetNewsQuery {
+  filter?: string;
+  currencies?: string;
+  kind?: string;
+  page?: number;
+}
+
+export const GET_NEWS = {
+  [Segments.QUERY]: Joi.object().keys({
+    filter: Joi.string().valid("rising", "hot", "bullish", "bearish", "important").messages({
+      "any.only": "filter must be 'rising' | 'hot' | 'bullish' | 'bearish' | 'important'"
+    }),
+    currencies: Joi.string().pattern(REGEXES.COMMA_SEPARATED).messages({
+      "string.pattern.base": "currencies must be comma separated values"
+    }),
+    kind: Joi.string().valid("news", "media").messages({
+      "any.only": "kind must be 'news' | 'media'"
+    }),
+    page: Joi.number().default(1).min(1).messages({
+      "number.min": "page must be greater than 0",
+      "number.base": "page must be a number"
+    })
+  })
+};
